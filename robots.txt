@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 
 # 百度、必应、谷歌、360、搜狗均允许抓取
-Sitemap: https://bfykk.github.io/sitemap.xml
+Sitemap: https://lyjsw.dpdns.org/sitemap.xml
