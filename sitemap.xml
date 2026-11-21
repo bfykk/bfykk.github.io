@@ -1,9 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://lyjsw.dpdns.org/</loc>
-    <lastmod>2026-11-22</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+<url><loc>https://lyjsw.dpdns.org/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/tahoe.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/sequoia.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/sonoma.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/ventura.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/monterey.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/big-sur.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/catalina.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/mojave.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/high-sierra.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/opencore.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/ocat.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/propertree.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/gibmacos.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/gensmbios.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/ssdttime.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/usbmap.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/hackintool.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/maciasl.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/lilu.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/oclp.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/itlwm.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 </urlset>

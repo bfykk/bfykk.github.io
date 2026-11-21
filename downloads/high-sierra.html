@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>macOS High Sierra 10.13.6 下载与安装要点</title>
+<meta name="description" content="macOS High Sierra 10.13.6 安装包获取方式，NVIDIA Web Driver 配置、SIP 关闭与老主板引导要点。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/downloads/high-sierra.html">
+<meta property="og:title" content="macOS High Sierra 10.13.6 下载与安装要点">
+<meta property="og:description" content="macOS High Sierra 10.13.6 安装包获取方式，NVIDIA Web Driver 配置、SIP 关闭与老主板引导要点。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://lyjsw.dpdns.org/downloads/high-sierra.html">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"macOS High Sierra 10.13.6 下载与安装要点","description":"macOS High Sierra 10.13.6 安装包获取方式，NVIDIA Web Driver 配置、SIP 关闭与老主板引导要点。","url":"https://lyjsw.dpdns.org/downloads/high-sierra.html","inLanguage":"zh-CN","author":{"@type":"Organization","name":"冷月技术网"},"publisher":{"@type":"Organization","name":"冷月技术网"},"isPartOf":{"@type":"WebSite","name":"冷月技术网","url":"https://lyjsw.dpdns.org/"}}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html#top"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html#top">主页</a>
+      <a href="../index.html#works">案例</a>
+      <a href="../index.html#downloads">系统下载</a>
+      <a href="../index.html#tools">工具下载</a>
+      <a href="../index.html#contact">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main class="page">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html#downloads">系统下载</a><span>/</span><span>macOS High Sierra 10.13.6</span></div>
+    <h1>macOS High Sierra 10.13.6</h1>
+    <div class="page-meta"><span class="chip">10.13.6</span><span class="chip">约 5 GB</span><span class="chip">Intel</span><span class="chip">最低版</span></div>
+    <div class="prose">
+<p>10.13.6 是 <b>NVIDIA Web Driver 最后支持的版本</b>。手里的 GTX 1050 / 1060 / 1080 想用上独显加速，只能停在这一点。它也是整个系列里门槛最低的一代。</p>
+<h2>适合谁</h2>
+<ul>
+<li>NVIDIA Pascal / Maxwell 用户，必须要独显驱动</li>
+<li>2–4 代 Intel 老平台</li>
+<li>只需要一个能跑起来的工作环境</li>
+</ul>
+<h2>安装要点</h2>
+<ol>
+<li>Web Driver 的版本号必须和系统 build 严格对应，build 差一位就装不上。</li>
+<li>必须关闭 SIP，CsrActiveConfig 设为 0x67 是常见配置。</li>
+<li>老主板用 AptioMemoryFix 或 OsxAptioFix3Drv，选错会卡在 + 号。</li>
+<li>这一代不支持 NVMe 原生启动的部分老硬盘，需要额外的 NVMe 补丁。</li>
+</ol>
+<h2>下载</h2>
+<p>Apple 已彻底下架这一代安装器，gibMacOS 的 catalog 里基本取不到。只能通过 App Store 的历史购买记录，或使用你手上保留的原版 dmg / 安装 App。</p>
+<div class="note">如果只是为了跑老软件，先确认是不是真的需要 10.13.6 —— 很多场景 10.15 更合适，也没有 Web Driver 的麻烦。</div>
+    </div>
+    <div class="pagenav"><a href="mojave.html">← macOS Mojave 10.14</a><a href="../index.html#downloads">全部版本</a></div>
+    <div class="page-cta">
+      <p>机型不确定能不能装？把 <b>型号 / CPU / 无线网卡</b> 发过来，先判断可行性，再谈方案。</p>
+      <div class="hero-actions" style="margin:0">
+        <a class="btn btn-primary" href="tencent://message/?uin=1102962755">QQ 1102962755</a>
+        <a class="btn btn-ghost" href="https://lyjsw.taobao.com" target="_blank" rel="noopener">淘宝店铺</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="wrap foot-in">
+    <div class="l"><i class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></i><b>冷月技术网</b><span>· 重庆</span></div>
+    <div>© 2026 冷月技术网 · Built for the machines that shouldn't work</div>
+  </div>
+</footer>
+<script>(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  var stored = null;
+  try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    sun.style.display = dark ? 'block' : 'none';
+    moon.style.display = dark ? 'none' : 'block';
+  }
+  function sys(){ return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  apply(stored || sys());
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+  var mq = window.matchMedia('(prefers-color-scheme: light)');
+  if(mq.addEventListener) mq.addEventListener('change', function(){ if(!stored) apply(sys()); });
+})();</script>
+</body>
+</html>
