@@ -38,7 +38,7 @@
   --nav:rgba(244,247,250,.78);
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
 body{
   font-family:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
   background:var(--bg); color:var(--text); line-height:1.7;
@@ -243,6 +243,7 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
 .pager button.active{background:var(--accent);color:#fff;border-color:transparent;cursor:default}
 .pager button:disabled{opacity:.32;cursor:not-allowed}
 .pg-item.pg-hide{display:none}
+.pg-tip{text-align:center;margin-top:13px;font-size:12.5px;color:var(--text-mute);letter-spacing:.2px}
 </style>
 <script type="application/ld+json">
 {
@@ -510,6 +511,7 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
       </div>
     </div>
     <div class="pager" id="dlPager"></div>
+    <p class="pg-tip">这一页的地址可以直接复制分享，重新打开会停在同一页</p>
 
     <div class="posts reveal" style="margin-top:26px">
       <div class="big">镜像都从 Apple 服务器直取</div>
@@ -626,6 +628,7 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
       </div>
     </div>
     <div class="pager" id="toolPager"></div>
+    <p class="pg-tip">这一页的地址可以直接复制分享，重新打开会停在同一页</p>
 
     <div class="posts reveal" style="margin-top:26px">
       <div class="big">只做索引，不做二次分发</div>
@@ -714,18 +717,32 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
   els.forEach(function(e){ io.observe(e); });
 })();
 
-/* ===== 分页 ===== */
+/* ===== 分页（页码进地址栏，可分享 / 可刷新还原） ===== */
 (function(){
-  function init(listId, pagerId, size){
+  function init(listId, pagerId, size, prefix, sectionId){
     var list = document.getElementById(listId), pager = document.getElementById(pagerId);
     if(!list || !pager) return;
     var items = [].slice.call(list.querySelectorAll('.pg-item'));
     var total = Math.ceil(items.length / size), cur = 1;
     if(total <= 1) return;
+    var re = new RegExp('^#' + prefix + '-(\\d+)$');
+
+    function readHash(){
+      var m = (location.hash || '').match(re);
+      if(!m) return null;
+      var n = parseInt(m[1], 10);
+      return (n >= 1 && n <= total) ? n : null;
+    }
     function show(){
       items.forEach(function(it, i){
         it.classList.toggle('pg-hide', Math.floor(i / size) + 1 !== cur);
       });
+    }
+    function go(n){
+      if(!n || n === cur || n < 1 || n > total) return;
+      cur = n; show(); build();
+      var h = '#' + prefix + '-' + n;
+      if(location.hash !== h) history.replaceState(null, '', h);
     }
     function build(){
       pager.innerHTML = '';
@@ -735,19 +752,30 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
         b.textContent = label;
         if(active) b.className = 'active';
         if(disabled) b.disabled = true;
-        b.addEventListener('click', function(){
-          if(!disabled && page !== cur){ cur = page; show(); build(); }
-        });
+        b.addEventListener('click', function(){ if(!disabled) go(page); });
         pager.appendChild(b);
       }
       mk('‹', cur - 1, cur === 1, false);
       for(var i = 1; i <= total; i++) mk(String(i), i, false, i === cur);
       mk('›', cur + 1, cur === total, false);
     }
+    function jumpTop(){
+      var sec = document.getElementById(sectionId);
+      if(sec) sec.scrollIntoView({block: 'start'});
+    }
+
+    var p0 = readHash();
+    if(p0) cur = p0;
     show(); build();
+    if(p0) setTimeout(jumpTop, 90);
+
+    window.addEventListener('hashchange', function(){
+      var p = readHash();
+      if(p && p !== cur){ cur = p; show(); build(); jumpTop(); }
+    });
   }
-  init('dlList', 'dlPager', 6);
-  init('toolList', 'toolPager', 6);
+  init('dlList', 'dlPager', 6, 'dl', 'downloads');
+  init('toolList', 'toolPager', 6, 'tools', 'tools');
 })();
 </script>
 </body>
