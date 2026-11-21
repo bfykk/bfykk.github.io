@@ -233,7 +233,7 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
 .crumb{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--text-mute);margin-bottom:20px}
 .crumb a{color:var(--text-sub)}
 .crumb a:hover{color:var(--accent)}
-.page h1{font-size:clamp(27px,4.2vw,46px);font-weight:800;letter-spacing:-1px;line-height:1.16}
+.page h1{font-size:clamp(27px,4.2vw,46px);font-weight:800;letter-spacing:-1px;line-height:1.16;color:var(--text);margin:0}
 .page-meta{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 32px}
 .prose{max-width:760px;color:var(--text-sub);font-size:16px;line-height:1.85}
 .prose p{margin:0 0 16px}
