@@ -168,10 +168,13 @@ h3{font-size:17.5px;font-weight:700;letter-spacing:-.2px;margin-bottom:9px}
   color:var(--accent);border:1px solid var(--border-strong);white-space:nowrap;font-weight:600}
 .work p{font-size:13.5px;color:var(--text-sub);margin:0;flex:1}
 
-/* 文章空态 */
+/* 下载声明卡 */
 .posts{border:1px dashed var(--border);border-radius:20px;padding:56px 40px;text-align:center;background:var(--card)}
 .posts .big{font-size:15px;font-weight:600;margin-bottom:8px}
 .posts .small{font-size:13.5px;color:var(--text-mute);max-width:460px;margin:0 auto}
+.dllink{margin-top:14px;font-size:12.5px;font-weight:600;color:var(--accent);display:inline-flex;align-items:center;gap:6px;
+  font-family:"JetBrains Mono",monospace;letter-spacing:.2px;transition:.24s}
+.dllink:hover{color:var(--accent-2);transform:translateX(2px)}
 .timeline-note{display:inline-flex;align-items:center;gap:8px;margin-top:20px;font-size:12px;color:var(--text-mute);
   font-family:"JetBrains Mono",monospace;padding:6px 13px;border-radius:8px;background:var(--bg-soft);border:1px solid var(--border)}
 
@@ -258,7 +261,7 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
     <nav class="menu">
       <a href="#services">服务</a>
       <a href="#works">作品</a>
-      <a href="#posts">文章</a>
+      <a href="#downloads">系统下载</a>
       <a href="#about">关于</a>
       <a href="#contact">联系</a>
     </nav>
@@ -427,19 +430,49 @@ footer{border-top:1px solid var(--border);padding:44px 0 54px;margin-top:96px}
   </div>
 </section>
 
-<!-- ===== 文章 ===== -->
-<section id="posts">
+<!-- ===== 系统下载 ===== -->
+<section id="downloads">
   <div class="wrap">
     <div class="sec-head reveal">
-      <div class="eyebrow">Notes</div>
-      <h2>技术笔记</h2>
-      <p class="sec-desc">把踩过的坑写下来 —— 参数怎么来的、为什么这么配、换了硬件会怎样。</p>
+      <div class="eyebrow">Downloads</div>
+      <h2>系统下载</h2>
+      <p class="sec-desc">macOS 原版安装镜像的获取途径。只走 Apple 官方渠道与开源工具，不转第三方魔改包 —— 黑苹果最怕的就是来路不明的镜像。</p>
     </div>
 
-    <div class="posts reveal">
-      <div class="big">笔记正在重新整理</div>
-      <div class="small">历史文章（2014–2023）已本地备份，将按机型与主题重新归档上线。第一批会先放 13 代笔记本的实战记录。</div>
-      <div class="timeline-note">rebuilding · topo in progress</div>
+    <div class="works">
+      <div class="work reveal">
+        <div class="work-top"><h3>macOS Tahoe 26</h3><span class="badge">最新</span></div>
+        <p>最新正式版，Intel 机型最后一代官方支持。AMD 平台需要搭配对应的内核补丁才能上。</p>
+        <div class="chips"><span class="chip">26.x</span><span class="chip">约 14 GB</span><span class="chip">Intel / AMD</span></div>
+        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
+      </div>
+
+      <div class="work reveal">
+        <div class="work-top"><h3>macOS Sequoia 15</h3><span class="badge">稳定</span></div>
+        <p>目前黑苹果最成熟的一代，13 代笔记本上驱动组合齐全，踩坑资料最多。</p>
+        <div class="chips"><span class="chip">15.x</span><span class="chip">约 13 GB</span><span class="chip">Intel / AMD</span></div>
+        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
+      </div>
+
+      <div class="work reveal">
+        <div class="work-top"><h3>macOS Sonoma 14</h3><span class="badge">兼容好</span></div>
+        <p>老平台友好，无线网卡与触控板的补丁方案成熟，适合折腾轻度使用的机器。</p>
+        <div class="chips"><span class="chip">14.x</span><span class="chip">约 12 GB</span><span class="chip">Intel / AMD</span></div>
+        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
+      </div>
+
+      <div class="work reveal">
+        <div class="work-top"><h3>macOS Ventura 13</h3><span class="badge">老机型</span></div>
+        <p>对早期平台和部分无线网卡更宽容，硬件限制多的机器可以先从这一代验证。</p>
+        <div class="chips"><span class="chip">13.x</span><span class="chip">约 12 GB</span><span class="chip">Intel / AMD</span></div>
+        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
+      </div>
+    </div>
+
+    <div class="posts reveal" style="margin-top:22px">
+      <div class="big">镜像都从 Apple 服务器直取</div>
+      <div class="small">上述版本通过开源工具 gibMacOS 从 Apple 官方服务器下载完整安装器，不含任何第三方修改。装机前请先确认机型兼容性，需要帮你判断可以直接联系。</div>
+      <div class="timeline-note">official source · no modified image</div>
     </div>
   </div>
 </section>
