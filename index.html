@@ -479,11 +479,13 @@
 /* ===== 滚动进场 ===== */
 (function(){
   var els = document.querySelectorAll('.reveal');
+  var ioWorks = false;
   if(!('IntersectionObserver' in window)){
     els.forEach(function(e){ e.classList.add('in'); });
     return;
   }
   var io = new IntersectionObserver(function(entries){
+    ioWorks = true;
     entries.forEach(function(en){
       if(en.isIntersecting){
         en.target.classList.add('in');
@@ -492,6 +494,11 @@
     });
   }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
   els.forEach(function(e){ io.observe(e); });
+
+  /* 兜底：1.2s 后把还没进场的内容全部显示，避免任何环境下整页空白 */
+  setTimeout(function(){
+    els.forEach(function(e){ e.classList.add('in'); });
+  }, 1200);
 })();
 
 /* ===== 分页（页码进地址栏，可分享 / 可刷新还原） ===== */
