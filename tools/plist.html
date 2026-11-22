@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>plist 在线查看与编辑 XML/二进制</title>
+<meta name="description" content="浏览器里打开 XML 或二进制 plist，树状查看、改值、增删键、导出 XML。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/tools/plist.html">
+<meta property="og:title" content="plist 在线查看与编辑 XML/二进制">
+<meta property="og:description" content="浏览器里打开 XML 或二进制 plist，树状查看、改值、增删键、导出 XML。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://lyjsw.dpdns.org/tools/plist.html">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"plist 在线查看与编辑 XML/二进制","description":"浏览器里打开 XML 或二进制 plist，树状查看、改值、增删键、导出 XML。","url":"https://lyjsw.dpdns.org/tools/plist.html","inLanguage":"zh-CN","author":{"@type":"Organization","name":"冷月技术网"},"publisher":{"@type":"Organization","name":"冷月技术网"},"isPartOf":{"@type":"WebSite","name":"冷月技术网","url":"https://lyjsw.dpdns.org/"}}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a>
+      <a href="../works/index.html">案例</a>
+      <a href="../downloads/index.html">系统下载</a>
+      <a href="../tools/index.html">工具下载</a>
+      <a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main class="page">
+  <div class="wrap">
+    <div class="crumb"><a href="../tools/index.html">工具下载</a><span>/</span><span>plist 查看与编辑器</span></div>
+    <h1>plist 查看与编辑器</h1>
+    <div class="page-meta"><span class="chip">本站可用</span></div>
+    <div class="prose">
+<p>客户发来一个二进制 plist，手上又没有 macOS，装个编辑器只为看一眼很麻烦。这个页面直接在浏览器里解决。</p>
+<h2>能做什么</h2>
+<ul>
+<li>XML plist 与二进制（bplist）都能打开，二进制自动转换成可编辑的树</li>
+<li>树状展开，任意层级直接改值</li>
+<li>增删键、增删数组项</li>
+<li>导出标准 XML，可直接放回 EFI</li>
+</ul>
+<h2>怎么用</h2>
+<ol>
+<li>拖入 plist 文件，或粘贴 XML 文本</li>
+<li>点开对应节点修改，注意类型（integer 与 string 不能混）</li>
+<li>点「导出 XML」，下载后放回原位置</li>
+</ol>
+<p>文件只在浏览器内存里处理，不上传服务器。编辑完仍建议用 ProperTree 复核一次。</p>
+<p style="margin-top:26px"><a class="btn btn-primary" href="/plist/">打开工具 →</a></p>
+    </div>
+    <div class="pagenav"><a href="boot-args.html">← boot-args</a><a href="../tools/index.html">全部工具</a><a href="opencore.html">OpenCore →</a></div>
+    <div class="page-cta">
+      <p>工具只能给方向，具体到你这台机器还得看实际 ioreg 与 EFI。把 <b>机型 / CPU / 网卡</b> 发过来，先判断可行性。</p>
+      <div class="hero-actions" style="margin:0">
+        <a class="btn btn-primary" href="tencent://message/?uin=1102962755">QQ 1102962755</a>
+        <a class="btn btn-ghost" href="https://lyjsw.taobao.com" target="_blank" rel="noopener">淘宝店铺</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="wrap foot-in">
+    <div class="l"><i class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></i><b>冷月技术网</b><span>· 重庆</span></div>
+    <div>© 2026 冷月技术网 · Built for the machines that shouldn't work</div>
+  </div>
+</footer>
+<script>(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  var stored = null;
+  try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    sun.style.display = dark ? 'block' : 'none';
+    moon.style.display = dark ? 'none' : 'block';
+  }
+  function sys(){ return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  apply(stored || sys());
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+  var mq = window.matchMedia('(prefers-color-scheme: light)');
+  if(mq.addEventListener) mq.addEventListener('change', function(){ if(!stored) apply(sys()); });
+})();</script>
+</body>
+</html>

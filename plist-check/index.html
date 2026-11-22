@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>config.plist 在线体检 OpenCore 配置检查 - 冷月技术网</title>
+<meta name="description" content="上传或粘贴 OpenCore 的 config.plist，浏览器内解析并检查必需键、kext 加载顺序、Quirks 冲突、drivers 缺失、SMBIOS 与 boot-args，按严重程度给出修改建议。不上传任何数据。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/plist-check/">
+<meta property="og:title" content="config.plist 在线体检 - 冷月技术网">
+<meta property="og:description" content="浏览器内检查 OpenCore config.plist 的常见错误与风险项。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyjsw.dpdns.org/plist-check/">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.lab{padding:96px 0 70px;min-height:100vh}
+.lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
+.lab .lead{color:var(--text-sub);font-size:15px;max-width:780px}
+.panel{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.panel label{display:block;font-size:13px;color:var(--text-mute);margin-bottom:9px}
+textarea{width:100%;min-height:190px;resize:vertical;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);
+  border-radius:12px;padding:14px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:12px;line-height:1.6;outline:none}
+textarea:focus{border-color:var(--border-strong)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.btn{cursor:pointer;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;border:1px solid transparent;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--text-sub);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
+.tip{font-size:12.5px;color:var(--text-mute);margin-top:10px;line-height:1.7}
+.tip code{background:var(--bg-soft);padding:2px 6px;border-radius:5px;font-size:12px}
+.res{margin-top:26px}
+.score{display:flex;gap:12px;flex-wrap:wrap}
+.sbox{flex:1 1 150px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.sbox .k{font-size:12px;color:var(--text-mute)}
+.sbox .v{font-size:22px;font-weight:800;margin-top:2px}
+.v.bad{color:#f87171}.v.warn{color:#fbbf24}.v.ok{color:#34d399}
+.it{background:var(--card);border:1px solid var(--border);border-left-width:4px;border-radius:12px;padding:14px 16px;margin-top:12px}
+.it.error{border-left-color:#f87171}
+.it.warn{border-left-color:#fbbf24}
+.it.info{border-left-color:#38bdf8}
+.it.ok{border-left-color:#34d399}
+.it h3{font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.it .lv{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid currentColor;font-weight:700}
+.it.error .lv{color:#f87171}.it.warn .lv{color:#fbbf24}.it.info .lv{color:#38bdf8}.it.ok .lv{color:#34d399}
+.it p{font-size:13.5px;color:var(--text-sub);margin-top:7px}
+.it .fix{font-size:13px;margin-top:8px;color:var(--text);background:var(--bg-soft);padding:8px 11px;border-radius:8px}
+.it .fix b{color:var(--accent)}
+details{margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+summary{cursor:pointer;font-size:14px;color:var(--text-sub)}
+pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;max-height:300px;font-family:"JetBrains Mono",monospace}
+.foot-cta{margin-top:32px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
+.foot-cta a{color:var(--accent);font-weight:600}
+@media(max-width:640px){.lab{padding:86px 0 50px}.lab h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a>
+      <a href="../works/index.html">案例</a>
+      <a href="../downloads/index.html">系统下载</a>
+      <a href="../tools/index.html">工具下载</a>
+      <a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="lab">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>config.plist 体检</span></div>
+    <h1>config.plist 在线体检</h1>
+    <p class="lead">把 OpenCore 的 config.plist 拖进来，当场检查顶层结构、kext 加载顺序、Quirks 冲突、驱动缺失、SMBIOS 与 boot-args。所有解析在浏览器本地完成，文件不会离开这台电脑。</p>
+
+    <div class="panel">
+      <label for="src">粘贴 config.plist 内容（XML 格式）</label>
+      <textarea id="src" placeholder="把 config.plist 用文本编辑器打开，整段粘进来；也可以点下面的「选择文件」直接选 plist。"></textarea>
+      <div class="row">
+        <button class="btn btn-primary" id="run">开始检查</button>
+        <button class="btn btn-ghost" id="pick">选择文件</button>
+        <input type="file" id="file" accept=".plist,.xml,text/plain" style="display:none">
+        <button class="btn btn-ghost" id="demo">载入一份最小示例</button>
+      </div>
+      <div class="tip">只支持 XML 格式的 plist（ProperTree / OCAT 默认保存就是这个）。如果是二进制 plist，先在 ProperTree 里另存为 XML。检查项参照 OpenCore 官方文档与 ocvalidate 的检查维度重新实现，<b>不能替代对应版本的 ocvalidate</b>。</div>
+    </div>
+
+    <div class="res" id="res"></div>
+
+    <div class="foot-cta">体检只能发现结构性问题，看不了「这个 Quirk 在你的主板上到底该不该开」。<a href="../contact/index.html">把 config.plist 和 ioreg 一起发过来</a>，可以按机型给你改。</div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  function apply(t){ root.setAttribute('data-theme', t); sun.style.display = t==='dark'?'none':'block'; moon.style.display = t==='dark'?'block':'none'; }
+  var stored; try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  apply(stored || 'dark');
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    apply(next); try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+})();
+
+var $ = function(s){ return document.querySelector(s); };
+
+// ===== plist(XML) -> JS =====
+function parsePlist(xml){
+  var doc = new DOMParser().parseFromString(xml, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error('XML 语法错误，无法解析');
+  var plist = doc.documentElement;
+  if (plist.nodeName !== 'plist') throw new Error('根节点不是 <plist>，这不像一份 config.plist');
+  var node = null;
+  for (var i=0;i<plist.childNodes.length;i++){
+    var c = plist.childNodes[i];
+    if (c.nodeType === 1){ node = c; break; }
+  }
+  if (!node) throw new Error('plist 里是空的');
+  return convert(node);
+}
+function convert(n){
+  var tag = n.nodeName;
+  if (tag === 'dict'){
+    var o = {};
+    var keys = [], vals = [];
+    for (var i=0;i<n.childNodes.length;i++){
+      var c = n.childNodes[i];
+      if (c.nodeType !== 1) continue;
+      if (c.nodeName === 'key') keys.push((c.textContent||'').trim());
+      else vals.push(c);
+    }
+    for (var k=0;k<keys.length;k++){ if (vals[k]) o[keys[k]] = convert(vals[k]); }
+    return o;
+  }
+  if (tag === 'array'){
+    var a = [];
+    for (var j=0;j<n.childNodes.length;j++){ if (n.childNodes[j].nodeType===1) a.push(convert(n.childNodes[j])); }
+    return a;
+  }
+  if (tag === 'true') return true;
+  if (tag === 'false') return false;
+  if (tag === 'integer') return parseInt((n.textContent||'0').trim(), 10);
+  if (tag === 'real') return parseFloat((n.textContent||'0').trim());
+  if (tag === 'string') return n.textContent || '';
+  if (tag === 'data') return '<data:' + ((n.textContent||'').replace(/\s+/g,'').length) + '>';
+  if (tag === 'date') return (n.textContent||'').trim();
+  return (n.textContent||'').trim();
+}
+function get(o, path){
+  var parts = path.split('.'), cur = o;
+  for (var i=0;i<parts.length;i++){
+    if (cur === null || typeof cur !== 'object') return undefined;
+    cur = cur[parts[i]];
+  }
+  return cur;
+}
+
+// ===== 检查规则 =====
+var issues = [];
+function add(level, title, detail, fix){ issues.push({level:level, title:title, detail:detail, fix:fix||''}); }
+function ok(title, detail){ issues.push({level:'ok', title:title, detail:detail||''}); }
+
+function check(cfg, rawText){
+  issues = [];
+  var TOP = ['ACPI','Booter','DeviceProperties','Kernel','Misc','NVRAM','PlatformInfo','UEFI'];
+
+  // 1 顶层结构
+  var missingTop = TOP.filter(function(k){ return typeof cfg[k] === 'undefined'; });
+  if (missingTop.length){
+    add('error', '缺少顶层区块：' + missingTop.join('、'),
+      'OpenCore 的 config.plist 必须有完整的八个顶层键，缺任何一个都可能导致引导直接失败或行为不确定。',
+      '用 ProperTree 打开 OC 目录执行 Clean Snapshot，或从对应版本的 Sample.plist 复制缺失区块。');
+  } else {
+    ok('顶层结构完整', '八个必需区块都在。');
+  }
+
+  // 2 Kernel.Add 顺序
+  var kadd = get(cfg, 'Kernel.Add') || [];
+  if (!Array.isArray(kadd) || !kadd.length){
+    add('warn', 'Kernel.Add 是空的', '没有任何 kext 被加载，除非你用别的注入方式，否则装不上系统。', '至少要有 Lilu、VirtualSMC、WhateverGreen。');
+  } else {
+    var enabled = kadd.filter(function(k){ return k && k.Enabled; });
+    var names = enabled.map(function(k){ return String(k.BundlePath||'').split('/')[0]; });
+    var first = names[0] || '';
+    if (!/^Lilu\.kext$/i.test(first)){
+      add('error', '第一个加载的不是 Lilu：' + (first || '空'),
+        'Lilu 是所有插件 kext 的宿主，必须排在第一位，否则 WhateverGreen / AppleALC 之类不会生效，常见现象是黑屏、无声、蓝牙不认。',
+        '把 Lilu.kext 的条目移到 Kernel.Add 的第一项，并确认 Enabled=true。');
+    } else {
+      ok('Lilu 顺序正确', 'Lilu 排在 Kernel.Add 第一位。');
+    }
+    if (!names.some(function(n){ return /VirtualSMC/i.test(n); })) add('warn','没有 VirtualSMC','缺少 VirtualSMC 会导致传感器、SMC 相关功能异常，部分系统直接不启动。','加上 VirtualSMC.kext 及其 SMCProcessor / SMCSuperIO 插件。');
+    if (!names.some(function(n){ return /WhateverGreen/i.test(n); })) add('warn','没有 WhateverGreen','Intel / AMD 显卡加速与输出口修补都依赖它，缺了通常表现为无加速或外接屏黑屏。','加上 WhateverGreen.kext。');
+    if (!names.some(function(n){ return /AppleALC/i.test(n); })) add('info','没有 AppleALC','如果声卡走 USB 或你本来就不用内置音频，可以忽略。','需要内置声卡时加 AppleALC.kext 并在 DeviceProperties 注入 layout-id。');
+    // 重复条目
+    var dup = {}; names.forEach(function(n){ dup[n] = (dup[n]||0)+1; });
+    var dups = Object.keys(dup).filter(function(n){ return dup[n] > 1; });
+    if (dups.length) add('warn','kext 有重复条目：' + dups.join('、'), '同一个 kext 被列了两次，加载顺序和版本容易打架。','删掉重复项，只保留一个 Enabled 的条目。');
+  }
+
+  // 3 XhciPortLimit
+  if (get(cfg, 'Kernel.Quirks.XhciPortLimit') === true){
+    add('warn','XhciPortLimit 开着',
+      '这个 Quirk 在 macOS 11 之后已经失效，开着不会解锁 15 端口限制，反而可能带来别的问题。现代做法是生成 USBMap / USBPorts.kext 做端口映射。',
+      '关掉 XhciPortLimit，用本站的 USB 端口映射生成器产出 USBPorts.kext。');
+  } else if (get(cfg, 'Kernel.Quirks.XhciPortLimit') === false){
+    ok('XhciPortLimit 已关闭', '符合 macOS 11+ 的做法。');
+  }
+
+  // 4 UEFI.Drivers
+  var drivers = get(cfg, 'UEFI.Drivers') || [];
+  if (Array.isArray(drivers) && drivers.length){
+    var paths = drivers.map(function(d){
+      if (typeof d === 'string') return d;
+      return String((d && (d.Path || d.path)) || '');
+    });
+    if (!paths.some(function(p){ return /OpenRuntime\.efi/i.test(p); })){
+      add('error','UEFI.Drivers 里没有 OpenRuntime.efi',
+        'OpenCore 0.7 之后 OpenRuntime 必须作为驱动显式加载，否则 NVRAM、内存映射、关机重启都会出问题。',
+        '在 UEFI > Drivers 加 OpenRuntime.efi，并确认 Enabled=true、LoadEarly=false。');
+    } else ok('OpenRuntime.efi 在位', '运行时驱动已加载。');
+    if (!paths.some(function(p){ return /(HfsPlus|VBoxHfs)\.efi/i.test(p); })){
+      add('warn','没有 HFS+ 驱动',
+        '从 High Sierra 及更早系统、或需要读 HFS 分区时会认不到盘。',
+        '加 HfsPlus.efi（推荐）或 VBoxHfs.efi。');
+    }
+  } else {
+    add('error','UEFI.Drivers 是空的','没有驱动列表，OpenCore 连文件系统都挂不上。','至少加 OpenRuntime.efi 与 HfsPlus.efi。');
+  }
+
+  // 5 SecureBootModel
+  var sbm = get(cfg, 'Misc.Security.SecureBootModel');
+  if (typeof sbm === 'string' && sbm.trim() === ''){
+    add('warn','SecureBootModel 为空','留空会关掉安全启动模拟，App Store、iMessage、部分系统更新可能异常。','一般填 Default；用 OpenCore Legacy Patcher 的机器按 OCLP 要求处理。');
+  } else if (sbm) ok('SecureBootModel 有值', '当前值：' + sbm);
+
+  // 6 PlatformInfo
+  var spn = get(cfg, 'PlatformInfo.Generic.SystemProductName');
+  if (!spn) add('error','没有 SystemProductName','没机型就没三码，iMessage / App Store / 部分驱动注入都会失效。','用 GenSMBIOS 生成三码写入 PlatformInfo.Generic。');
+  else ok('机型已设置', 'SystemProductName = ' + spn);
+  if (!get(cfg, 'PlatformInfo.Generic.MLB')) add('warn','缺少 MLB','三码不全会导致 iMessage 激活失败。','用 GenSMBIOS 重新生成全套三码。');
+
+  // 7 boot-args
+  var ba = get(cfg, 'NVRAM.Add.7C436110-AB2A-4BBB-A880-FE41995C9F82.boot-args');
+  if (typeof ba === 'string'){
+    if (/\-v\b/.test(ba)) add('info','boot-args 里还留着 -v','调试用的详细模式，装好系统后建议去掉，能让启动快一点、界面干净。','把 -v 从 boot-args 删掉。');
+    if (/npci=0x2000|npci=0x3000/.test(ba)) add('info','boot-args 里有 npci','这通常是 AMD 显卡 Above4G 解码问题的临时解法，BIOS 里开了 Above 4G 之后一般不再需要。','确认 BIOS 设置后可以去掉，减少副作用。');
+    if (!ba.trim()) add('info','boot-args 是空的','正常，纯新装机阶段可以留空；出问题时再加 -v keepsyms=1 debug=0x100。','');
+  } else {
+    add('warn','没有 boot-args 键','部分排查手段用不了，比如 -v。','在 NVRAM.Add 里补 boot-args（可为空字符串）。');
+  }
+
+  // 8 DeviceProperties 路径格式
+  var dp = get(cfg, 'DeviceProperties.Add');
+  if (dp && typeof dp === 'object'){
+    var badPath = Object.keys(dp).filter(function(k){ return !/^PciRoot\(0x[0-9A-Fa-f]+\)(\/Pci\(0x[0-9A-Fa-f]+,0x[0-9A-Fa-f]+\))*$/.test(k); });
+    if (badPath.length) add('warn','DeviceProperties 里有非常规路径：' + badPath.slice(0,3).join('、'),
+      '路径必须写成 PciRoot(0x0)/Pci(0x2,0x0) 这种形式，写错等于没注入。', '按 ioreg 里的 PCI 路径逐级核对。');
+    else ok('DeviceProperties 路径格式正常', '共 ' + Object.keys(dp).length + ' 条注入。');
+  }
+
+  // 9 ACPI.Add 路径
+  var aadd = get(cfg, 'ACPI.Add') || [];
+  if (Array.isArray(aadd) && aadd.length){
+    var badAml = aadd.filter(function(a){ return a && a.Enabled && !/\.aml$/i.test(String(a.Path||'')); });
+    if (badAml.length) add('warn','ACPI 里有条目路径不是 .aml 结尾', 'OC 只认编译好的 .aml，指向 .dsl 会加载失败。', '用 MaciASL 编译后再放进 OC/ACPI。');
+    var enabledAml = aadd.filter(function(a){ return a && a.Enabled; }).length;
+    ok('ACPI 补丁已配置', enabledAml + ' 个补丁处于启用状态。');
+  }
+
+  // 10 Misc.Boot
+  var timeout = get(cfg, 'Misc.Boot.Timeout');
+  if (typeof timeout === 'number'){
+    if (timeout > 10) add('info','启动菜单等待时间偏长：' + timeout + ' 秒','装好系统后没必要等这么久。','改成 3–5 秒，或 0 直接进系统。');
+  }
+  var picker = get(cfg, 'Misc.Boot.PickerMode');
+  if (picker === 'External') add('info','PickerMode = External','用的是外部菜单（比如 OpenCanopy），需要 Resources 目录配套，缺资源会白屏。','确认 EFI/OC/Resources 存在且完整。');
+
+  // 11 Kernel.Block / Force
+  if ((get(cfg,'Kernel.Block')||[]).length && (get(cfg,'Kernel.Force')||[]).length){
+    add('info','Kernel.Block 与 Kernel.Force 同时有内容','两者作用相反，同时存在容易互相打架，排查问题时优先清空。','按需只保留一个。');
+  }
+
+  // 12 大小
+  if (rawText.length > 200000) add('info','文件偏大：' + Math.round(rawText.length/1024) + ' KB','config.plist 通常只有几十 KB，特别大往往是塞了大量 DeviceProperties 或历史残留。','用 ProperTree 清理无用节点。');
+}
+
+var LEVEL_LABEL = {error:'错误', warn:'风险', info:'建议', ok:'通过'};
+var lastReport = '';
+
+function render(cfg, raw){
+  check(cfg, raw);
+  var cnt = {error:0,warn:0,info:0,ok:0};
+  issues.forEach(function(i){ cnt[i.level]++; });
+  var score = cnt.error ? '存在硬错误' : (cnt.warn ? '有问题但不致命' : '结构上没有大问题');
+  var html = '<div class="score">' +
+    '<div class="sbox"><div class="k">错误</div><div class="v bad">'+cnt.error+'</div></div>' +
+    '<div class="sbox"><div class="k">风险</div><div class="v warn">'+cnt.warn+'</div></div>' +
+    '<div class="sbox"><div class="k">建议</div><div class="v">'+cnt.info+'</div></div>' +
+    '<div class="sbox"><div class="k">通过</div><div class="v ok">'+cnt.ok+'</div></div>' +
+  '</div>' +
+  '<p style="margin-top:14px;font-size:14px;color:var(--text-sub)">结论：<b>'+score+'</b></p>' +
+  '<div style="margin:18px 0 6px"><button class="btn btn-ghost" id="copy" style="padding:7px 14px;font-size:13px">复制报告</button></div>';
+
+  var order = ['error','warn','info','ok'];
+  order.forEach(function(lv){
+    issues.filter(function(i){ return i.level === lv; }).forEach(function(i){
+      html += '<div class="it '+lv+'"><h3><span class="lv">'+LEVEL_LABEL[lv]+'</span>'+esc(i.title)+'</h3>' +
+        (i.detail ? '<p>'+esc(i.detail)+'</p>' : '') +
+        (i.fix ? '<div class="fix"><b>怎么改：</b>'+esc(i.fix)+'</div>' : '') +
+        '</div>';
+    });
+  });
+
+  lastReport = 'config.plist 体检 —— 冷月技术网\n' + issues.map(function(i){
+    return '[' + LEVEL_LABEL[i.level] + '] ' + i.title + (i.fix ? ' → ' + i.fix : '');
+  }).join('\n');
+
+  $('#res').innerHTML = html;
+  var cp = $('#copy');
+  if (cp) cp.addEventListener('click', function(){
+    navigator.clipboard.writeText(lastReport).then(function(){ cp.textContent='已复制'; setTimeout(function(){ cp.textContent='复制报告'; },1600); });
+  });
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+$('#run').addEventListener('click', function(){
+  var t = $('#src').value;
+  if (!t.trim()){ $('#res').innerHTML = '<p style="color:var(--text-mute);margin-top:20px">先粘一份 config.plist 进来。</p>'; return; }
+  try { render(parsePlist(t), t); }
+  catch(e){ $('#res').innerHTML = '<div class="it error"><h3><span class="lv">错误</span>解析失败</h3><p>'+esc(e.message)+'</p><div class="fix"><b>怎么改：</b>确认文件是 XML 格式的 plist；二进制 plist 先在 ProperTree 里另存为 XML 再试。</div></div>'; }
+});
+$('#pick').addEventListener('click', function(){ $('#file').click(); });
+$('#file').addEventListener('change', function(e){
+  var f = e.target.files[0]; if (!f) return;
+  var fr = new FileReader();
+  fr.onload = function(){
+    var t = String(fr.result); $('#src').value = t;
+    try { render(parsePlist(t), t); } catch(e){ $('#res').innerHTML = '<div class="it error"><h3><span class="lv">错误</span>解析失败</h3><p>'+esc(e.message)+'</p></div>'; }
+  };
+  fr.readAsText(f);
+});
+
+var DEMO = '<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict>' +
+'<key>ACPI</key><dict><key>Add</key><array><dict><key>Path</key><string>SSDT-PLUG.aml</string><key>Enabled</key><true/></dict></array></dict>' +
+'<key>Booter</key><dict><key>Quirks</key><dict><key>DevirtualiseMmio</key><true/></dict></dict>' +
+'<key>DeviceProperties</key><dict><key>Add</key><dict><key>PciRoot(0x0)/Pci(0x1f,0x3)</key><dict><key>layout-id</key><integer>11</integer></dict></dict></dict>' +
+'<key>Kernel</key><dict><key>Add</key><array>' +
+  '<dict><key>BundlePath</key><string>WhateverGreen.kext</string><key>Enabled</key><true/></dict>' +
+  '<dict><key>BundlePath</key><string>Lilu.kext</string><key>Enabled</key><true/></dict>' +
+'</array><key>Quirks</key><dict><key>XhciPortLimit</key><true/></dict></dict>' +
+'<key>Misc</key><dict><key>Boot</key><dict><key>Timeout</key><integer>15</integer></dict><key>Security</key><dict><key>SecureBootModel</key><string></string></dict></dict>' +
+'<key>NVRAM</key><dict><key>Add</key><dict><key>7C436110-AB2A-4BBB-A880-FE41995C9F82</key><dict><key>boot-args</key><string>-v keepsyms=1</string></dict></dict></dict>' +
+'<key>PlatformInfo</key><dict><key>Generic</key><dict><key>SystemProductName</key><string>MacBookPro16,1</string></dict></dict>' +
+'<key>UEFI</key><dict><key>Drivers</key><array><string>HfsPlus.efi</string></array></dict>' +
+'</dict></plist>';
+$('#demo').addEventListener('click', function(){ $('#src').value = DEMO; try { render(parsePlist(DEMO), DEMO); } catch(e){} });
+if (location.search.indexOf('demo') !== -1){ $('#src').value = DEMO; try { render(parsePlist(DEMO), DEMO); } catch(e){} }
+</script>
+</body>
+</html>

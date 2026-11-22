@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>boot-args 生成器 黑苹果启动参数 - 冷月技术网</title>
+<meta name="description" content="按需求勾选，直接拼出 OpenCore 的 boot-args 一行，附每个参数的用途、适用平台与副作用说明。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/boot-args/">
+<meta property="og:title" content="boot-args 生成器 - 冷月技术网">
+<meta property="og:description" content="在线拼装黑苹果 boot-args 启动参数。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyjsw.dpdns.org/boot-args/">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.lab{padding:96px 0 70px;min-height:100vh}
+.lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
+.lab .lead{color:var(--text-sub);font-size:15px;max-width:780px}
+.panel{margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.panel + .panel{margin-top:16px}
+.grp{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px dashed var(--border)}
+.opt:last-child{border-bottom:none}
+.opt input[type=checkbox]{margin-top:5px;accent-color:var(--accent);flex:0 0 auto}
+.opt .txt{flex:1}
+.opt .nm{font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:600}
+.opt .ds{font-size:12.5px;color:var(--text-mute);margin-top:2px;line-height:1.65}
+.opt .risk{font-size:12px;color:#fbbf24;margin-top:3px}
+label.add{display:block;font-size:13px;color:var(--text-mute);margin:14px 0 8px}
+input[type=text]{width:100%;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;outline:none}
+input:focus{border-color:var(--border-strong)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
+.btn{cursor:pointer;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;border:1px solid transparent;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--text-sub);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
+.out{margin-top:20px;background:var(--bg-soft);border:1px solid var(--border-strong);border-radius:12px;padding:16px;
+  font-family:"JetBrains Mono",monospace;font-size:14px;word-break:break-all;color:var(--text)}
+.out.empty{color:var(--text-mute);font-size:13px}
+.warnbox{border:1px solid rgba(251,191,36,.45);background:rgba(251,191,36,.08);border-radius:12px;padding:12px 14px;font-size:13.5px;color:#fbbf24;margin-top:14px}
+.note{font-size:13px;color:var(--text-sub);margin-top:14px;line-height:1.8}
+.note b{color:var(--accent)}
+.foot-cta{margin-top:32px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
+.foot-cta a{color:var(--accent);font-weight:600}
+@media(max-width:640px){.lab{padding:86px 0 50px}.lab h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a><a href="../works/index.html">案例</a><a href="../downloads/index.html">系统下载</a><a href="../tools/index.html">工具下载</a><a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="lab">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>boot-args</span></div>
+    <h1>boot-args 生成器</h1>
+    <p class="lead">勾选你现在要解决的问题，直接得到一行可用的 boot-args。每个参数都标了适用平台与副作用，不用再翻论坛抄别人的字符串。</p>
+
+    <div class="panel">
+      <div class="grp">排查与日志</div>
+      <div class="opt"><input type="checkbox" id="v"><div class="txt"><div class="nm">-v</div><div class="ds">详细模式，卡住时能看到最后一行停在哪。装好系统就该去掉。</div></div></div>
+      <div class="opt"><input type="checkbox" id="keepsyms"><div class="txt"><div class="nm">keepsyms=1</div><div class="ds">内核崩溃时保留符号，配合 -v 能看到具体出错函数，排查 panic 必备。</div></div></div>
+      <div class="opt"><input type="checkbox" id="debug"><div class="txt"><div class="nm">debug=0x100</div><div class="ds">禁止自动重启，panic 画面停住方便拍照。会明显拖慢启动。</div><div class="risk">副作用：崩溃后不会自动恢复，笔记本可能停在黑屏。</div></div></div>
+      <div class="opt"><input type="checkbox" id="nolilis"><div class="txt"><div class="nm">-lilubetaall</div><div class="ds">让 Lilu 及其插件在未适配的新系统版本上也强行加载，新系统刚发布时常用。</div><div class="risk">副作用：可能引起不稳定，系统适配后应删掉。</div></div></div>
+
+      <div class="grp" style="margin-top:18px">显卡与显示</div>
+      <div class="opt"><input type="checkbox" id="pikera"><div class="txt"><div class="nm">agdpmod=pikera</div><div class="ds">AMD Navi（RX 5500/5600/5700/6600/6800）黑屏的经典解法。</div></div></div>
+      <div class="opt"><input type="checkbox" id="noegpu"><div class="txt"><div class="nm">-wegnoegpu</div><div class="ds">禁用独显，只留核显输出。笔记本核显直连屏幕时常用。</div></div></div>
+      <div class="opt"><input type="checkbox" id="igfxonln"><div class="txt"><div class="nm">igfxonln=1</div><div class="ds">强制核显在线，解决外接屏唤醒后不亮。</div></div></div>
+      <div class="opt"><input type="checkbox" id="igfxvesa"><div class="txt"><div class="nm">-igfxvesa</div><div class="ds">核显走 VESA 基础输出，先让画面出来，用于判断问题是否在显卡加速。</div><div class="risk">副作用：没有硬件加速，界面会卡，仅用于排查。</div></div></div>
+      <div class="opt"><input type="checkbox" id="shikigva"><div class="txt"><div class="nm">shikigva=80</div><div class="ds">老平台的 DRM 视频播放修补，Monterey 之前较常用。</div></div></div>
+
+      <div class="grp" style="margin-top:18px">音频</div>
+      <div class="opt"><input type="checkbox" id="alcid"><div class="txt"><div class="nm">alcid=11</div><div class="ds">临时指定 AppleALC 布局，等价于在 DeviceProperties 里注入 layout-id。用于快速试布局。</div><div class="risk">注意：两个地方都写且值不同时，以 boot-args 为准，容易混淆。</div></div></div>
+
+      <div class="grp" style="margin-top:18px">平台与兼容</div>
+      <div class="opt"><input type="checkbox" id="npci2"><div class="txt"><div class="nm">npci=0x2000</div><div class="ds">PCI 配置空间分配问题的经典解法，常见于 AMD 显卡卡 PCI 阶段。</div><div class="risk">与 npci=0x3000 互斥；BIOS 开了 Above 4G 后通常不再需要。</div></div></div>
+      <div class="opt"><input type="checkbox" id="npci3"><div class="txt"><div class="nm">npci=0x3000</div><div class="ds">另一种 PCI 修正值，0x2000 无效时试它。</div><div class="risk">与 npci=0x2000 互斥，只能留一个。</div></div></div>
+      <div class="opt"><input type="checkbox" id="nocompat"><div class="txt"><div class="nm">-no_compat_check</div><div class="ds">跳过机型号兼容性检查，让不受支持的机型能装上新系统。</div><div class="risk">副作用：系统更新与部分功能可能异常，属于临时手段。</div></div></div>
+      <div class="opt"><input type="checkbox" id="darkwake"><div class="txt"><div class="nm">darkwake=0</div><div class="ds">调整休眠后的唤醒行为，解决「睡了就醒不过来」或「一睡就醒」。</div></div></div>
+      <div class="opt"><input type="checkbox" id="slide0"><div class="txt"><div class="nm">slide=0</div><div class="ds">固定内核加载偏移，解决 KASLR 相关的随机卡死，老平台偶尔需要。</div></div></div>
+      <div class="opt"><input type="checkbox" id="xcpm"><div class="txt"><div class="nm">-xcpm</div><div class="ds">老 Ivy Bridge / Haswell 平台的电源管理模式，现代平台不需要。</div></div></div>
+      <div class="opt"><input type="checkbox" id="cpus1"><div class="txt"><div class="nm">cpus=1</div><div class="ds">只用一个核心启动，用于判断是否 CPU 电源管理导致的问题。</div><div class="risk">副作用：性能骤降，仅排查用。</div></div></div>
+
+      <label class="add" for="extra">额外参数（原样追加，用空格分隔）</label>
+      <input type="text" id="extra" placeholder="例：-brcmfxbeta unfairgva=1">
+
+      <div class="row">
+        <button class="btn btn-primary" id="gen">生成 boot-args</button>
+        <button class="btn btn-ghost" id="copy">复制</button>
+        <button class="btn btn-ghost" id="reset">清空勾选</button>
+      </div>
+
+      <div class="out empty" id="out">勾选上面的项目后点「生成 boot-args」。</div>
+      <div id="warn"></div>
+
+      <div class="note">填到哪里：<b>NVRAM → Add → 7C436110-AB2A-4BBB-A880-FE41995C9F82 → boot-args</b>（string 类型）。改完保存，重启生效。清理时把整行清空即可，不要留一个空格。</div>
+    </div>
+
+    <div class="foot-cta">参数只是症状处理，很多问题根子在 Quirks 或 ACPI。<a href="../contact/index.html">把 EFI 发过来</a>，可以一次把底层配置改对。</div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  function apply(t){ root.setAttribute('data-theme', t); sun.style.display = t==='dark'?'none':'block'; moon.style.display = t==='dark'?'block':'none'; }
+  var stored; try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  apply(stored || 'dark');
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    apply(next); try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+})();
+var $ = function(s){ return document.querySelector(s); };
+var FLAGS = { v:'-v', keepsyms:'keepsyms=1', debug:'debug=0x100', nolilis:'-lilubetaall',
+  pikera:'agdpmod=pikera', noegpu:'-wegnoegpu', igfxonln:'igfxonln=1', igfxvesa:'-igfxvesa', shikigva:'shikigva=80',
+  alcid:'alcid=11', npci2:'npci=0x2000', npci3:'npci=0x3000', nocompat:'-no_compat_check',
+  darkwake:'darkwake=0', slide0:'slide=0', xcpm:'-xcpm', cpus1:'cpus=1' };
+
+function build(){
+  var picked = [];
+  Object.keys(FLAGS).forEach(function(id){ var el = document.getElementById(id); if (el && el.checked) picked.push(FLAGS[id]); });
+  var extra = $('#extra').value.trim();
+  if (extra) picked.push(extra.replace(/\s+/g,' '));
+
+  var out = picked.join(' ');
+  var warn = [];
+  if (picked.indexOf('npci=0x2000') !== -1 && picked.indexOf('npci=0x3000') !== -1) warn.push('npci=0x2000 与 npci=0x3000 不能同时存在，只保留一个。');
+  if (picked.indexOf('-igfxvesa') !== -1 && picked.indexOf('igfxonln=1') !== -1) warn.push('-igfxvesa 会让核显不加速，igfxonln=1 就没意义了，排查时二选一。');
+  if (picked.indexOf('-v') !== -1 && picked.indexOf('debug=0x100') !== -1) warn.push('-v 与 debug=0x100 同时用会非常慢，除了抓 panic 没必要一起开。');
+  if (picked.indexOf('cpus=1') !== -1 && picked.length > 2) warn.push('cpus=1 会严重拖慢系统，定位完请马上删掉。');
+  if (!out) warn.push('没有勾选任何项目，boot-args 应该留空字符串。');
+
+  var box = $('#out');
+  if (out){ box.className = 'out'; box.textContent = out; }
+  else { box.className = 'out empty'; box.textContent = '（留空，也就是不加任何启动参数）'; }
+  $('#warn').innerHTML = warn.length ? '<div class="warnbox">' + warn.join('<br>') + '</div>' : '';
+  return out;
+}
+
+$('#gen').addEventListener('click', build);
+$('#copy').addEventListener('click', function(){
+  var v = build();
+  navigator.clipboard.writeText(v).then(function(){ $('#copy').textContent='已复制'; setTimeout(function(){ $('#copy').textContent='复制'; },1600); });
+});
+$('#reset').addEventListener('click', function(){
+  Object.keys(FLAGS).forEach(function(id){ var el = document.getElementById(id); if (el) el.checked = false; });
+  $('#extra').value = ''; build();
+});
+build();
+if (location.search.indexOf('demo') !== -1){
+  ['v','keepsyms','pikera'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=true; });
+  build();
+}
+</script>
+</body>
+</html>

@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>黑苹果工具下载 OpenCore/OCAT/Hackintool - 冷月技术网</title>
-<meta name="description" content="黑苹果全流程开源工具索引：OpenCore、OCAT、ProperTree、gibMacOS、GenSMBIOS、SSDTTime、USBMap、Hackintool、EDID 编辑器等，全部指向作者官方发布页。">
+<title>黑苹果工具下载与在线工具 OpenCore/OCAT/EDID - 冷月技术网</title>
+<meta name="description" content="黑苹果工具索引与 7 个可在浏览器直接用的在线工具：EDID 编辑器、ioreg 诊断、config.plist 体检、USB 端口映射生成、Device Properties 生成、boot-args 生成、plist 编辑。">
 <link rel="canonical" href="https://lyjsw.dpdns.org/tools/">
-<meta property="og:title" content="黑苹果工具下载 OpenCore/OCAT/Hackintool - 冷月技术网">
-<meta property="og:description" content="黑苹果全流程开源工具索引：OpenCore、OCAT、ProperTree、gibMacOS、GenSMBIOS、SSDTTime、USBMap、Hackintool、EDID 编辑器等，全部指向作者官方发布页。">
+<meta property="og:title" content="黑苹果工具下载与在线工具 - 冷月技术网">
+<meta property="og:description" content="工具索引 + 7 个浏览器内在线的黑苹果小工具，不用装软件。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://lyjsw.dpdns.org/tools/">
 <link rel="icon" href="../assets/avatar.png">
@@ -39,10 +39,15 @@
     <h1>工具下载</h1>
     <div class="prose" style="margin-top:18px"><p>黑苹果全流程会用到的开源工具，按用途分类。链接均指向作者官方发布页，本站只做整理，不二次打包。</p></div>
     <div class="page-cta" style="margin-top:28px">
-      <p><b>本站自带的 EDID 编辑器</b>：解析与修改显示器 EDID，改完直接导出，浏览器里就能用，不用装软件。</p>
-      <div class="hero-actions" style="margin:0">
-        <a class="btn btn-primary" href="/edid-editor/">打开编辑器 →</a>
-        <a class="btn btn-ghost" href="edid-editor.html">这个工具怎么用</a>
+      <p><b>本站自带的在线工具</b>：不用装任何软件，浏览器打开就能用。硬件诊断、配置体检、端口映射、参数生成都在这儿。</p>
+      <div class="hero-actions" style="margin:0;flex-wrap:wrap;gap:10px">
+        <a class="btn btn-primary" href="/ioreg/">ioreg 诊断</a>
+        <a class="btn btn-primary" href="/plist-check/">config.plist 体检</a>
+        <a class="btn btn-primary" href="/usb-map/">USB 端口映射</a>
+        <a class="btn btn-ghost" href="/edid-editor/">EDID 编辑器</a>
+        <a class="btn btn-ghost" href="/device-props/">Device Properties</a>
+        <a class="btn btn-ghost" href="/boot-args/">boot-args</a>
+        <a class="btn btn-ghost" href="/plist/">plist 查看编辑</a>
       </div>
     </div>
     <div class="grid3" id="toolList" style="margin-top:36px">
@@ -52,6 +57,48 @@
         <p>解析与修改显示器 EDID：厂商、时序、HDR、CTA-861 扩展块，浏览器里直接改完导出。</p>
         <div class="chips"><span class="chip">显示器</span><span class="chip">本站可用</span></div>
         <a class="dllink" href="/edid-editor/">打开编辑器 →</a>
+      </div>
+      <div class="card pg-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/><path d="M8 11h6M11 8v6"/></svg></div>
+        <h3><a class="wlink" href="ioreg.html">ioreg 在线诊断</a></h3>
+        <p>粘贴 ioreg 输出，自动认出显卡、无线网卡、声卡 codec、蓝牙、触控板、NVMe，并给出处理方向。</p>
+        <div class="chips"><span class="chip">本站可用</span><span class="chip">诊断</span></div>
+        <a class="dllink" href="/ioreg/">打开工具 →</a>
+      </div>
+      <div class="card pg-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7l2 2 3-3"/><path d="M8 14h8M8 17h5"/></svg></div>
+        <h3><a class="wlink" href="plist-check.html">config.plist 在线体检</a></h3>
+        <p>检查顶层结构、kext 顺序、Quirk 冲突、驱动缺失、三码与 boot-args，按错误 / 风险 / 建议分级。</p>
+        <div class="chips"><span class="chip">本站可用</span><span class="chip">体检</span></div>
+        <a class="dllink" href="/plist-check/">打开工具 →</a>
+      </div>
+      <div class="card pg-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3v9a3 3 0 1 0 6 0V3"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M12 18v3"/></svg></div>
+        <h3><a class="wlink" href="usb-map.html">USB 端口映射生成器</a></h3>
+        <p>填端口名与类型，直接生成 USBPorts.kext 的 Info.plist，解决 15 端口截断与内建蓝牙掉线。</p>
+        <div class="chips"><span class="chip">本站可用</span><span class="chip">USB</span></div>
+        <a class="dllink" href="/usb-map/">打开工具 →</a>
+      </div>
+      <div class="card pg-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="19" cy="18" r="2"/></svg></div>
+        <h3><a class="wlink" href="device-props.html">Device Properties 生成器</a></h3>
+        <p>核显 ig-platform-id、声卡 layout-id、自定义属性，生成 integer 与 data 两种写法，不用手算字节序。</p>
+        <div class="chips"><span class="chip">本站可用</span><span class="chip">注入</span></div>
+        <a class="dllink" href="/device-props/">打开工具 →</a>
+      </div>
+      <div class="card pg-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 8h14M5 12h9M5 16h6"/><path d="M17 14l3 3-3 3"/></svg></div>
+        <h3><a class="wlink" href="boot-args.html">boot-args 生成器</a></h3>
+        <p>按要解决的问题勾选参数，拼出一行可用的 boot-args，附用途、适用平台与副作用，还会提示互斥项。</p>
+        <div class="chips"><span class="chip">本站可用</span><span class="chip">启动参数</span></div>
+        <a class="dllink" href="/boot-args/">打开工具 →</a>
+      </div>
+      <div class="card pg-item">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h6v6H4zM14 7h6v6h-6zM4 17h16"/><path d="M7 13v3M17 13v3"/></svg></div>
+        <h3><a class="wlink" href="plist.html">plist 查看与编辑器</a></h3>
+        <p>XML 与二进制 plist 都能开，树状改值、增删键、导出标准 XML，文件只在浏览器内存里处理。</p>
+        <div class="chips"><span class="chip">本站可用</span><span class="chip">plist</span></div>
+        <a class="dllink" href="/plist/">打开工具 →</a>
       </div>
       <div class="card pg-item">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 19h20M8 16v3M16 16v3"/></svg></div>
@@ -155,19 +202,10 @@
     </div>
     <div class="pager" id="toolPager"></div>
     <p class="pg-tip">这一页的地址可以直接复制分享，重新打开会停在同一页</p>
-
     <div class="posts" style="margin-top:26px">
-      <div class="big">只做索引，不做二次分发</div>
-      <div class="small">以上均为开源项目的官方仓库，版本更新以上游发布为准。工具用错照样能把机器装崩，不确定的话直接问。</div>
-      <div class="timeline-note">upstream release · no repack</div>
-    </div>
-      </div>
-    <div class="pager" id="toolPager"></div>
-    <p class="pg-tip">这一页的地址可以直接复制分享，重新打开会停在同一页</p>
-    <div class="posts" style="margin-top:26px">
-      <div class="big">只做索引，不做二次分发</div>
-      <div class="small">以上均为开源项目的官方仓库，版本更新以上游发布为准。工具用错照样能把机器装崩，不确定的话直接问。</div>
-      <div class="timeline-note">upstream release · no repack</div>
+      <div class="big">官方仓库直链 + 本站自建工具</div>
+      <div class="small">外部工具全部指向作者官方发布页，版本以上游为准，本站不二次打包；上方带「本站可用」的 7 个工具是站内页面，浏览器直接跑，不上传任何文件。工具用错照样能把机器装崩，不确定就直接问。</div>
+      <div class="timeline-note">upstream release · no repack · in-browser tools</div>
     </div>
     <div class="page-cta">
       <p>机型不确定能不能装？把 <b>型号 / CPU / 无线网卡</b> 发过来，先判断可行性，再谈方案。</p>

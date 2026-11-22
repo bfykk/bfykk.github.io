@@ -28,4 +28,16 @@
 <url><loc>https://lyjsw.dpdns.org/tools/itlwm.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/tools/edid-editor.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/edid-editor/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/ioreg.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/plist-check.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/usb-map.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/device-props.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/boot-args.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/plist.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/ioreg/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/plist-check/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/usb-map/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/device-props/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/boot-args/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/plist/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
 </urlset>

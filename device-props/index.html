@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Device Properties 生成器 黑苹果显卡声卡注入 - 冷月技术网</title>
+<meta name="description" content="按 PCI 路径生成 OpenCore 的 DeviceProperties 注入片段：核显 ig-platform-id、声卡 layout-id、自定义属性，integer 与 data 两种写法同时给出。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/device-props/">
+<meta property="og:title" content="Device Properties 生成器 - 冷月技术网">
+<meta property="og:description" content="在线生成 OpenCore DeviceProperties 注入片段。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyjsw.dpdns.org/device-props/">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.lab{padding:96px 0 70px;min-height:100vh}
+.lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
+.lab .lead{color:var(--text-sub);font-size:15px;max-width:790px}
+.panel{margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.panel label{display:block;font-size:13px;color:var(--text-mute);margin-bottom:8px;margin-top:14px}
+.panel label:first-child{margin-top:0}
+input,select,textarea{width:100%;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:13px;outline:none}
+textarea{min-height:120px;resize:vertical;font-size:12.5px;line-height:1.7}
+input:focus,select:focus{border-color:var(--border-strong)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.btn{cursor:pointer;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;border:1px solid transparent;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--text-sub);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
+.tip{font-size:12.5px;color:var(--text-mute);margin-top:12px;line-height:1.75}
+pre{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:12.5px;line-height:1.75;
+  overflow:auto;max-height:440px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;color:var(--text-sub);margin-top:12px}
+.note{font-size:13px;color:var(--text-sub);margin-top:12px;line-height:1.8}
+.note b{color:var(--accent)}
+.foot-cta{margin-top:32px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
+.foot-cta a{color:var(--accent);font-weight:600}
+@media(max-width:640px){.lab{padding:86px 0 50px}.lab h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a><a href="../works/index.html">案例</a><a href="../downloads/index.html">系统下载</a><a href="../tools/index.html">工具下载</a><a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="lab">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>Device Properties</span></div>
+    <h1>Device Properties 生成器</h1>
+    <p class="lead">黑苹果最常见的一类失败，是 PCI 路径写错或者值类型填错。这里按你选的注入目标直接生成可粘贴的 DeviceProperties 片段，integer 与 data 两种写法一起给，避免「看着对、但不起作用」。</p>
+
+    <div class="panel">
+      <div class="grid2">
+        <div>
+          <label for="kind">注入目标</label>
+          <select id="kind">
+            <option value="igpu">核显 ig-platform-id</option>
+            <option value="audio">声卡 layout-id</option>
+            <option value="custom">自定义属性</option>
+          </select>
+        </div>
+        <div>
+          <label for="path">PCI 路径（ioreg 里复制）</label>
+          <input id="path" type="text" value="PciRoot(0x0)/Pci(0x2,0x0)">
+        </div>
+      </div>
+
+      <div id="igpuBox">
+        <label for="igp">ig-platform-id</label>
+        <select id="igp">
+          <option value="0x3E9B0007">0x3E9B0007 —— Coffee Lake / 13 代伪装常用，桌面与多数笔记本</option>
+          <option value="0x8A530003">0x8A530003 —— Ice Lake / Tiger Lake 核显</option>
+          <option value="0x9B3E0007">0x9B3E0007 —— 备用帧缓冲，外接口异常时试</option>
+          <option value="0x00001C59">0x00001C59 —— 老平台（Coffee Lake 之前）参考</option>
+        </select>
+        <label><input type="checkbox" id="igdev" checked style="width:auto;margin-right:8px">同时注入 device-id（伪装成受支持的设备，13 代核显一般需要）</label>
+      </div>
+
+      <div id="audioBox" style="display:none">
+        <label for="al">layout-id（AppleALC 布局）</label>
+        <select id="al">
+          <option value="11">11 —— ALC256 / ALC257 笔记本常用</option>
+          <option value="13">13 —— ALC295 / ALC256 备用</option>
+          <option value="21">21 —— ALC256 外放与耳机切换常见</option>
+          <option value="66">66 —— ALC897 台式机常用</option>
+          <option value="99">99 —— ALC257 备用</option>
+          <option value="7">7 —— 老 codec 兼容布局</option>
+        </select>
+        <label><input type="checkbox" id="aldev" style="width:auto;margin-right:8px">同时注入 alc-layout-id（部分机型需要两个都写）</label>
+      </div>
+
+      <div id="customBox" style="display:none">
+        <div class="grid2">
+          <div>
+            <label for="ckey">属性名</label>
+            <input id="ckey" type="text" value="device-id">
+          </div>
+          <div>
+            <label for="ctype">值类型</label>
+            <select id="ctype">
+              <option value="data">data（4 字节十六进制）</option>
+              <option value="integer">integer</option>
+              <option value="string">string</option>
+              <option value="boolean">boolean</option>
+            </select>
+          </div>
+        </div>
+        <label for="cval">值（十六进制写 0x 开头，例 0x9B3E0000）</label>
+        <input id="cval" type="text" value="0x9B3E0000">
+      </div>
+
+      <div class="row">
+        <button class="btn btn-primary" id="gen">生成片段</button>
+        <button class="btn btn-ghost" id="copy">复制</button>
+        <button class="btn btn-ghost" id="dl">下载 config 片段</button>
+      </div>
+      <div class="tip">PCI 路径必须一级一级对：核显通常是 <code>PciRoot(0x0)/Pci(0x2,0x0)</code>，声卡是 <code>PciRoot(0x0)/Pci(0x1f,0x3)</code>。不确定就去 ioreg 里搜 <code>IOService</code> 的 <code>PciRoot</code> 那一行，别照抄别人的。</div>
+
+      <div id="out"></div>
+    </div>
+
+    <div class="foot-cta">路径对了但注入不生效，大多是类型或键名的问题。<a href="../contact/index.html">把 config.plist 与 ioreg 一起发过来</a>，可以直接给你定位。</div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  function apply(t){ root.setAttribute('data-theme', t); sun.style.display = t==='dark'?'none':'block'; moon.style.display = t==='dark'?'block':'none'; }
+  var stored; try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  apply(stored || 'dark');
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    apply(next); try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+})();
+var $ = function(s){ return document.querySelector(s); };
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+// 32 位值 -> 小端 4 字节 base64（Apple 的 data 习惯）
+function leData(hexStr){
+  var h = String(hexStr).replace(/^0x/i,'');
+  if (!/^[0-9a-fA-F]{1,8}$/.test(h)) return null;
+  h = ('00000000' + h).slice(-8);
+  var v = parseInt(h, 16);
+  var b = [v & 255, (v>>8) & 255, (v>>16) & 255, (v>>24) & 255];
+  return btoa(String.fromCharCode.apply(null, b));
+}
+function dataText(hexStr){
+  var h = String(hexStr).replace(/^0x/i,'').toUpperCase();
+  h = ('00000000' + h).slice(-8);
+  return h.slice(6,8) + h.slice(4,6) + h.slice(2,4) + h.slice(0,2);
+}
+
+var lastXml = '';
+
+$('#kind').addEventListener('change', function(){
+  var v = this.value;
+  $('#igpuBox').style.display = v === 'igpu' ? 'block' : 'none';
+  $('#audioBox').style.display = v === 'audio' ? 'block' : 'none';
+  $('#customBox').style.display = v === 'custom' ? 'block' : 'none';
+  var p = $('#path');
+  if (v === 'igpu') p.value = 'PciRoot(0x0)/Pci(0x2,0x0)';
+  if (v === 'audio') p.value = 'PciRoot(0x0)/Pci(0x1f,0x3)';
+});
+
+function build(){
+  var kind = $('#kind').value;
+  var path = $('#path').value.trim();
+  if (!/^PciRoot\(0x[0-9A-Fa-f]+\)(\/Pci\(0x[0-9A-Fa-f]+,0x[0-9A-Fa-f]+\))*$/.test(path)){
+    $('#out').innerHTML = '<div style="margin-top:14px;border:1px solid rgba(248,113,113,.45);background:rgba(248,113,113,.08);border-radius:12px;padding:12px 14px;color:#f87171;font-size:13.5px">PCI 路径格式不对。必须是 PciRoot(0x0)/Pci(0x2,0x0) 这种写法，十六进制、括号、逗号都不能省。</div>';
+    return null;
+  }
+  var pairs = [];
+  if (kind === 'igpu'){
+    var ig = $('#igp').value;
+    pairs.push({k:'AAPL,ig-platform-id', type:'data', v:ig});
+    if ($('#igdev').checked) pairs.push({k:'device-id', type:'data', v:'0x9B3E0000'});
+  } else if (kind === 'audio'){
+    pairs.push({k:'layout-id', type:'data', v:'0x' + ('00000000'+parseInt($('#al').value,10).toString(16)).slice(-8)});
+    if ($('#aldev').checked) pairs.push({k:'alc-layout-id', type:'data', v:'0x' + ('00000000'+parseInt($('#al').value,10).toString(16)).slice(-8)});
+  } else {
+    var k = $('#ckey').value.trim() || 'device-id';
+    var t = $('#ctype').value;
+    var v = $('#cval').value.trim();
+    pairs.push({k:k, type:t, v:v});
+  }
+
+  var xml = '';
+  pairs.forEach(function(p){
+    xml += '\t\t\t<key>' + esc(p.k) + '</key>\n';
+    if (p.type === 'data'){
+      var b64 = leData(p.v);
+      if (b64 === null){ xml += '\t\t\t<data>' + esc(p.v) + '</data>\n'; }
+      else xml += '\t\t\t<data>' + b64 + '</data>\n';
+    } else if (p.type === 'integer'){
+      xml += '\t\t\t<integer>' + esc(String(parseInt(p.v, 16))) + '</integer>\n';
+    } else if (p.type === 'boolean'){
+      xml += '\t\t\t<' + (p.v === 'false' ? 'false' : 'true') + '/>\n';
+    } else {
+      xml += '\t\t\t<string>' + esc(p.v) + '</string>\n';
+    }
+  });
+
+  var full = '<key>DeviceProperties</key>\n<dict>\n\t<key>Add</key>\n\t<dict>\n\t\t<key>' + esc(path) + '</key>\n\t\t<dict>\n' + xml + '\t\t</dict>\n\t</dict>\n</dict>\n';
+  lastXml = full;
+
+  var rows = pairs.map(function(p){
+    var shown = p.type === 'data' ? (leData(p.v) || '无效值') : p.v;
+    return '<div class="note"><b>' + esc(p.k) + '</b>（' + p.type + '）＝ ' + esc(p.v) +
+      (p.type === 'data' ? '　data 写法：<code style="font-family:monospace">' + esc(shown) + '</code>　字节序：' + esc(dataText(p.v)) : '') + '</div>';
+  }).join('');
+
+  $('#out').innerHTML = rows +
+    '<pre id="frag">' + esc(full) + '</pre>' +
+    '<div class="note">粘贴方法：在 ProperTree 里展开 <b>DeviceProperties → Add</b>，新建一个以 PCI 路径为名的键，再把上面 dict 里的条目逐条填进去；或者直接用 OCAT 的「设备属性」页粘贴。填完记得 <b>Kernel.Add</b> 里 caches 重建一次。</div>';
+  return full;
+}
+
+$('#gen').addEventListener('click', build);
+$('#copy').addEventListener('click', function(){
+  var x = build(); if (!x) return;
+  navigator.clipboard.writeText(x).then(function(){ $('#copy').textContent='已复制'; setTimeout(function(){ $('#copy').textContent='复制'; },1600); });
+});
+$('#dl').addEventListener('click', function(){
+  var x = build(); if (!x) return;
+  var blob = new Blob([x], {type:'application/xml'});
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'device-properties.txt'; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+});
+build();
+</script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Device Properties 生成器 显卡声卡注入</title>
+<meta name="description" content="按 PCI 路径生成 OpenCore DeviceProperties 注入片段：核显 ig-platform-id、声卡 layout-id、自定义属性。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/tools/device-props.html">
+<meta property="og:title" content="Device Properties 生成器 显卡声卡注入">
+<meta property="og:description" content="按 PCI 路径生成 OpenCore DeviceProperties 注入片段：核显 ig-platform-id、声卡 layout-id、自定义属性。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://lyjsw.dpdns.org/tools/device-props.html">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Device Properties 生成器 显卡声卡注入","description":"按 PCI 路径生成 OpenCore DeviceProperties 注入片段：核显 ig-platform-id、声卡 layout-id、自定义属性。","url":"https://lyjsw.dpdns.org/tools/device-props.html","inLanguage":"zh-CN","author":{"@type":"Organization","name":"冷月技术网"},"publisher":{"@type":"Organization","name":"冷月技术网"},"isPartOf":{"@type":"WebSite","name":"冷月技术网","url":"https://lyjsw.dpdns.org/"}}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a>
+      <a href="../works/index.html">案例</a>
+      <a href="../downloads/index.html">系统下载</a>
+      <a href="../tools/index.html">工具下载</a>
+      <a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main class="page">
+  <div class="wrap">
+    <div class="crumb"><a href="../tools/index.html">工具下载</a><span>/</span><span>Device Properties 生成器</span></div>
+    <h1>Device Properties 生成器</h1>
+    <div class="page-meta"><span class="chip">本站可用</span></div>
+    <div class="prose">
+<p>config.plist 里最容易出错的地方之一就是 DeviceProperties：路径写错、值类型写错、字节序写错，三种都会让注入静默失效。</p>
+<h2>支持的三类注入</h2>
+<ul>
+<li><b>核显</b>：AAPL,ig-platform-id + device-id，13 代平台靠它拿加速</li>
+<li><b>声卡</b>：layout-id / alc-layout-id，配 AppleALC</li>
+<li><b>自定义</b>：data / integer / string / boolean 任意属性</li>
+</ul>
+<h2>怎么用</h2>
+<ol>
+<li>从 ioreg 里复制准确的 PCI 路径（核显 PciRoot(0x0)/Pci(0x2,0x0)，声卡 PciRoot(0x0)/Pci(0x1f,0x3)）</li>
+<li>选目标与取值，点生成</li>
+<li>把片段粘进 ProperTree 的 DeviceProperties → Add，或 OCAT 的设备属性页</li>
+</ol>
+<p>工具会同时给出 integer 与 data 两种写法，data 按 Apple 的小端习惯算好 base64，不用自己换算。</p>
+<p style="margin-top:26px"><a class="btn btn-primary" href="/device-props/">打开工具 →</a></p>
+    </div>
+    <div class="pagenav"><a href="usb-map.html">← USB 端口映射</a><a href="../tools/index.html">全部工具</a><a href="boot-args.html">boot-args →</a></div>
+    <div class="page-cta">
+      <p>工具只能给方向，具体到你这台机器还得看实际 ioreg 与 EFI。把 <b>机型 / CPU / 网卡</b> 发过来，先判断可行性。</p>
+      <div class="hero-actions" style="margin:0">
+        <a class="btn btn-primary" href="tencent://message/?uin=1102962755">QQ 1102962755</a>
+        <a class="btn btn-ghost" href="https://lyjsw.taobao.com" target="_blank" rel="noopener">淘宝店铺</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="wrap foot-in">
+    <div class="l"><i class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></i><b>冷月技术网</b><span>· 重庆</span></div>
+    <div>© 2026 冷月技术网 · Built for the machines that shouldn't work</div>
+  </div>
+</footer>
+<script>(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  var stored = null;
+  try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    sun.style.display = dark ? 'block' : 'none';
+    moon.style.display = dark ? 'none' : 'block';
+  }
+  function sys(){ return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  apply(stored || sys());
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+  var mq = window.matchMedia('(prefers-color-scheme: light)');
+  if(mq.addEventListener) mq.addEventListener('change', function(){ if(!stored) apply(sys()); });
+})();</script>
+</body>
+</html>

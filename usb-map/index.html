@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USB 端口映射生成器 USBPorts.kext 在线生成 - 冷月技术网</title>
+<meta name="description" content="填好端口名与连接类型，浏览器里直接生成 USBPorts.kext 的 Info.plist，解决 macOS 15 端口限制与内建蓝牙、摄像头识别问题。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/usb-map/">
+<meta property="og:title" content="USB 端口映射生成器 - 冷月技术网">
+<meta property="og:description" content="在线生成 USBPorts.kext 的 Info.plist。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyjsw.dpdns.org/usb-map/">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.lab{padding:96px 0 70px;min-height:100vh}
+.lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
+.lab .lead{color:var(--text-sub);font-size:15px;max-width:800px}
+.panel{margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.panel label{display:block;font-size:13px;color:var(--text-mute);margin-bottom:8px;margin-top:14px}
+.panel label:first-child{margin-top:0}
+input[type=text],textarea,select{width:100%;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);
+  border-radius:10px;padding:10px 12px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:13px;outline:none}
+textarea{min-height:150px;line-height:1.7;font-size:12.5px;resize:vertical}
+input:focus,textarea:focus,select:focus{border-color:var(--border-strong)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.btn{cursor:pointer;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;border:1px solid transparent;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--text-sub);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
+.tip{font-size:12.5px;color:var(--text-mute);margin-top:10px;line-height:1.75}
+.tip code{background:var(--bg-soft);padding:2px 6px;border-radius:5px;font-size:12px}
+.out{margin-top:22px}
+.warnbox{border:1px solid rgba(251,191,36,.45);background:rgba(251,191,36,.08);border-radius:12px;padding:12px 14px;font-size:13.5px;color:#fbbf24;margin-top:14px}
+.errbox{border:1px solid rgba(248,113,113,.45);background:rgba(248,113,113,.08);border-radius:12px;padding:12px 14px;font-size:13.5px;color:#f87171;margin-top:14px}
+pre{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:14px;font-size:12px;line-height:1.7;
+  overflow:auto;max-height:420px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;color:var(--text-sub);margin-top:12px}
+.stat{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+.stat div{flex:1 1 120px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:13px}
+.stat b{display:block;font-size:19px;color:var(--text);margin-top:2px}
+.foot-cta{margin-top:32px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
+.foot-cta a{color:var(--accent);font-weight:600}
+@media(max-width:640px){.lab{padding:86px 0 50px}.lab h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a><a href="../works/index.html">案例</a><a href="../downloads/index.html">系统下载</a><a href="../tools/index.html">工具下载</a><a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="lab">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>USB 端口映射</span></div>
+    <h1>USB 端口映射生成器</h1>
+    <p class="lead">macOS 每个控制器只认 15 个端口，多了就随机丢失。这里按你勾选的端口直接产出 <b>USBPorts.kext</b> 的 Info.plist：端口号、连接类型、内建标记一次写对，蓝牙与摄像头也能被正确识别成内建设备。</p>
+
+    <div class="panel">
+      <div class="grid2">
+        <div>
+          <label for="pci">XHCI 控制器 PCI ID（ioreg 里查）</label>
+          <input type="text" id="pci" value="8086:51ed" placeholder="例：8086:a36d">
+        </div>
+        <div>
+          <label for="model">机型（写入 model，可留空）</label>
+          <input type="text" id="model" value="MacBookPro16,1" placeholder="例：iMac19,1">
+        </div>
+      </div>
+
+      <label for="ports">端口清单（每行一个：端口名,类型）</label>
+      <textarea id="ports">HS01,usb2
+HS02,usb2
+HS03,internal
+HS04,usb2
+SS01,usb3
+SS02,usb3
+SS03,typec</textarea>
+      <div class="row">
+        <button class="btn btn-primary" id="gen">生成 Info.plist</button>
+        <button class="btn btn-ghost" id="dl">下载 Info.plist</button>
+        <button class="btn btn-ghost" id="copy">复制内容</button>
+        <button class="btn btn-ghost" id="demo">载入典型笔记本配置</button>
+      </div>
+      <div class="tip">类型写 <code>usb2</code> / <code>usb3</code> / <code>typec</code> / <code>internal</code>。内建设备（蓝牙、摄像头、读卡器）必须选 internal，否则唤醒后失效。端口名按 ioreg 里的写法：USB2 端口一般是 HS01–HS14，USB3 是 SS01–SS10。</div>
+      <div class="out" id="out"></div>
+    </div>
+
+    <div class="foot-cta">生成的 kext 只是端口表，实际能不能用还取决控制器路径与 BIOS 里的 XHCI 设置。<a href="../contact/index.html">把 ioreg 发过来</a>，可以直接给你配好的整套 EFI。</div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  function apply(t){ root.setAttribute('data-theme', t); sun.style.display = t==='dark'?'none':'block'; moon.style.display = t==='dark'?'block':'none'; }
+  var stored; try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  apply(stored || 'dark');
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    apply(next); try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+})();
+var $ = function(s){ return document.querySelector(s); };
+var CONN = { usb2:0, usb3:3, typec:9, internal:255 };
+var CONN_ZH = { usb2:'USB 2.0', usb3:'USB 3.0', typec:'Type-C（可切换）', internal:'内建' };
+
+function b64port(n){
+  return btoa(String.fromCharCode(n,0,0,0));
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+var lastXml = '';
+
+function build(){
+  var pci = $('#pci').value.trim().toLowerCase();
+  var model = $('#model').value.trim();
+  var lines = $('#ports').value.split('\n');
+  var rows = [], bad = [];
+  lines.forEach(function(line, i){
+    var t = line.trim();
+    if (!t) return;
+    var parts = t.split(/[,，\s]+/);
+    var name = (parts[0]||'').toUpperCase();
+    var type = (parts[1]||'').toLowerCase();
+    if (!/^(HS|SS|USR|CAM|BLU|CRD)\w{2,}$/.test(name)){ bad.push('第 ' + (i+1) + ' 行端口名不像标准端口名：' + t); return; }
+    if (typeof CONN[type] === 'undefined'){ bad.push('第 ' + (i+1) + ' 行类型不认识：' + t); return; }
+    rows.push({name:name, type:type, conn:CONN[type], idx: rows.length+1});
+  });
+
+  var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+'<plist version="1.0">\n<dict>\n' +
+'\t<key>CFBundleDevelopmentRegion</key>\n\t<string>English</string>\n' +
+'\t<key>CFBundleIdentifier</key>\n\t<string>com.apple.driver.AppleUSBHostMergeProperties</string>\n' +
+'\t<key>CFBundleInfoDictionaryVersion</key>\n\t<string>6.0</string>\n' +
+'\t<key>CFBundleName</key>\n\t<string>USBPorts</string>\n' +
+'\t<key>CFBundlePackageType</key>\n\t<string>KEXT</string>\n' +
+'\t<key>CFBundleShortVersionString</key>\n\t<string>1.0</string>\n' +
+'\t<key>CFBundleVersion</key>\n\t<string>1.0</string>\n' +
+'\t<key>IOKitPersonalities</key>\n\t<dict>\n' +
+'\t\t<key>USBPorts</key>\n\t\t<dict>\n' +
+'\t\t\t<key>CFBundleIdentifier</key>\n\t\t\t<string>com.apple.driver.AppleUSBHostMergeProperties</string>\n' +
+'\t\t\t<key>IOClass</key>\n\t\t\t<string>AppleUSBHostMergeProperties</string>\n' +
+'\t\t\t<key>IOProviderClass</key>\n\t\t\t<string>AppleUSBHostController</string>\n' +
+'\t\t\t<key>IOProviderMergeProperties</key>\n\t\t\t<dict>\n' +
+'\t\t\t\t<key>ports</key>\n\t\t\t\t<dict>\n';
+
+  rows.forEach(function(r){
+    xml += '\t\t\t\t\t<key>' + r.name + '</key>\n\t\t\t\t\t<dict>\n' +
+      '\t\t\t\t\t\t<key>UsbConnector</key>\n\t\t\t\t\t\t<integer>' + r.conn + '</integer>\n' +
+      '\t\t\t\t\t\t<key>port</key>\n\t\t\t\t\t\t<data>' + b64port(r.idx) + '</data>\n' +
+      '\t\t\t\t\t</dict>\n';
+  });
+
+  var parts = pci.split(':');
+  var ven = ('0000' + (parts[0]||'0000')).slice(-4);
+  var dev = ('0000' + (parts[1]||'0000')).slice(-4);
+
+  xml += '\t\t\t\t</dict>\n';
+  if (model) xml += '\t\t\t\t<key>model</key>\n\t\t\t\t<string>' + esc(model) + '</string>\n';
+  xml += '\t\t\t</dict>\n' +
+'\t\t\t<key>IONameMatch</key>\n\t\t\t<string>XHC</string>\n' +
+'\t\t\t<key>IOProbeScore</key>\n\t\t\t<integer>1000</integer>\n' +
+'\t\t\t<key>IOPropertyMatch</key>\n\t\t\t<dict>\n' +
+'\t\t\t\t<key>IONameMatch</key>\n\t\t\t\t<string>pci' + ven + ',' + dev + '</string>\n' +
+'\t\t\t\t<key>IOPCITunnelCompatible</key>\n\t\t\t\t<true/>\n' +
+'\t\t\t\t<key>IOProviderClass</key>\n\t\t\t\t<string>IOPCIDevice</string>\n' +
+'\t\t\t\t<key>IOPCIPrimaryMatch</key>\n\t\t\t\t<string>0x' + dev + ven + '</string>\n' +
+'\t\t\t</dict>\n' +
+'\t\t</dict>\n\t</dict>\n</dict>\n</plist>\n';
+
+  lastXml = xml;
+  $('#out').innerHTML =
+    '<div class="stat">' +
+      '<div>端口总数<b>'+rows.length+'</b></div>' +
+      '<div>内建端口<b>'+rows.filter(function(r){return r.type==='internal';}).length+'</b></div>' +
+      '<div>USB3 / Type-C<b>'+rows.filter(function(r){return r.type==='usb3'||r.type==='typec';}).length+'</b></div>' +
+      '<div>上限<b>15</b></div>' +
+    '</div>' +
+    (rows.length > 15 ? '<div class="errbox">超过 15 个端口，macOS 只认前 15 个，多出来的会被忽略或挤掉别的端口。删掉用不上的，或把 USB2 与 USB3 同名端口合并计数。</div>' : '') +
+    (bad.length ? '<div class="warnbox">' + bad.map(esc).join('<br>') + '</div>' : '') +
+    (rows.length ? '' : '<div class="errbox">没有可用的端口行，检查格式是不是 名称,类型。</div>') +
+    '<pre id="xml">' + esc(xml) + '</pre>';
+  return xml;
+}
+
+$('#gen').addEventListener('click', build);
+$('#copy').addEventListener('click', function(){
+  var xml = build();
+  navigator.clipboard.writeText(xml).then(function(){ $('#copy').textContent='已复制'; setTimeout(function(){ $('#copy').textContent='复制内容'; },1600); });
+});
+$('#dl').addEventListener('click', function(){
+  var xml = build();
+  var blob = new Blob([xml], {type:'application/xml'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Info.plist';
+  a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+});
+$('#demo').addEventListener('click', function(){
+  $('#ports').value = 'HS01,usb2\nHS02,usb2\nHS03,internal\nHS04,usb2\nHS05,usb2\nHS06,internal\nHS07,usb2\nHS08,usb2\nSS01,usb3\nSS02,usb3\nSS03,typec\nSS04,usb3\nSS05,usb3\nSS06,typec';
+  build();
+});
+build();
+if (location.search.indexOf('demo') !== -1) $('#demo').click();
+</script>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>plist 在线查看与编辑 XML/二进制 - 冷月技术网</title>
+<meta name="description" content="浏览器里打开 XML 或二进制 plist，树状查看、改值、增删键、导出 XML。config.plist、Info.plist 都能直接处理，文件不上传。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/plist/">
+<meta property="og:title" content="plist 在线查看与编辑 - 冷月技术网">
+<meta property="og:description" content="XML 与二进制 plist 的浏览器内查看与编辑。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyjsw.dpdns.org/plist/">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.lab{padding:96px 0 60px;min-height:100vh}
+.lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
+.lab .lead{color:var(--text-sub);font-size:15px;max-width:790px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:22px}
+.btn{cursor:pointer;border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:600;border:1px solid transparent;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--text-sub);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
+.btn-sm{padding:5px 11px;font-size:12px;font-weight:600}
+.panel{margin-top:18px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px}
+textarea{width:100%;min-height:150px;resize:vertical;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);
+  border-radius:12px;padding:12px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.7;outline:none}
+textarea:focus{border-color:var(--border-strong)}
+.tree{margin-top:16px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:13px}
+.node{padding-left:18px;border-left:1px dashed var(--border);margin-left:6px}
+.node.root{padding-left:0;border-left:none;margin-left:0}
+.rowline{display:flex;gap:8px;align-items:center;padding:3px 0;flex-wrap:wrap}
+.key{color:#7dd3fc;min-width:120px}
+.type{font-size:11px;color:var(--text-mute);padding:1px 6px;border:1px solid var(--border);border-radius:10px;flex:0 0 auto}
+.val{flex:1 1 220px;min-width:120px;background:transparent;border:1px solid transparent;border-radius:7px;padding:3px 7px;
+  color:var(--text);font-family:"JetBrains Mono",monospace;font-size:12.5px;outline:none}
+.val:hover{border-color:var(--border)}
+.val:focus{border-color:var(--border-strong);background:var(--bg-soft)}
+.x{color:var(--text-mute);cursor:pointer;background:none;border:none;font-size:14px;padding:0 4px;font-family:inherit}
+.x:hover{color:#f87171}
+.plus{color:var(--text-mute);cursor:pointer;background:none;border:1px solid var(--border);border-radius:8px;font-size:11.5px;padding:2px 8px;font-family:inherit}
+.plus:hover{color:var(--accent);border-color:var(--border-strong)}
+.cnt{font-size:11.5px;color:var(--text-mute)}
+.msg{margin-top:14px;font-size:13.5px;color:var(--text-sub)}
+.msg.err{color:#f87171}
+pre.export{margin-top:16px;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:14px;
+  font-size:11.5px;line-height:1.65;overflow:auto;max-height:400px;font-family:"JetBrains Mono",monospace;color:var(--text-sub)}
+.foot-cta{margin-top:30px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
+.foot-cta a{color:var(--accent);font-weight:600}
+@media(max-width:640px){.lab{padding:86px 0 44px}.lab h1{font-size:24px}.key{min-width:90px}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a><a href="../works/index.html">案例</a><a href="../downloads/index.html">系统下载</a><a href="../tools/index.html">工具下载</a><a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="lab">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>plist 查看与编辑</span></div>
+    <h1>plist 查看与编辑</h1>
+    <p class="lead">XML 和二进制 plist 都能开：树状展开、直接改值、增删键，改完导出标准 XML。客户发来的 config.plist、kext 里的 Info.plist，不用装任何软件就能看。文件只在浏览器内存里，不上传。</p>
+
+    <div class="bar">
+      <button class="btn btn-primary" id="pick">选择 plist 文件</button>
+      <input type="file" id="file" accept=".plist,.xml,.bplist,text/plain" style="display:none">
+      <button class="btn btn-ghost" id="pasteBtn">粘贴 XML 文本</button>
+      <button class="btn btn-ghost" id="expand">展开全部</button>
+      <button class="btn btn-ghost" id="collapse">折叠全部</button>
+      <button class="btn btn-ghost" id="export">导出 XML</button>
+      <button class="btn btn-ghost" id="demo">载入示例</button>
+    </div>
+
+    <div class="panel" id="pastePanel" style="display:none">
+      <textarea id="src" placeholder="把 XML 格式的 plist 粘贴到这里，然后点下面的解析"></textarea>
+      <div class="bar"><button class="btn btn-primary" id="parseBtn">解析</button></div>
+    </div>
+
+    <div class="panel" id="treePanel" style="display:none">
+      <div class="rowline" style="margin-bottom:8px">
+        <span class="cnt" id="meta"></span>
+      </div>
+      <div class="tree" id="tree"></div>
+      <div id="io"></div>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <div class="foot-cta">编辑后记得在 ProperTree / OCAT 里复核一遍再放回 EFI，plist 里一个类型写错就可能不启动。<a href="../contact/index.html">需要直接改好的 EFI</a> 也可以丢过来。</div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  function apply(t){ root.setAttribute('data-theme', t); sun.style.display = t==='dark'?'none':'block'; moon.style.display = t==='dark'?'block':'none'; }
+  var stored; try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  apply(stored || 'dark');
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    apply(next); try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+})();
+var $ = function(s){ return document.querySelector(s); };
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+// ================= XML plist =================
+function parseXmlPlist(text){
+  var doc = new DOMParser().parseFromString(text, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) throw new Error('XML 语法错误');
+  var plist = doc.documentElement;
+  if (plist.nodeName !== 'plist') throw new Error('根节点不是 <plist>');
+  var n = null;
+  for (var i=0;i<plist.childNodes.length;i++){ if (plist.childNodes[i].nodeType===1){ n = plist.childNodes[i]; break; } }
+  if (!n) throw new Error('plist 是空的');
+  return fromXml(n);
+}
+function fromXml(n){
+  var tag = n.nodeName;
+  if (tag === 'dict'){
+    var o = [], keys = [], vals = [], ch = n.childNodes;
+    for (var i=0;i<ch.length;i++){
+      if (ch[i].nodeType !== 1) continue;
+      if (ch[i].nodeName === 'key') keys.push(ch[i].textContent.trim());
+      else vals.push(ch[i]);
+    }
+    for (var k=0;k<keys.length;k++){ o.push({k:keys[k], v: vals[k] ? fromXml(vals[k]) : {t:'string', v:''}}); }
+    return {t:'dict', v:o};
+  }
+  if (tag === 'array'){
+    var a = [];
+    for (var j=0;j<n.childNodes.length;j++){ if (n.childNodes[j].nodeType===1) a.push(fromXml(n.childNodes[j])); }
+    return {t:'array', v:a};
+  }
+  if (tag === 'true') return {t:'bool', v:true};
+  if (tag === 'false') return {t:'bool', v:false};
+  if (tag === 'integer') return {t:'int', v:parseInt((n.textContent||'0').trim(),10)};
+  if (tag === 'real') return {t:'real', v:parseFloat((n.textContent||'0').trim())};
+  if (tag === 'string') return {t:'string', v:n.textContent||''};
+  if (tag === 'data') return {t:'data', v:(n.textContent||'').replace(/\s+/g,'')};
+  if (tag === 'date') return {t:'date', v:(n.textContent||'').trim()};
+  return {t:'string', v:(n.textContent||'').trim()};
+}
+
+// ================= 二进制 bplist =================
+function readUInt(b, p, size){
+  var v = 0;
+  for (var i=0;i<size;i++) v = v * 256 + (b[p+i] || 0);
+  return v;
+}
+function readFloat64(b, p){
+  var buf = new ArrayBuffer(8), dv = new DataView(buf);
+  for (var i=0;i<8;i++) dv.setUint8(i, b[p+i] || 0);
+  return dv.getFloat64(0);
+}
+function bytesToHex(b, p, n){
+  var s = '';
+  for (var i=0;i<n;i++) s += ('0'+b[p+i].toString(16)).slice(-2);
+  return s.toUpperCase();
+}
+function parseBinaryPlist(bytes){
+  var len = bytes.length;
+  if (len < 40) throw new Error('文件太小，不是二进制 plist');
+  if (!(bytes[0]===98 && bytes[1]===112 && bytes[2]===108 && bytes[3]===105 && bytes[4]===115 && bytes[5]===116)) throw new Error('缺少 bplist 文件头');
+  var trailer = len - 32;
+  var offSize = bytes[trailer + 6];
+  var refSize = bytes[trailer + 7];
+  var numObj = readUInt(bytes, trailer + 8, 8);
+  var topObj = readUInt(bytes, trailer + 16, 8);
+  var offTable = readUInt(bytes, trailer + 24, 8);
+  if (numObj <= 0 || numObj > 2000000) throw new Error('对象数量异常，文件可能损坏');
+  if (offSize <= 0 || refSize <= 0) throw new Error('偏移表异常');
+
+  var offsets = [];
+  for (var i=0;i<numObj;i++) offsets.push(readUInt(bytes, offTable + i*offSize, offSize));
+
+  // 长度字段：可能是 4 位内联，也可能是一个 int 对象
+  function lenAt(pos){
+    var m = bytes[pos];
+    if ((m >> 4) === 1){
+      var sz = 1 << (m & 0x0F);
+      return { n: readUInt(bytes, pos+1, sz), next: pos+1+sz };
+    }
+    return { n: (m & 0x0F), next: pos+1 };
+  }
+
+  var depth = 0;
+  function obj(idx){
+    if (depth > 60) throw new Error('嵌套过深');
+    var off = offsets[idx];
+    if (typeof off === 'undefined') throw new Error('对象引用越界');
+    var mark = bytes[off];
+    var type = mark >> 4, info = mark & 0x0F;
+    var pos = off + 1;
+
+    if (type === 0){
+      if (mark === 0x08) return {t:'bool', v:false};
+      if (mark === 0x09) return {t:'bool', v:true};
+      return {t:'string', v:''};
+    }
+    if (type === 1) return {t:'int', v: readUInt(bytes, pos, 1 << info)};
+    if (type === 2) return {t:'real', v: (info === 2 ? readFloat64(bytes, pos) : readFloat32(bytes, pos))};
+    if (type === 3){
+      var d = readFloat64(bytes, pos);
+      try { return {t:'date', v: new Date((d + 978307200) * 1000).toISOString().replace('.000Z','Z')}; }
+      catch(e){ return {t:'date', v:''}; }
+    }
+    if (type === 4){
+      var L4 = lenAt(pos);
+      return {t:'data', v: bytesToHex(bytes, L4.next, Math.min(L4.n, 400)) + (L4.n > 400 ? '…(' + L4.n + ' 字节)' : '')};
+    }
+    if (type === 5){
+      var L5 = lenAt(pos), s5 = '';
+      for (var a=0;a<L5.n;a++) s5 += String.fromCharCode(bytes[L5.next + a]);
+      return {t:'string', v:s5};
+    }
+    if (type === 6){
+      var L6 = lenAt(pos), s6 = '';
+      for (var b=0;b<L6.n;b++){
+        var lo = bytes[L6.next + b*2] || 0, hi = bytes[L6.next + b*2 + 1] || 0;
+        s6 += String.fromCharCode(lo | (hi << 8));
+      }
+      return {t:'string', v:s6};
+    }
+    if (type === 8) return {t:'int', v: readUInt(bytes, pos, info + 1)};
+    if (type === 0xA || type === 0xB || type === 0xC){
+      var LA = lenAt(pos), arr = [];
+      depth++;
+      for (var c=0;c<LA.n;c++) arr.push(obj(readUInt(bytes, LA.next + c*refSize, refSize)));
+      depth--;
+      return {t:'array', v:arr};
+    }
+    if (type === 0xD){
+      var LD = lenAt(pos), list = [];
+      depth++;
+      for (var e=0;e<LD.n;e++){
+        var ki = readUInt(bytes, LD.next + e*refSize, refSize);
+        var vi = readUInt(bytes, LD.next + LD.n*refSize + e*refSize, refSize);
+        list.push({ k: String(obj(ki).v), v: obj(vi) });
+      }
+      depth--;
+      return {t:'dict', v:list};
+    }
+    return {t:'string', v:'<不支持的二进制类型 0x' + mark.toString(16) + '>'};
+  }
+  return obj(topObj);
+}
+function readFloat32(b, p){
+  var buf = new ArrayBuffer(4), dv = new DataView(buf);
+  for (var i=0;i<4;i++) dv.setUint8(i, b[p+i]||0);
+  return dv.getFloat32(0);
+}
+
+// ================= 渲染 =================
+var ROOT = null;
+var pathOf = new WeakMap();
+
+function render(){
+  var tree = $('#tree');
+  tree.innerHTML = '';
+  if (!ROOT) return;
+  tree.appendChild(nodeEl(ROOT, [], 'root', ''));
+  $('#treePanel').style.display = 'block';
+  // 统计
+  var c = {dict:0, array:0, string:0, int:0, real:0, bool:0, data:0, date:0};
+  (function walk(n){ c[n.t] = (c[n.t]||0)+1; if (n.t==='dict') n.v.forEach(function(e){ walk(e.v); }); if (n.t==='array') n.v.forEach(walk); })(ROOT);
+  $('#meta').textContent = '顶层 ' + ROOT.t + ' · 字典 ' + c.dict + ' · 数组 ' + c.array + ' · 字符串 ' + c.string + ' · 数字 ' + (c.int+c.real);
+}
+
+function nodeEl(n, path, key, extra){
+  var wrap = document.createElement('div');
+  wrap.className = 'node' + (path.length === 0 ? ' root' : '');
+  wrap.dataset.path = JSON.stringify(path);
+  if (n.t === 'dict' || n.t === 'array'){
+    var head = document.createElement('div');
+    head.className = 'rowline';
+    var label = document.createElement('span');
+    label.className = 'key';
+    label.textContent = (key === '' ? '' : key);
+    var tp = document.createElement('span');
+    tp.className = 'type';
+    tp.textContent = n.t === 'dict' ? 'dict ' + n.v.length : 'array ' + n.v.length;
+    head.appendChild(label); head.appendChild(tp);
+    var btn = document.createElement('button');
+    btn.className = 'plus';
+    btn.textContent = n.t === 'dict' ? '＋ 键' : '＋ 项';
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      addChild(path, n);
+    });
+    head.appendChild(btn);
+    var tog = document.createElement('button');
+    tog.className = 'plus';
+    tog.textContent = '折叠';
+    tog.addEventListener('click', function(e){
+      e.stopPropagation();
+      var open = body.style.display !== 'none';
+      body.style.display = open ? 'none' : 'block';
+      tog.textContent = open ? '展开' : '折叠';
+    });
+    head.appendChild(tog);
+    if (path.length > 0){
+      var del = document.createElement('button');
+      del.className = 'x'; del.textContent = '✕';
+      del.title = '删除这一项';
+      del.addEventListener('click', function(e){ e.stopPropagation(); removeAt(path); });
+      head.appendChild(del);
+    }
+    wrap.appendChild(head);
+    var body = document.createElement('div');
+    if (n.t === 'dict'){
+      n.v.forEach(function(pair, i){ body.appendChild(nodeEl(pair.v, path.concat(i), pair.k, 'dict')); });
+    } else {
+      n.v.forEach(function(child, i){ body.appendChild(nodeEl(child, path.concat(i), '[' + i + ']', 'array')); });
+    }
+    wrap.appendChild(body);
+  } else {
+    var row = document.createElement('div');
+    row.className = 'rowline';
+    var k = document.createElement('span');
+    k.className = 'key'; k.textContent = key;
+    var t = document.createElement('span');
+    t.className = 'type'; t.textContent = n.t;
+    var input = document.createElement('input');
+    input.className = 'val';
+    if (n.t === 'bool'){
+      input.type = 'checkbox';
+      input.checked = !!n.v;
+      input.style.flex = '0 0 auto';
+      input.addEventListener('change', function(){ setVal(path, input.checked); });
+    } else {
+      input.type = 'text';
+      input.value = n.t === 'data' ? n.v : String(n.v);
+      input.title = n.t === 'data' ? 'data 的十六进制内容' : '';
+      input.addEventListener('input', function(){ setVal(path, input.value); });
+    }
+    var del = document.createElement('button');
+    del.className = 'x'; del.textContent = '✕';
+    del.addEventListener('click', function(){ removeAt(path); });
+    row.appendChild(k); row.appendChild(t); row.appendChild(input); row.appendChild(del);
+    wrap.appendChild(row);
+  }
+  return wrap;
+}
+
+function getAt(path){
+  var cur = ROOT;
+  for (var i=0;i<path.length;i++){
+    cur = cur.t === 'dict' ? cur.v[path[i]].v : cur.v[path[i]];
+  }
+  return cur;
+}
+function setVal(path, value){
+  var n = getAt(path);
+  if (!n) return;
+  if (n.t === 'bool') n.v = value;
+  else if (n.t === 'int'){ var iv = parseInt(value,10); n.v = isNaN(iv) ? 0 : iv; }
+  else if (n.t === 'real'){ var fv = parseFloat(value); n.v = isNaN(fv) ? 0 : fv; }
+  else n.v = value;
+}
+function removeAt(path){
+  if (!path.length){ ROOT = null; $('#tree').innerHTML=''; $('#meta').textContent=''; return; }
+  var parent = getAt(path.slice(0,-1));
+  var idx = path[path.length-1];
+  if (parent.t === 'dict') parent.v.splice(idx,1);
+  else parent.v.splice(idx,1);
+  render();
+}
+function addChild(path, node){
+  var name = '';
+  if (node.t === 'dict'){ name = prompt('新键名（英文，例：boot-args）'); if (!name) return; }
+  var val = prompt('值（直接回车等于空字符串）');
+  var child = {t:'string', v: val === null ? '' : val};
+  if (node.t === 'dict') node.v.push({k:name, v:child});
+  else node.v.push(child);
+  render();
+}
+
+// ================= 导出 =================
+function toXml(n, indent){
+  var pad = new Array(indent+1).join('\t');
+  if (n.t === 'dict'){
+    var s = pad + '<dict>\n';
+    n.v.forEach(function(pair){
+      s += pad + '\t<key>' + esc(pair.k) + '</key>\n' + toXml(pair.v, indent+1);
+    });
+    return s + pad + '</dict>\n';
+  }
+  if (n.t === 'array'){
+    var a = pad + '<array>\n';
+    n.v.forEach(function(c){ a += toXml(c, indent+1); });
+    return a + pad + '</array>\n';
+  }
+  if (n.t === 'bool') return pad + (n.v ? '<true/>' : '<false/>') + '\n';
+  if (n.t === 'int') return pad + '<integer>' + n.v + '</integer>\n';
+  if (n.t === 'real') return pad + '<real>' + n.v + '</real>\n';
+  if (n.t === 'data') return pad + '<data>' + esc(n.v) + '</data>\n';
+  if (n.t === 'date') return pad + '<date>' + esc(n.v) + '</date>\n';
+  return pad + '<string>' + esc(n.v) + '</string>\n';
+}
+function exportXml(){
+  if (!ROOT){ $('#msg').className = 'msg err'; $('#msg').textContent = '先打开一个 plist。'; return; }
+  var xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n' +
+    '<plist version="1.0">\n' + toXml(ROOT, 0) + '</plist>\n';
+  $('#msg').className = 'msg';
+  $('#msg').textContent = '已生成 XML，下面可直接复制或下载。';
+  $('#io').innerHTML = '<pre class="export">' + esc(xml) + '</pre>' +
+    '<div class="bar"><button class="btn btn-primary btn-sm" id="dlx">下载 plist</button>' +
+    '<button class="btn btn-ghost btn-sm" id="cpx">复制 XML</button></div>';
+  $('#dlx').addEventListener('click', function(){
+    var blob = new Blob([xml], {type:'application/xml'});
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'export.plist'; a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+  });
+  $('#cpx').addEventListener('click', function(){
+    navigator.clipboard.writeText(xml).then(function(){ $('#cpx').textContent='已复制'; });
+  });
+}
+
+// ================= 入口 =================
+function loadText(text){
+  try {
+    ROOT = parseXmlPlist(text);
+    render();
+    $('#msg').className = 'msg';
+    $('#msg').textContent = '解析成功（XML 格式）。';
+  } catch(e){
+    $('#msg').className = 'msg err';
+    $('#msg').textContent = '解析失败：' + e.message;
+  }
+}
+function loadBinary(buf){
+  try {
+    ROOT = parseBinaryPlist(new Uint8Array(buf));
+    render();
+    $('#msg').className = 'msg';
+    $('#msg').textContent = '解析成功（二进制 plist，已转成可编辑的树）。';
+  } catch(e){
+    $('#msg').className = 'msg err';
+    $('#msg').textContent = '二进制解析失败：' + e.message + '。可以先用 ProperTree 另存为 XML 再试。';
+  }
+}
+
+$('#pick').addEventListener('click', function(){ $('#file').click(); });
+$('#file').addEventListener('change', function(e){
+  var f = e.target.files[0]; if (!f) return;
+  var fr = new FileReader();
+  fr.onload = function(){
+    var res = fr.result;
+    if (typeof res === 'string'){
+      loadText(res);
+    } else {
+      // 二进制读进来后 ArrayBuffer
+      var b = new Uint8Array(res);
+      var head = '';
+      for (var i=0;i<Math.min(8,b.length);i++) head += String.fromCharCode(b[i]);
+      if (head.indexOf('bplist') === 0) loadBinary(res);
+      else {
+        var dec = new TextDecoder('utf-8').decode(res);
+        loadText(dec);
+      }
+    }
+  };
+  // 先按 ArrayBuffer 读，自行判断文本还是二进制
+  fr.readAsArrayBuffer(f);
+});
+$('#pasteBtn').addEventListener('click', function(){
+  var p = $('#pastePanel');
+  p.style.display = p.style.display === 'none' ? 'block' : 'none';
+});
+$('#parseBtn').addEventListener('click', function(){
+  var t = $('#src').value;
+  if (!t.trim()){ $('#msg').className='msg err'; $('#msg').textContent='先粘一段 XML plist。'; return; }
+  loadText(t);
+});
+$('#expand').addEventListener('click', function(){
+  document.querySelectorAll('#tree .node > div').forEach(function(d){ d.style.display = 'block'; });
+});
+$('#collapse').addEventListener('click', function(){
+  document.querySelectorAll('#tree .node').forEach(function(el){
+    var body = el.children[1];
+    if (body && !el.classList.contains('root')) body.style.display = 'none';
+  });
+});
+$('#export').addEventListener('click', exportXml);
+
+var DEMO = '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0"><dict>' +
+'<key>Boot</key><dict><key>Timeout</key><integer>5</integer><key>PickerMode</key><string>External</string></dict>' +
+'<key>Devices</key><array><string>PciRoot(0x0)/Pci(0x2,0x0)</string><string>PciRoot(0x0)/Pci(0x1f,0x3)</string></array>' +
+'<key>Debug</key><true/></dict></plist>';
+$('#demo').addEventListener('click', function(){ $('#pastePanel').style.display='block'; $('#src').value = DEMO; loadText(DEMO); });
+if (location.search.indexOf('demo') !== -1){ $('#pastePanel').style.display='block'; $('#src').value = DEMO; loadText(DEMO); }
+</script>
+</body>
+</html>

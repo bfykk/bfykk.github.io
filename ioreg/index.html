@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ioreg 在线诊断 黑苹果硬件识别 - 冷月技术网</title>
+<meta name="description" content="把 ioreg 输出粘贴进来，自动识别显卡、无线网卡、声卡 codec、蓝牙、触控板、NVMe 硬盘，并给出对应的黑苹果补丁方向。纯浏览器本地解析，不上传。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/ioreg/">
+<meta property="og:title" content="ioreg 在线诊断 - 冷月技术网">
+<meta property="og:description" content="粘贴 ioreg 输出，自动识别黑苹果关键硬件并给出补丁方向。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyjsw.dpdns.org/ioreg/">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.lab{padding:96px 0 70px;min-height:100vh}
+.lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
+.lab .lead{color:var(--text-sub);font-size:15px;max-width:760px}
+.panel{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.panel label{display:block;font-size:13px;color:var(--text-mute);margin-bottom:9px;letter-spacing:.02em}
+textarea{width:100%;min-height:200px;resize:vertical;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);
+  border-radius:12px;padding:14px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.6;outline:none}
+textarea:focus{border-color:var(--border-strong)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
+.btn{cursor:pointer;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;border:1px solid transparent;font-family:inherit}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--text-sub);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
+.tip{font-size:12.5px;color:var(--text-mute);margin-top:10px;line-height:1.7}
+.tip code{background:var(--bg-soft);padding:2px 6px;border-radius:5px;font-size:12px}
+.res{margin-top:28px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.sum .box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
+.sum .k{font-size:12px;color:var(--text-mute);margin-bottom:4px}
+.sum .v{font-size:15px;font-weight:700;word-break:break-all}
+.cat{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px}
+.item h3{font-size:16px;margin:4px 0 6px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.item .badge{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--border-strong);color:var(--accent);font-weight:600}
+.item .badge.warn{border-color:rgba(251,191,36,.5);color:#fbbf24}
+.item .badge.bad{border-color:rgba(248,113,113,.5);color:#f87171}
+.item p{font-size:14px;color:var(--text-sub);margin-top:6px}
+.item .ev{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--text-mute);margin-top:8px;word-break:break-all}
+.empty{margin-top:26px;font-size:14px;color:var(--text-mute)}
+details{margin-top:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+summary{cursor:pointer;font-size:14px;color:var(--text-sub)}
+details pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;max-height:280px;font-family:"JetBrains Mono",monospace}
+.foot-cta{margin-top:34px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
+.foot-cta a{color:var(--accent);font-weight:600}
+@media(max-width:640px){.lab{padding:86px 0 50px}.lab h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a>
+      <a href="../works/index.html">案例</a>
+      <a href="../downloads/index.html">系统下载</a>
+      <a href="../tools/index.html">工具下载</a>
+      <a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="lab">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>ioreg 诊断</span></div>
+    <h1>ioreg 在线诊断</h1>
+    <p class="lead">把 <code style="font-family:'JetBrains Mono',monospace">ioreg -l</code> 的输出整段粘进来，当场列出这台机器的显卡、无线网卡、声卡 codec、蓝牙、触控板、硬盘，并标出对应的黑苹果处理方向。解析全在浏览器里做，一个字都不会上传。</p>
+
+    <div class="panel">
+      <label for="src">粘贴 ioreg 输出</label>
+      <textarea id="src" placeholder="在 macOS 终端执行：ioreg -l | tee ~/Desktop/ioreg.txt&#10;然后把 ioreg.txt 的内容整段粘到这里，或点下面的「选择文件」"></textarea>
+      <div class="row">
+        <button class="btn btn-primary" id="run">开始诊断</button>
+        <button class="btn btn-ghost" id="pick">选择文件</button>
+        <input type="file" id="file" accept=".txt,.log,.ioreg,text/plain" style="display:none">
+        <button class="btn btn-ghost" id="demo">载入示例</button>
+        <a class="btn btn-ghost" href="https://lyjsw.dpdns.org/tools/index.html">返回工具页 →</a>
+      </div>
+      <div class="tip">常用取法：<code>ioreg -l</code> 全量；只要设备树用 <code>ioreg -p IOService -l</code>；只要 PCI 用 <code>ioreg -p IOService -n IOPCIDevice -r -l</code>。文件越大识别越准，几百 KB 都是正常体积。</div>
+    </div>
+
+    <div class="res" id="res"></div>
+
+    <div class="foot-cta">诊断结果只是方向判断，具体补丁要结合机型与 BIOS。<a href="../contact/index.html">把 ioreg 和 EFI 一起发过来</a>，可以直接给你落到 config.plist 的方案。</div>
+  </div>
+</main>
+
+<script>
+// ===== 主题 =====
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  function apply(t){ root.setAttribute('data-theme', t); sun.style.display = t==='dark'?'none':'block'; moon.style.display = t==='dark'?'block':'none'; }
+  var stored; try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  apply(stored || 'dark');
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme')==='dark' ? 'light' : 'dark';
+    apply(next); try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+})();
+
+// ===== 规则库：靠 PCI/USB ID 说话，不猜 =====
+// vid:pid 统一小写四位
+var PCI = [
+  // ---- 核显（Intel） ----
+  {id:'8086:46a0', cat:'显卡', name:'Intel Iris Xe（Alder Lake / Raptor Lake-P 核显）', advice:'核显走 WhateverGreen + device-id 伪装；13 代平台上常见帧缓冲用 0x3E9B0007 或 0x8A530003，要按实际输出口调整 connector。仅用核显时 SMBIOS 建议 MacBookPro16,x 一类。'},
+  {id:'8086:46a3', cat:'显卡', name:'Intel Iris Xe（Alder Lake-P 核显）', advice:'同上，注意 46A3 与 46A0 帧缓冲略有差异，改 device-id 后先用 Hackintool 核对 connector-index。'},
+  {id:'8086:46a6', cat:'显卡', name:'Intel Iris Xe（Alder Lake-P 核显）', advice:'核显驱动需要 WhateverGreen，优先配 AAPL,ig-platform-id；若外接 HDMI 无信号，先查 connector 类型是否为 HDMI 而非 DP。'},
+  {id:'8086:a7a0', cat:'显卡', name:'Intel Iris Xe（Raptor Lake-P 核显）', advice:'Raptor Lake 核显基本复用 Alder Lake 帧缓冲，靠 device-id 伪装实现加速；不加速时的典型现象是界面卡顿、视频解码失败。'},
+  {id:'8086:9a60', cat:'显卡', name:'Intel UHD（Tiger Lake 核显）', advice:'Tiger Lake 核显需伪装成 Ice Lake 帧缓冲，注意 9A60 与新平台 device-id 对应表。'},
+
+  // ---- 无线网卡 ----
+  {id:'8086:51f1', cat:'无线网卡', name:'Intel AX211（Wi-Fi 6E，CNVi 模块）', advice:'AX211 是 CNVi 挂载，不是独立 PCIe 卡：原生 macOS 无驱动，itlwm + HeliPort 只在部分机型稳定；更稳的做法是换 BCM94360NG / BCM943224 拆机卡。若坚持 AX211，蓝牙走 USB 8087:0033，需要 BlueToolFixup 补丁。'},
+  {id:'8086:2725', cat:'无线网卡', name:'Intel AX210（Wi-Fi 6E，PCIe 模块）', advice:'AX210 是标准 M.2 PCIe 卡，可换为 BCM94360NG；用 itlwm 时注意机型白名单与 sleep 唤醒后掉线问题。'},
+  {id:'8086:2526', cat:'无线网卡', name:'Intel AX200（Wi-Fi 6）', advice:'AX200 常见于台式机与部分轻薄本，itlwm 支持较好；原装卡换 BCM 是最省事的路线。'},
+  {id:'8086:a0f0', cat:'无线网卡', name:'Intel AX201（CNVi）', advice:'CNVi 挂载，无法直接替换为 BCM 拆机卡，只能用 itlwm 或换整块无线模块。'},
+  {id:'14e4:43a0', cat:'无线网卡', name:'Broadcom BCM94360CS2 / 943602CS', advice:'原生免驱卡，AirDrop / Handoff / 隔空投送开箱可用，注意 USB 蓝牙要接内建端口并打内建补丁。'},
+  {id:'14e4:43b1', cat:'无线网卡', name:'Broadcom BCM943224 / 94360 系列', advice:'免驱，注意 5G 频段与天线接法；老卡在 Ventura 之后需要 AirportBrcmFixup 兼容补丁。'},
+
+  // ---- 有线网卡 ----
+  {id:'10ec:8168', cat:'有线网卡', name:'Realtek RTL8111/8168', advice:'用 RealtekRTL8111.kext（Mieze 版），注意关闭 BIOS 里的节能以太网；掉线问题优先查 EEE 与巨型帧。'},
+  {id:'10ec:8125', cat:'有线网卡', name:'Realtek RTL8125 2.5G', advice:'2.5G 网卡用 LucyRTL8125Ethernet.kext，注意 2.5G 协商在部分交换机上会掉速。'},
+  {id:'8086:15b8', cat:'有线网卡', name:'Intel 千兆（I219-V）', advice:'IntelMausi.kext 直接驱动，基本零配置。'},
+
+  // ---- 声卡 codec ----
+  {id:'10ec:0256', cat:'声卡', name:'Realtek ALC256', advice:'AppleALC + layout-id 常从 11 / 13 / 21 / 66 里试，ALC256 在部分机型需要 alc-verb 或 CodecCommander 修休眠后无声。先确认 HDEF 的 PCI 路径，再在 DeviceProperties 注入 layout-id。'},
+  {id:'10ec:0257', cat:'声卡', name:'Realtek ALC257', advice:'AppleALC layout-id 常用 11 / 13 / 21 / 99，笔记本外放与耳机切换靠 ALC 补丁，注意 jack sense。'},
+  {id:'10ec:0295', cat:'声卡', name:'Realtek ALC295', advice:'layout-id 常见 3 / 13 / 21 / 28，麦克风阵列常需额外 alc-verb 打开。'},
+  {id:'10ec:0897', cat:'声卡', name:'Realtek ALC897', advice:'台式机常见，layout-id 11 / 12 / 66 / 98 逐个试，前置面板需确认 pin 配置。'},
+  {id:'10ec:0286', cat:'声卡', name:'Realtek ALC286', advice:'少见，优先在 AppleALC 的 Platforms 里找同名 codec 的 layout。'},
+  {id:'8086:51c8', cat:'声卡', name:'Intel Smart Sound（SST / SOF）', advice:'这是 Intel 的 SST 控制器，不是 codec 本身。笔记本走 SST 时需要 AppleALC 的 SST 支持或直接用 USB 声卡；codec 一般挂在 10EC 下。'},
+
+  // ---- 蓝牙 ----
+  {id:'8087:0033', cat:'蓝牙', name:'Intel 蓝牙（AX211 配套）', advice:'走 USB，需要 BlueToolFixup + BrcmPatchRAM3 或 IntelBluetoothFirmware；唤醒后失效是常见问题。'},
+  {id:'8087:0029', cat:'蓝牙', name:'Intel 蓝牙（AX200 配套）', advice:'IntelBluetoothFirmware + BlueToolFixup，注意开机顺序与 USB 端口内建。'},
+  {id:'0a12:0001', cat:'蓝牙', name:'CSR 蓝牙适配器', advice:'老款 USB 蓝牙，基本免驱，注意端口内建。'},
+
+  // ---- 触控板 / 输入 ----
+  {id:'04f3:31b9', cat:'触控板', name:'ELAN I2C 触控板', advice:'走 VoodooI2C + VoodooI2CELAN，先确认 I2C 控制器（INT344B / INT34BB）在 ACPI 里没被改名，GPIO pinning 要对准。'},
+  {id:'06cb:cd41', cat:'触控板', name:'Synaptics I2C 触控板', advice:'VoodooI2CSynaptics，注意 I2C HID 设备要打 _DSM 或 SSDT-XOSI 补丁。'},
+  {id:'04f3:3140', cat:'触控板', name:'ELAN 触控板（另一批次）', advice:'同上，按 ELAN 系列驱动；多点手势需 VoodooI2CHID 配合。'},
+
+  // ---- 显卡（AMD） ----
+  {id:'1002:73ff', cat:'显卡', name:'AMD Radeon RX 6600/6650', advice:'Navi 23 免驱（需 WhateverGreen），注意 Resizable BAR 与 Above4G 解码；Ventura 之后需要禁用某些 DRM 硬解场景。'},
+  {id:'1002:73df', cat:'显卡', name:'AMD Radeon RX 6700/6750', advice:'Navi 22 免驱，注意 6700 系列在部分版本需 device-id 伪装成 73FF。'},
+  {id:'1002:731f', cat:'显卡', name:'AMD Radeon RX 5700/5700XT', advice:'Navi 10 免驱，注意关闭 CSM 与开启 Above4G。'},
+  {id:'1002:67df', cat:'显卡', name:'AMD Radeon RX 580/570', advice:'Polaris 免驱，注意显存需 8GB 以上才建议用于 macOS。'},
+  {id:'1002:683f', cat:'显卡', name:'AMD Radeon HD 7700 系列', advice:'老 GCN，Ventura 之后基本不建议。'},
+
+  // ---- 存储 ----
+  {id:'144d:a80a', cat:'硬盘', name:'三星 980 PRO（NVMe）', advice:'macOS 对部分三星主控 trim 支持一般，建议开启 Trim 并注意固件版本；睡眠唤醒掉盘先查 NVMe 电源管理。'},
+  {id:'144d:a808', cat:'硬盘', name:'三星 970 EVO Plus（NVMe）', advice:'部分批次固件与 macOS 不兼容，会表现为安装阶段找不到盘，更新固件通常能解决。'},
+  {id:'15b7:5017', cat:'硬盘', name:'WD SN560 / SN570 系列（NVMe）', advice:'SN560 常见于轻薄本原装盘，个别批次在 macOS 安装时掉盘或休眠后不认盘，优先确认固件版本，必要时换 SN570/SN770 或三星 970 EVO。'},
+  {id:'1e0f:0001', cat:'硬盘', name:'KIOXIA / 东芝 NVMe', advice:'东芝主控兼容性总体好，注意关闭 BIOS 里的 SATA/NVMe RAID 模式。'},
+  {id:'1987:xxxx', cat:'硬盘', name:'Phison 主控 NVMe', advice:'群联主控部分型号掉盘，尽量选 DRAM 缓存的盘。'}
+];
+
+var NAMES = {
+  '显卡':'显卡与帧缓冲','无线网卡':'无线与蓝牙','有线网卡':'有线网络','声卡':'音频 codec','蓝牙':'蓝牙','触控板':'触控板与输入','硬盘':'存储'
+};
+
+var ORDER = ['显卡','无线网卡','有线网卡','声卡','蓝牙','触控板','硬盘'];
+
+var SAMPLE = '+-o IOPCIDevice  <class IOPCIDevice, id 0x1000001d7, registered, matched>\n' +
+'    "IONameMatched" = "pci8086,46a0"\n' +
+'    "model" = <"Intel Iris Xe Graphics">\n' +
+'+-o pci8086,51f1@14  <class IOPCIDevice>\n' +
+'    "IONameMatched" = "pci8086,51f1"\n' +
+'+-o pci10ec,256@1f,3  <class IOPCIDevice>\n' +
+'    "IONameMatched" = "pci10ec,0256"\n' +
+'    "IOClass" = "AppleHDAController"\n' +
+'+-o pci15b7,5017@17  <class IOPCIDevice>\n' +
+'    "IONameMatched" = "pci15b7,5017"\n' +
+'    "Product Name" = "WD SN560 1TB"\n' +
+'+-o IOUSBHostDevice@1a100000\n' +
+'    "idVendor" = 32807\n' +
+'    "idProduct" = 51\n' +
+'    "USB Product Name" = "Intel Bluetooth"\n';
+
+var $ = function(s){ return document.querySelector(s); };
+
+function hex4(v){ return ('0000'+v.toString(16)).slice(-4); }
+
+function collect(text){
+  var found = {}; // id -> {count, ctx:[], usb:false}
+  var re = /pci([0-9a-fA-F]{4}),([0-9a-fA-F]{1,4})/g, m;
+  while ((m = re.exec(text)) !== null){
+    var id = m[1].toLowerCase() + ':' + ('0000' + m[2].toLowerCase()).slice(-4);
+    if (!found[id]) found[id] = {id:id, count:0, ctx:[]};
+    found[id].count++;
+    var from = Math.max(0, m.index - 90), to = Math.min(text.length, m.index + 120);
+    var ctx = text.slice(from, to).replace(/\s+/g,' ').slice(0,150);
+    if (found[id].ctx.length < 2 && found[id].ctx.indexOf(ctx) === -1) found[id].ctx.push(ctx);
+  }
+  // USB 设备：idVendor / idProduct 十进制
+  var ure = /"idVendor"\s*=\s*(\d+)[\s\S]{0,200}?"idProduct"\s*=\s*(\d+)/g;
+  while ((m = ure.exec(text)) !== null){
+    var v = parseInt(m[1],10), p = parseInt(m[2],10);
+    var uid = hex4(v) + ':' + hex4(p);
+    if (!found[uid]) found[uid] = {id:uid, count:0, ctx:[], usb:true};
+    found[uid].count++;
+    if (found[uid].ctx.length < 2) found[uid].ctx.push(('USB ' + uid + ' ' + text.slice(m.index, Math.min(text.length, m.index + 160)).replace(/\s+/g,' ')).slice(0,150));
+  }
+  return found;
+}
+
+function detectModel(text){
+  var pats = [
+    /"SystemProductName"\s*=\s*"([^"]+)"/i,
+    /"ModelIdentifier"\s*=\s*"([^"]+)"/i,
+    /"board-id"\s*=\s*"([^"]+)"/i,
+    /"product-name"\s*=\s*"([^"]+)"/i,
+    /\b(MacBookPro\d{1,2},\d|Macmini\d{1,2},\d|iMac\d{1,2},\d|MacPro\d{1,2},\d|Mac\d{1,2},\d)\b/i
+  ];
+  for (var i=0;i<pats.length;i++){ var m = text.match(pats[i]); if (m) return m[1]; }
+  return '';
+}
+
+function detectCpu(text){
+  var m = text.match(/"(?:cpu-brand|CPU Brand|Processor Name)"\s*=\s*(?:<)?"?([^"<]{4,60})/i);
+  if (m) return m[1].trim();
+  var c = text.match(/\b(i3-|i5-|i7-|i9-|Ryzen|Threadripper|Core i)[\w\-\.]{2,20}/i);
+  if (c) return c[0];
+  return '';
+}
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
+
+var lastReport = '';
+
+function render(text){
+  var found = collect(text);
+  var ids = Object.keys(found);
+  if (!ids.length){
+    $('#res').innerHTML = '<div class="empty">没从这段文本里认出任何 pci 设备 ID。确认粘贴的是 <b>ioreg -l</b> 的完整输出（里面有 "IONameMatched" = "pci8086,..." 这样的行）。</div>';
+    return;
+  }
+  // 命中规则
+  var hits = [];
+  ids.forEach(function(id){
+    for (var i=0;i<PCI.length;i++){
+      if (PCI[i].id && PCI[i].id.toLowerCase() === id){ hits.push({id:id, rule:PCI[i], data:found[id]}); return; }
+    }
+  });
+  // 同分类合并去重（显卡只留一张卡的信息，避免重复刷屏）
+  var byCat = {};
+  hits.forEach(function(h){ (byCat[h.rule.cat] = byCat[h.rule.cat] || []).push(h); });
+
+  var model = detectModel(text), cpu = detectCpu(text);
+  var totalDev = ids.length;
+
+  var sum = '<div class="sum">' +
+    '<div class="box"><div class="k">识别到的设备 ID</div><div class="v">'+ totalDev +' 个</div></div>' +
+    '<div class="box"><div class="k">命中的已知硬件</div><div class="v">'+ hits.length +' 项</div></div>' +
+    '<div class="box"><div class="k">机型 / SMBIOS</div><div class="v">'+ esc(model || '未读到') +'</div></div>' +
+    '<div class="box"><div class="k">平台</div><div class="v">'+ esc(cpu || '未读到') +'</div></div>' +
+  '</div>';
+
+  var cards = '';
+  ORDER.forEach(function(cat){
+    if (!byCat[cat]) return;
+    var list = byCat[cat];
+    // 每类只展开第一条有建议的，其余并进证据行
+    list.forEach(function(h, idx){
+      var extra = '';
+      if (idx === 0 && list.length > 1){
+        extra = '<div class="ev">同类还有：' + list.slice(1).map(function(x){ return x.rule.name + '（' + x.id + '）'; }).join('、') + '</div>';
+      }
+      cards += '<div class="item">' +
+        '<div class="cat">'+ esc(NAMES[cat] || cat) +'</div>' +
+        '<h3>'+ esc(h.rule.name) +'<span class="badge">'+ h.id +'</span>' +
+          (list.length > 1 && idx === 0 ? '<span class="badge warn">共 '+ list.length +' 项</span>' : '') +
+        '</h3>' +
+        '<p>'+ esc(h.rule.advice) +'</p>' +
+        extra +
+        '<div class="ev">命中依据：' + esc(h.data.ctx[0] || h.id) + '</div>' +
+      '</div>';
+    });
+  });
+
+  // 未识别设备
+  var unknown = ids.filter(function(id){ return !hits.some(function(h){ return h.id === id; }); });
+  var unkBox = '';
+  if (unknown.length){
+    unkBox = '<details><summary>另有 '+ unknown.length +' 个未收录的设备 ID（多为桥接器、SATA 控制器、RGB 控制器，一般不影响黑苹果）</summary><pre>' +
+      unknown.map(function(id){
+        var c = found[id].ctx[0] || '';
+        return id + ' ×' + found[id].count + '\n  ' + c;
+      }).join('\n') + '</pre></details>';
+  }
+
+  // 报告文本
+  lastReport = ['ioreg 诊断报告 —— 冷月技术网', '机型：' + (model || '未读到'), '平台：' + (cpu || '未读到'), ''].join('\n')
+    + hits.map(function(h){ return '[' + h.rule.cat + '] ' + h.rule.name + ' (' + h.id + ')'; }).join('\n');
+
+  $('#res').innerHTML = sum +
+    '<div style="display:flex;align-items:center;gap:12px;margin:24px 0 14px;flex-wrap:wrap">' +
+      '<span style="font-size:19px;font-weight:800;line-height:1.4">诊断结果</span>' +
+      '<button class="btn btn-ghost" id="copy" style="padding:7px 14px;font-size:13px">复制报告</button>' +
+    '</div>' + cards + unkBox;
+
+  var cp = $('#copy');
+  if (cp) cp.addEventListener('click', function(){
+    navigator.clipboard.writeText(lastReport).then(function(){
+      cp.textContent = '已复制';
+      setTimeout(function(){ cp.textContent = '复制报告'; }, 1600);
+    });
+  });
+}
+
+$('#run').addEventListener('click', function(){
+  var t = $('#src').value;
+  if (!t.trim()){ $('#res').innerHTML = '<div class="empty">先粘一段 ioreg 输出进来。</div>'; return; }
+  render(t);
+});
+$('#demo').addEventListener('click', function(){ $('#src').value = SAMPLE; render(SAMPLE); });
+if (location.search.indexOf('demo') !== -1){ $('#src').value = SAMPLE; render(SAMPLE); }
+$('#pick').addEventListener('click', function(){ $('#file').click(); });
+$('#file').addEventListener('change', function(e){
+  var f = e.target.files[0]; if (!f) return;
+  var fr = new FileReader();
+  fr.onload = function(){ $('#src').value = String(fr.result).slice(0, 4000000); render(String(fr.result).slice(0, 4000000)); };
+  fr.readAsText(f);
+});
+</script>
+</body>
+</html>
