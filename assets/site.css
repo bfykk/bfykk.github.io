@@ -62,13 +62,14 @@ img{display:block;max-width:100%}
 
 /* ===== Hero ===== */
 .hero{position:relative;min-height:100vh;display:flex;align-items:center;padding:120px 0 90px;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:url("assets/hero.jpg") center/cover no-repeat;opacity:.55}
+.hero-bg{position:absolute;inset:0;background:url("hero.jpg") center/cover no-repeat;opacity:.55}
 .hero-veil{position:absolute;inset:0;background:
   linear-gradient(100deg, rgba(4,7,11,.94) 0%, rgba(4,7,11,.72) 45%, rgba(4,7,11,.35) 100%),
   linear-gradient(to top, var(--bg) 2%, transparent 42%)}
+:root[data-theme="light"] .hero-bg{opacity:.85}
 :root[data-theme="light"] .hero-veil{background:
-  linear-gradient(100deg, rgba(6,14,22,.90) 0%, rgba(6,14,22,.66) 48%, rgba(6,14,22,.34) 100%),
-  linear-gradient(to top, var(--bg) 2%, transparent 45%)}
+  linear-gradient(100deg, rgba(3,6,10,.90) 0%, rgba(3,6,10,.74) 48%, rgba(3,6,10,.50) 100%),
+  linear-gradient(to top, var(--bg) 2%, transparent 38%)}
 .hero-in{position:relative;z-index:2;display:grid;grid-template-columns:1.35fr .65fr;gap:56px;align-items:center}
 .tagpill{display:inline-flex;align-items:center;gap:9px;padding:7px 15px;border-radius:100px;
   border:1px solid rgba(34,211,238,.34);background:rgba(34,211,238,.10);color:#8ff0ff;
