@@ -81,23 +81,67 @@ pre{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;
       <div id="igpuBox">
         <label for="igp">ig-platform-id</label>
         <select id="igp">
-          <option value="0x3E9B0007">0x3E9B0007 —— Coffee Lake / 13 代伪装常用，桌面与多数笔记本</option>
-          <option value="0x8A530003">0x8A530003 —— Ice Lake / Tiger Lake 核显</option>
-          <option value="0x9B3E0007">0x9B3E0007 —— 备用帧缓冲，外接口异常时试</option>
-          <option value="0x00001C59">0x00001C59 —— 老平台（Coffee Lake 之前）参考</option>
+          <optgroup label="10 代 Comet Lake / Ice Lake">
+            <option value="0x9BC50003">0x9BC50003 —— Comet Lake 桌面 UHD 630（DP 主输出）</option>
+            <option value="0x9BC80003">0x9BC80003 —— Comet Lake 桌面 UHD 630（HDMI 备选）</option>
+            <option value="0x9B3E0009">0x9B3E0009 —— Comet Lake 移动 UHD 630</option>
+            <option value="0x8A510009">0x8A510009 —— Ice Lake Iris Plus G7（笔记本首选）</option>
+            <option value="0x8A53000A">0x8A53000A —— Ice Lake Iris Plus（备选）</option>
+          </optgroup>
+          <optgroup label="8–9 代 Coffee Lake">
+            <option value="0x3E9B0007">0x3E9B0007 —— Coffee Lake 桌面 UHD 630 / HDMI 主输出（最常用）</option>
+            <option value="0x3E920003">0x3E920003 —— Coffee Lake 桌面 UHD 630 / DP 主输出</option>
+            <option value="0x3E910003">0x3E910003 —— Coffee Lake 桌面 GT2 备选</option>
+            <option value="0x3EA50009">0x3EA50009 —— Coffee Lake Refresh（9 代）移动</option>
+            <option value="0x3E9B0009">0x3E9B0009 —— Coffee Lake 移动 UHD 630</option>
+          </optgroup>
+          <optgroup label="6–7 代 Skylake / Kaby Lake">
+            <option value="0x59160000">0x59160000 —— Kaby Lake 移动 HD 630</option>
+            <option value="0x59120000">0x59120000 —— Kaby Lake 桌面 HD 630</option>
+            <option value="0x591B0000">0x591B0000 —— Kaby Lake HD 620</option>
+            <option value="0x19160000">0x19160000 —— Skylake HD 530</option>
+            <option value="0x191E0000">0x191E0000 —— Skylake HD 515</option>
+          </optgroup>
+          <optgroup label="4–5 代 Haswell / Broadwell">
+            <option value="0x0D260007">0x0D260007 —— Broadwell Iris Pro 6200</option>
+            <option value="0x16260006">0x16260006 —— Broadwell HD 5500</option>
+            <option value="0x0A260006">0x0A260006 —— Haswell HD 4600</option>
+          </optgroup>
+          <optgroup label="3 代 Ivy Bridge">
+            <option value="0x01660003">0x01660003 —— Ivy Bridge HD 4000（DP）</option>
+            <option value="0x01660008">0x01660008 —— Ivy Bridge HD 4000（HDMI）</option>
+          </optgroup>
         </select>
-        <label><input type="checkbox" id="igdev" checked style="width:auto;margin-right:8px">同时注入 device-id（伪装成受支持的设备，13 代核显一般需要）</label>
+        <label><input type="checkbox" id="igdev" checked style="width:auto;margin-right:8px">同时注入 device-id（按 ig-platform-id 自动取高 16 位，字节序已处理正确）</label>
       </div>
 
       <div id="audioBox" style="display:none">
         <label for="al">layout-id（AppleALC 布局）</label>
         <select id="al">
-          <option value="11">11 —— ALC256 / ALC257 笔记本常用</option>
-          <option value="13">13 —— ALC295 / ALC256 备用</option>
-          <option value="21">21 —— ALC256 外放与耳机切换常见</option>
-          <option value="66">66 —— ALC897 台式机常用</option>
-          <option value="99">99 —— ALC257 备用</option>
-          <option value="7">7 —— 老 codec 兼容布局</option>
+          <optgroup label="ALC256 / ALC257（轻薄本最常见）">
+            <option value="11">11 —— ALC256 / ALC257 笔记本首选</option>
+            <option value="13">13 —— ALC256 备用（外放/耳机切换）</option>
+            <option value="21">21 —— ALC256 备用（麦克风阵列）</option>
+            <option value="66">66 —— ALC256 / ALC257 通用备选</option>
+            <option value="69">69 —— ALC256 新布局</option>
+            <option value="99">99 —— ALC257 备用</option>
+          </optgroup>
+          <optgroup label="ALC295 / ALC294 / ALC298">
+            <option value="3">3 —— ALC295 / ALC294 经典布局</option>
+            <option value="28">28 —— ALC295 / ALC294 备用</option>
+            <option value="29">29 —— ALC298 常用</option>
+            <option value="47">47 —— ALC298 备用</option>
+            <option value="77">77 —— ALC295 备选</option>
+          </optgroup>
+          <optgroup label="台式机 ALC887 / 892 / 897 / 1200 / 1220">
+            <option value="1">1 —— ALC887 / 892 经典</option>
+            <option value="5">5 —— ALC887 常用</option>
+            <option value="7">7 —— ALC1200 / 1220 / 887</option>
+            <option value="12">12 —— ALC892 / 897</option>
+            <option value="17">17 —— ALC887 / 892</option>
+            <option value="56">56 —— ALC1200 / 1220 新布局</option>
+            <option value="98">98 —— ALC897 台式机常用</option>
+          </optgroup>
         </select>
         <label><input type="checkbox" id="aldev" style="width:auto;margin-right:8px">同时注入 alc-layout-id（部分机型需要两个都写）</label>
       </div>
@@ -165,6 +209,11 @@ function dataText(hexStr){
   h = ('00000000' + h).slice(-8);
   return h.slice(6,8) + h.slice(4,6) + h.slice(2,4) + h.slice(0,2);
 }
+// 16 位 device-id：两个字节 + 00 00，Apple 的写法
+function leData16(did){
+  var b = [did & 255, (did >> 8) & 255, 0, 0];
+  return { b64: btoa(String.fromCharCode.apply(null, b)), text: ('0000' + did.toString(16).toUpperCase()).slice(-4) + '0000' };
+}
 
 var lastXml = '';
 
@@ -189,7 +238,11 @@ function build(){
   if (kind === 'igpu'){
     var ig = $('#igp').value;
     pairs.push({k:'AAPL,ig-platform-id', type:'data', v:ig});
-    if ($('#igdev').checked) pairs.push({k:'device-id', type:'data', v:'0x9B3E0000'});
+    if ($('#igdev').checked){
+      // device-id 取 ig-platform-id 的高 16 位，再按 2 字节小端写
+      var did = (parseInt(ig, 16) >>> 16) & 0xffff;
+      pairs.push({k:'device-id', type:'data16', v:did});
+    }
   } else if (kind === 'audio'){
     pairs.push({k:'layout-id', type:'data', v:'0x' + ('00000000'+parseInt($('#al').value,10).toString(16)).slice(-8)});
     if ($('#aldev').checked) pairs.push({k:'alc-layout-id', type:'data', v:'0x' + ('00000000'+parseInt($('#al').value,10).toString(16)).slice(-8)});
@@ -207,6 +260,9 @@ function build(){
       var b64 = leData(p.v);
       if (b64 === null){ xml += '\t\t\t<data>' + esc(p.v) + '</data>\n'; }
       else xml += '\t\t\t<data>' + b64 + '</data>\n';
+    } else if (p.type === 'data16'){
+      var t16 = leData16(p.v);
+      xml += '\t\t\t<data>' + t16.b64 + '</data>\n';
     } else if (p.type === 'integer'){
       xml += '\t\t\t<integer>' + esc(String(parseInt(p.v, 16))) + '</integer>\n';
     } else if (p.type === 'boolean'){
@@ -220,6 +276,12 @@ function build(){
   lastXml = full;
 
   var rows = pairs.map(function(p){
+    if (p.type === 'data16'){
+      var t16 = leData16(p.v);
+      var shown16 = '0x' + ('0000' + p.v.toString(16).toUpperCase()).slice(-4);
+      return '<div class="note"><b>' + esc(p.k) + '</b>（data）＝ ' + esc(shown16) +
+        '　data 写法：<code style="font-family:monospace">' + esc(t16.b64) + '</code>　字节序：' + esc(t16.text) + '</div>';
+    }
     var shown = p.type === 'data' ? (leData(p.v) || '无效值') : p.v;
     return '<div class="note"><b>' + esc(p.k) + '</b>（' + p.type + '）＝ ' + esc(p.v) +
       (p.type === 'data' ? '　data 写法：<code style="font-family:monospace">' + esc(shown) + '</code>　字节序：' + esc(dataText(p.v)) : '') + '</div>';

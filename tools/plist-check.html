@@ -42,12 +42,14 @@
 <p>拿到一份别人的 EFI，最怕的是看着完整、其实结构有问题。这个体检会把硬错误和风险项分开列出来，附上具体改法。</p>
 <h2>检查范围</h2>
 <ul>
-<li>八个顶层区块是否齐全</li>
-<li>Kernel.Add 里 Lilu 是否排在第一位，kext 有没有重复</li>
-<li>XhciPortLimit 这类已经失效的 Quirk</li>
-<li>UEFI.Drivers 缺不缺 OpenRuntime / HfsPlus</li>
-<li>SecureBootModel、SystemProductName、MLB 三码完整性</li>
-<li>DeviceProperties 的 PCI 路径格式、boot-args 里的调试参数残留</li>
+<li>八大顶层区块是否齐全</li>
+<li>Kernel.Add：Lilu 是否第一、kext 是否重复、entries 三键（BundlePath / PlistPath / ExecutablePath）是否完整、MinKernel 与 MaxKernel 有没有写反</li>
+<li>Quirks：EnableWriteUnprotector 与 RebuildAppleMemoryMap 互斥、XhciPortLimit 已失效、CFG Lock 与 VT-d 绕行、SetApfsTrimTimeout 的取舍</li>
+<li>ACPI：Delete 与 Add 同名表冲突、Find 与 Replace 完全相同的无效补丁、Count=0 的全局替换风险</li>
+<li>三码：SystemProductName 是否存在、序列号长度、MLB 是否 17 位、SystemUUID 格式</li>
+<li>Misc：SecureBootModel=Disabled 却 DmgLoading=Signed 这类致命矛盾、Vault 与 ExposeSerial</li>
+<li>DeviceProperties：PCI 路径格式、layout-id 与 ig-platform-id 被写成字符串</li>
+<li>boot-args：-v / cpus=1 / -liluoff / 多个 agdpmod 等危险残留</li>
 </ul>
 <h2>怎么用</h2>
 <ol>
@@ -97,3 +99,4 @@
 })();</script>
 </body>
 </html>
+

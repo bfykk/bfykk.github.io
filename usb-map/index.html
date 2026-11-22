@@ -45,6 +45,9 @@ pre{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;
 .foot-cta{margin-top:32px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
 .foot-cta a{color:var(--accent);font-weight:600}
 @media(max-width:640px){.lab{padding:86px 0 50px}.lab h1{font-size:24px}}
+.genrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:var(--text-mute)}
+.genrow input[type=number]{background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 8px;font-family:"JetBrains Mono",monospace;font-size:13px}
+.genrow input[type=checkbox]{accent-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -72,6 +75,34 @@ pre{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;
         <div>
           <label for="pci">XHCI 控制器 PCI ID（ioreg 里查）</label>
           <input type="text" id="pci" value="8086:51ed" placeholder="例：8086:a36d">
+          <label for="cpre" style="margin-top:10px">或从常见控制器里选</label>
+          <select id="cpre">
+            <option value="">—— 常见 XHCI 控制器 ——</option>
+            <optgroup label="Intel 12–13 代">
+              <option value="8086:51ed">8086:51ed —— Alder Lake PCH（12/13 代笔记本）</option>
+            </optgroup>
+            <optgroup label="Intel 10–11 代">
+              <option value="8086:a0ed">8086:a0ed —— 500 系 On-Package（Tiger Lake / Alder Lake-P）</option>
+              <option value="8086:43ed">8086:43ed —— 500 系（Tiger Lake-H）</option>
+              <option value="8086:02ed">8086:02ed —— 400 系 On-Package（Comet Lake-H）</option>
+              <option value="8086:a3af">8086:a3af —— B460 / H410</option>
+            </optgroup>
+            <optgroup label="Intel 6–9 代">
+              <option value="8086:a36d">8086:a36d —— 300 / C240 系（Coffee Lake 桌面）</option>
+              <option value="8086:9ded">8086:9ded —— Cannon Point-LP（Kaby / Coffee Lake 笔记本）</option>
+              <option value="8086:a2af">8086:a2af —— 200 系 / Z370</option>
+              <option value="8086:9d2f">8086:9d2f —— Sunrise Point-LP（Skylake 笔记本）</option>
+              <option value="8086:a12f">8086:a12f —— 100 / C230 系</option>
+            </optgroup>
+            <optgroup label="Intel 3–4 代">
+              <option value="8086:8c31">8086:8c31 —— 8 系 / C220（Haswell）</option>
+              <option value="8086:1e31">8086:1e31 —— 7 系 / C210（Ivy Bridge）</option>
+            </optgroup>
+            <optgroup label="第三方">
+              <option value="1b21:2142">1b21:2142 —— ASM2142 / 3142（USB 3.1）</option>
+              <option value="1b21:1242">1b21:1242 —— ASM1142（USB 3.1）</option>
+            </optgroup>
+          </select>
         </div>
         <div>
           <label for="model">机型（写入 model，可留空）</label>
@@ -87,6 +118,13 @@ HS04,usb2
 SS01,usb3
 SS02,usb3
 SS03,typec</textarea>
+      <div class="genrow">
+        <span>批量生成端口名：</span>
+        USB2 <input type="number" id="hsN" min="0" max="14" value="4" style="width:64px"> 个
+        · USB3 <input type="number" id="ssN" min="0" max="10" value="3" style="width:64px"> 个
+        · 第一个内建 <input type="checkbox" id="firstInternal" style="width:auto">
+        <button class="btn btn-ghost" id="fillNames" style="padding:6px 12px;font-size:13px">填进去</button>
+      </div>
       <div class="row">
         <button class="btn btn-primary" id="gen">生成 Info.plist</button>
         <button class="btn btn-ghost" id="dl">下载 Info.plist</button>
@@ -213,6 +251,27 @@ $('#dl').addEventListener('click', function(){
 });
 $('#demo').addEventListener('click', function(){
   $('#ports').value = 'HS01,usb2\nHS02,usb2\nHS03,internal\nHS04,usb2\nHS05,usb2\nHS06,internal\nHS07,usb2\nHS08,usb2\nSS01,usb3\nSS02,usb3\nSS03,typec\nSS04,usb3\nSS05,usb3\nSS06,typec';
+  build();
+});
+
+$('#cpre').addEventListener('change', function(){
+  if (!this.value) return;
+  $('#pci').value = this.value;
+  build();
+});
+
+$('#fillNames').addEventListener('click', function(){
+  var hs = Math.max(0, Math.min(14, parseInt($('#hsN').value, 10) || 0));
+  var ss = Math.max(0, Math.min(10, parseInt($('#ssN').value, 10) || 0));
+  var firstInt = $('#firstInternal').checked;
+  var lines = [];
+  for (var i = 1; i <= hs; i++){
+    var nm = 'HS' + ('0' + i).slice(-2);
+    var t = (firstInt && i === 1) ? 'internal' : 'usb2';
+    lines.push(nm + ',' + t);
+  }
+  for (var j = 1; j <= ss; j++) lines.push('SS' + ('0' + j).slice(-2) + ',usb3');
+  $('#ports').value = lines.join('\n');
   build();
 });
 build();

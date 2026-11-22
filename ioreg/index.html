@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ioreg 在线诊断 黑苹果硬件识别 - 冷月技术网</title>
-<meta name="description" content="把 ioreg 输出粘贴进来，自动识别显卡、无线网卡、声卡 codec、蓝牙、触控板、NVMe 硬盘，并给出对应的黑苹果补丁方向。纯浏览器本地解析，不上传。">
+<meta name="description" content="粘贴 ioreg 输出，自动识别显卡、无线网卡、声卡 codec、蓝牙、触控板、NVMe 硬盘，按 5457 条 PCI 设备库与黑苹果规则给出补丁方向。纯浏览器本地解析，不上传。">
 <link rel="canonical" href="https://lyjsw.dpdns.org/ioreg/">
 <meta property="og:title" content="ioreg 在线诊断 - 冷月技术网">
 <meta property="og:description" content="粘贴 ioreg 输出，自动识别黑苹果关键硬件并给出补丁方向。">
@@ -17,10 +17,13 @@
 <style>
 .lab{padding:96px 0 70px;min-height:100vh}
 .lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
-.lab .lead{color:var(--text-sub);font-size:15px;max-width:760px}
-.panel{margin-top:26px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+.lab .lead{color:var(--text-sub);font-size:15px;max-width:800px}
+.dbline{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.dbline span{font-size:12px;color:var(--text-mute);border:1px solid var(--border);border-radius:20px;padding:4px 10px}
+.dbline span b{color:var(--accent)}
+.panel{margin-top:22px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .panel label{display:block;font-size:13px;color:var(--text-mute);margin-bottom:9px;letter-spacing:.02em}
-textarea{width:100%;min-height:200px;resize:vertical;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);
+textarea{width:100%;min-height:190px;resize:vertical;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);
   border-radius:12px;padding:14px;font-family:"JetBrains Mono",ui-monospace,Consolas,monospace;font-size:12.5px;line-height:1.6;outline:none}
 textarea:focus{border-color:var(--border-strong)}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:14px}
@@ -30,24 +33,37 @@ textarea:focus{border-color:var(--border-strong)}
 .btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
 .tip{font-size:12.5px;color:var(--text-mute);margin-top:10px;line-height:1.7}
 .tip code{background:var(--bg-soft);padding:2px 6px;border-radius:5px;font-size:12px}
-.res{margin-top:28px}
-.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.res{margin-top:26px}
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .sum .box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
 .sum .k{font-size:12px;color:var(--text-mute);margin-bottom:4px}
 .sum .v{font-size:15px;font-weight:700;word-break:break-all}
+.verdict{margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.verdict .vh{padding:13px 18px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-mute);letter-spacing:.02em}
+.verdict .vr{display:flex;gap:12px;align-items:flex-start;padding:12px 18px;border-bottom:1px solid var(--border);font-size:13.5px}
+.verdict .vr:last-child{border-bottom:0}
+.verdict .tag{flex:none;font-size:11px;font-weight:700;border-radius:6px;padding:3px 8px;min-width:52px;text-align:center}
+.verdict .tag.ok{background:rgba(34,197,94,.14);color:#4ade80}
+.verdict .tag.work{background:rgba(251,191,36,.14);color:#fbbf24}
+.verdict .tag.bad{background:rgba(248,113,113,.14);color:#f87171}
+.verdict .tag.na{background:var(--bg-soft);color:var(--text-mute)}
+.verdict .vt{color:var(--text-sub);line-height:1.65}
+.verdict .vt b{color:var(--text)}
+h2.sec{font-size:19px;font-weight:800;margin:26px 0 12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .cat{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700}
-.item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:12px}
-.item h3{font-size:16px;margin:4px 0 6px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.item .badge{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--border-strong);color:var(--accent);font-weight:600}
-.item .badge.warn{border-color:rgba(251,191,36,.5);color:#fbbf24}
+.item{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px 18px;margin-bottom:11px}
+.item h3{font-size:15.5px;margin:3px 0 5px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-weight:700}
+.item .badge{font-size:11px;padding:2px 8px;border-radius:20px;border:1px solid var(--border-strong);color:var(--accent);font-weight:600;font-family:"JetBrains Mono",monospace}
+.item .badge.ok{border-color:rgba(34,197,94,.5);color:#4ade80}
+.item .badge.work{border-color:rgba(251,191,36,.5);color:#fbbf24}
 .item .badge.bad{border-color:rgba(248,113,113,.5);color:#f87171}
-.item p{font-size:14px;color:var(--text-sub);margin-top:6px}
-.item .ev{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--text-mute);margin-top:8px;word-break:break-all}
+.item p{font-size:13.5px;color:var(--text-sub);margin-top:5px;line-height:1.7}
+.item .ev{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--text-mute);margin-top:8px;word-break:break-all;opacity:.85}
 .empty{margin-top:26px;font-size:14px;color:var(--text-mute)}
-details{margin-top:10px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
+details{margin-top:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px}
 summary{cursor:pointer;font-size:14px;color:var(--text-sub)}
-details pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;max-height:280px;font-family:"JetBrains Mono",monospace}
-.foot-cta{margin-top:34px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
+details pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;max-height:300px;font-family:"JetBrains Mono",monospace;line-height:1.6}
+.foot-cta{margin-top:30px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
 .foot-cta a{color:var(--accent);font-weight:600}
 @media(max-width:640px){.lab{padding:86px 0 50px}.lab h1{font-size:24px}}
 </style>
@@ -74,19 +90,26 @@ details pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;
   <div class="wrap">
     <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>ioreg 诊断</span></div>
     <h1>ioreg 在线诊断</h1>
-    <p class="lead">把 <code style="font-family:'JetBrains Mono',monospace">ioreg -l</code> 的输出整段粘进来，当场列出这台机器的显卡、无线网卡、声卡 codec、蓝牙、触控板、硬盘，并标出对应的黑苹果处理方向。解析全在浏览器里做，一个字都不会上传。</p>
+    <p class="lead">把 <code style="font-family:'JetBrains Mono',monospace">ioreg -l</code> 的输出整段粘进来，当场列出这台机器的显卡、无线网卡、声卡 codec、蓝牙、触控板、硬盘，逐项标出原生支持 / 要打补丁 / 换硬件。解析全在浏览器里做，一个字都不会上传。</p>
+    <div class="dbline">
+      <span>内置 <b>5457</b> 条 PCI 设备</span>
+      <span><b>43</b> 条 USB 设备</span>
+      <span><b>62</b> 条黑苹果规则</span>
+      <span><b>30</b> 条声卡 codec 表</span>
+      <span>不联网也能用</span>
+    </div>
 
     <div class="panel">
       <label for="src">粘贴 ioreg 输出</label>
-      <textarea id="src" placeholder="在 macOS 终端执行：ioreg -l | tee ~/Desktop/ioreg.txt&#10;然后把 ioreg.txt 的内容整段粘到这里，或点下面的「选择文件」"></textarea>
+      <textarea id="src" placeholder="在 macOS 终端执行：ioreg -l > ~/Desktop/ioreg.txt&#10;然后把 ioreg.txt 整段粘到这里，或点下面的「选择文件」"></textarea>
       <div class="row">
         <button class="btn btn-primary" id="run">开始诊断</button>
         <button class="btn btn-ghost" id="pick">选择文件</button>
         <input type="file" id="file" accept=".txt,.log,.ioreg,text/plain" style="display:none">
         <button class="btn btn-ghost" id="demo">载入示例</button>
-        <a class="btn btn-ghost" href="https://lyjsw.dpdns.org/tools/index.html">返回工具页 →</a>
+        <a class="btn btn-ghost" href="../tools/index.html">返回工具页 →</a>
       </div>
-      <div class="tip">常用取法：<code>ioreg -l</code> 全量；只要设备树用 <code>ioreg -p IOService -l</code>；只要 PCI 用 <code>ioreg -p IOService -n IOPCIDevice -r -l</code>。文件越大识别越准，几百 KB 都是正常体积。</div>
+      <div class="tip">常用取法：<code>ioreg -l</code> 全量；只要设备树 <code>ioreg -p IOService -l</code>；只要 PCI <code>ioreg -p IOService -n IOPCIDevice -r -l</code>。几百 KB 都正常，文件越大识别越准。</div>
     </div>
 
     <div class="res" id="res"></div>
@@ -95,6 +118,7 @@ details pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;
   </div>
 </main>
 
+<script src="../assets/hwdb.js"></script>
 <script>
 // ===== 主题 =====
 (function(){
@@ -109,107 +133,248 @@ details pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;
   });
 })();
 
-// ===== 规则库：靠 PCI/USB ID 说话，不猜 =====
-// vid:pid 统一小写四位
-var PCI = [
-  // ---- 核显（Intel） ----
-  {id:'8086:46a0', cat:'显卡', name:'Intel Iris Xe（Alder Lake / Raptor Lake-P 核显）', advice:'核显走 WhateverGreen + device-id 伪装；13 代平台上常见帧缓冲用 0x3E9B0007 或 0x8A530003，要按实际输出口调整 connector。仅用核显时 SMBIOS 建议 MacBookPro16,x 一类。'},
-  {id:'8086:46a3', cat:'显卡', name:'Intel Iris Xe（Alder Lake-P 核显）', advice:'同上，注意 46A3 与 46A0 帧缓冲略有差异，改 device-id 后先用 Hackintool 核对 connector-index。'},
-  {id:'8086:46a6', cat:'显卡', name:'Intel Iris Xe（Alder Lake-P 核显）', advice:'核显驱动需要 WhateverGreen，优先配 AAPL,ig-platform-id；若外接 HDMI 无信号，先查 connector 类型是否为 HDMI 而非 DP。'},
-  {id:'8086:a7a0', cat:'显卡', name:'Intel Iris Xe（Raptor Lake-P 核显）', advice:'Raptor Lake 核显基本复用 Alder Lake 帧缓冲，靠 device-id 伪装实现加速；不加速时的典型现象是界面卡顿、视频解码失败。'},
-  {id:'8086:9a60', cat:'显卡', name:'Intel UHD（Tiger Lake 核显）', advice:'Tiger Lake 核显需伪装成 Ice Lake 帧缓冲，注意 9A60 与新平台 device-id 对应表。'},
+// ===== 黑苹果规则层：命中哪条说哪条，没命中的按厂商 + 类别给通用判断 =====
+// level: ok 原生/免驱 · work 需 kext 或补丁 · bad 不支持/建议更换 · na 与本项无关
+var KB = [
+  // ---- Intel 核显 ----
+  {re:/^8086:(46a0|46a3|46a6|46a8|46aa|46b0|4626)/i, cat:'gpu', level:'bad', name:'Intel Iris Xe（Alder Lake）',
+   advice:'12 代核显 macOS 没有驱动，WhateverGreen 也救不回来。这条路只有换 AMD 独显，或者放弃核显加速装纯仿制机。'},
+  {re:/^8086:(a7a0|a7a1|a7a8|a720|a721|a7aa)/i, cat:'gpu', level:'bad', name:'Intel Iris Xe（Raptor Lake）',
+   advice:'13 代核显同样无解，和 12 代一样只能配 AMD 独显。BIOS 里记得把核显关掉或设为首选 PEG，别让启动阶段卡在 iGPU。'},
+  {re:/^8086:(9a60|9a61|9a68|9a70|9a78)/i, cat:'gpu', level:'work', name:'Intel Iris Xe（Tiger Lake）',
+   advice:'11 代核显没有原生帧缓冲，常见做法是伪装成 Ice Lake 的 device-id，能亮但加速、硬解、外接基本靠运气。稳定方案还是独显。'},
+  {re:/^8086:(8a51|8a52|8a53|8a56|8a58|8a5a|8a5c|8a70|8a71)/i, cat:'gpu', level:'work', name:'Intel Iris Plus（Ice Lake）',
+   advice:'10 代 Ice Lake 是最后一代有一定原生支持的核显，用 AAPL,ig-platform-id 0x8A51000A 一类，配 WhateverGreen。外接屏注意 connector 类型。'},
+  {re:/^8086:(9bc2|9bc4|9bc5|9bc6|9bc8|9bca|9b41|9b43|9ba0|9ba2|9ba4|9ba8|9baa)/i, cat:'gpu', level:'work', name:'Intel UHD 630（Comet Lake 桌面）',
+   advice:'10 代桌面核显，惯用 device-id 伪装 0x3E9B0007（Coffee Lake 桌面帧缓冲）。配 WhateverGreen，HDMI 输出核对 connector，4K60 要 DP 转 HDMI 主动式。'},
+  {re:/^8086:(3e91|3e92|3e93|3e96|3e98|3e9b|3ea5|3ea6|3ea8)/i, cat:'gpu', level:'work', name:'Intel UHD 630（Coffee Lake）',
+   advice:'9 代核显，0x3E9B0007 / 0x3E920003 都有人用。桌面装成功率最高的一代核显，但 4K 硬解和多屏仍要逐项试。'},
+  {re:/^8086:(5912|5914|5915|5916|5918|591a|591b|5926|5927|591e)/i, cat:'gpu', level:'work', name:'Intel HD 610/620/630（Kaby Lake）',
+   advice:'7 代核显，0x59160000 一类的 Kaby Lake 帧缓冲，需要 Lilu + WhateverGreen。老平台注意 BIOS 关闭 CSM。'},
+  {re:/^8086:(1912|1916|191b|191e|1926|1927|193b|193d|1902|1906)/i, cat:'gpu', level:'work', name:'Intel HD 5xx/6xx（Skylake）',
+   advice:'6 代核显，帧缓冲 0x19160000 系列。Ventura 之后对这个平台的支持已经很弱，建议停在 Monterey。'},
 
-  // ---- 无线网卡 ----
-  {id:'8086:51f1', cat:'无线网卡', name:'Intel AX211（Wi-Fi 6E，CNVi 模块）', advice:'AX211 是 CNVi 挂载，不是独立 PCIe 卡：原生 macOS 无驱动，itlwm + HeliPort 只在部分机型稳定；更稳的做法是换 BCM94360NG / BCM943224 拆机卡。若坚持 AX211，蓝牙走 USB 8087:0033，需要 BlueToolFixup 补丁。'},
-  {id:'8086:2725', cat:'无线网卡', name:'Intel AX210（Wi-Fi 6E，PCIe 模块）', advice:'AX210 是标准 M.2 PCIe 卡，可换为 BCM94360NG；用 itlwm 时注意机型白名单与 sleep 唤醒后掉线问题。'},
-  {id:'8086:2526', cat:'无线网卡', name:'Intel AX200（Wi-Fi 6）', advice:'AX200 常见于台式机与部分轻薄本，itlwm 支持较好；原装卡换 BCM 是最省事的路线。'},
-  {id:'8086:a0f0', cat:'无线网卡', name:'Intel AX201（CNVi）', advice:'CNVi 挂载，无法直接替换为 BCM 拆机卡，只能用 itlwm 或换整块无线模块。'},
-  {id:'14e4:43a0', cat:'无线网卡', name:'Broadcom BCM94360CS2 / 943602CS', advice:'原生免驱卡，AirDrop / Handoff / 隔空投送开箱可用，注意 USB 蓝牙要接内建端口并打内建补丁。'},
-  {id:'14e4:43b1', cat:'无线网卡', name:'Broadcom BCM943224 / 94360 系列', advice:'免驱，注意 5G 频段与天线接法；老卡在 Ventura 之后需要 AirportBrcmFixup 兼容补丁。'},
+  // ---- Intel 无线 ----
+  {re:/^8086:(51f0|51f1|51f2|51f3|51f4|54f0|7af0|7af1)/i, cat:'wifi', level:'work', name:'Intel AX211 / AX411（CNVi）',
+   advice:'CNVi 挂载，物理上不是独立 M.2 卡，换卡这条路基本断掉。只能 itlwm + HeliPort，隔空投送、接力、随航都没有；蓝牙在 USB 8087:0032/0033，要 BlueToolFixup + IntelBluetoothFirmware。'},
+  {re:/^8086:(2723|2725|2726|2727|2724)/i, cat:'wifi', level:'work', name:'Intel AX200 / AX210（PCIe M.2）',
+   advice:'标准 M.2 PCIe，能拆能换。itlwm 支持相对稳，Wi-Fi 走 HeliPort，蓝牙另算。要隔空投送就直接换 BCM94360NG，别折腾。'},
+  {re:/^8086:(02f0|02f1|02f2|02f3|a0f0|a0f1|a0f2|a0f3)/i, cat:'wifi', level:'work', name:'Intel AX201（CNVi）',
+   advice:'CNVi 版本，同样焊死在平台上。itlwm 可用但不支持 AirDrop / Handoff，休眠唤醒后掉线是常态，介意就换整块无线模块。'},
+  {re:/^8086:(24f3|24f4|24f5|24f6|24f7|24f8|24f9|24fa)/i, cat:'wifi', level:'work', name:'Intel Wireless-AC 8260 / 8265',
+   advice:'AC 时代 itlwm 支持最好的一批，5G 速率不错，蓝牙走 USB。想原生免驱仍要换 Broadcom。'},
+  {re:/^8086:(095a|095b|a370|a371|a37a|a37b|a3b0|a3b1)/i, cat:'wifi', level:'work', name:'Intel Wireless-AC 7260 / 7265',
+   advice:'老 AC 卡，itlwm 兼容性可以，2.4G 干扰大。原生免驱路线换 BCM943224 / 94360。'},
+  {re:/^8086:(08b1|08b2|08b3|08b4|08b5|08b6)/i, cat:'wifi', level:'work', name:'Intel Wireless-AC 3165 / 3168',
+   advice:'入门 AC 卡，itlwm 可跑，速率一般。这类卡常见于低配轻薄本，换 BCM 的收益比折腾驱动大。'},
+  {re:/^8086:(4222|4223|4232|4233|423a|423b|0082|0083|0085)/i, cat:'wifi', level:'work', name:'Intel Centrino 老无线',
+   advice:'太老了，只在很旧的 macOS 上有讨论价值。新系统直接换 USB 无线或 Broadcom。'},
+  {re:/^8086:(15d2|15d3|15d4|15d5|15e7|15e8|15e9|15ea|15eb|15ef)/i, cat:'tb', level:'work', name:'Intel JHL 雷电控制器',
+   advice:'雷电三控制器本身 macOS 认，但要配合 SSDT-TB3 与 BIOS 里雷电安全等级设置。热插拔和外接显卡坞属于进阶项，不稳就先别动。'},
+
+  // ---- Broadcom 无线 ----
+  {re:/^14e4:(43a0|43a1|43a2|43a3|43ba|43bb|43bc|43b1|43b2|4331|4353|4350|4359|435f|4360)/i, cat:'wifi', level:'ok', name:'Broadcom BCM4360 / 4352 / 4331 系列',
+   advice:'原生免驱，AirDrop、Handoff、随航都能用。BCM94360 系列需要 AirportBrcmFixup 处理频段与地区码；蓝牙走 USB 内建端口。'},
+  {re:/^14e4:(a8d8|a8d9)/i, cat:'wifi', level:'bad', name:'Broadcom BCM4364（部分新款 Mac 卡）',
+   advice:'这类只在特定机型配对，普通主板插上去经常不认。别为了追新买这种卡，选 94360NG / 943602CS 更稳。'},
+
+  // ---- 其它无线 ----
+  {re:/^14c3:(0616|0608|7961|7922|7921|7902)/i, cat:'wifi', level:'bad', name:'MediaTek MT7921 / MT7922',
+   advice:'联发科无线 macOS 完全没有可用驱动，itlwm 也不支持。只有换卡或 USB 无线。'},
+  {re:/^168c:(002e|0030|0032|0033|0034|003e|003c|0041|0042)/i, cat:'wifi', level:'bad', name:'Qualcomm Atheros 无线',
+   advice:'Atheros 只在很老的 macOS（High Sierra 之前）有 AirPortAtheros40 支持，新系统无解。'},
+  {re:/^10ec:(c821|c822|c817|b822|d723|8852)/i, cat:'wifi', level:'bad', name:'Realtek 无线（RTL8822 / 8852 系列）',
+   advice:'Realtek 无线在 macOS 上没有可用驱动，凡是这类卡的机器只能换卡或走有线。'},
+  {re:/^1a2b|^0bda:.*|^0cf3/i, cat:'wifi', level:'bad', name:'第三方无线模块',
+   advice:'这类多半是 USB 无线或桥接模块，macOS 原生不认，也没有稳定驱动。'},
 
   // ---- 有线网卡 ----
-  {id:'10ec:8168', cat:'有线网卡', name:'Realtek RTL8111/8168', advice:'用 RealtekRTL8111.kext（Mieze 版），注意关闭 BIOS 里的节能以太网；掉线问题优先查 EEE 与巨型帧。'},
-  {id:'10ec:8125', cat:'有线网卡', name:'Realtek RTL8125 2.5G', advice:'2.5G 网卡用 LucyRTL8125Ethernet.kext，注意 2.5G 协商在部分交换机上会掉速。'},
-  {id:'8086:15b8', cat:'有线网卡', name:'Intel 千兆（I219-V）', advice:'IntelMausi.kext 直接驱动，基本零配置。'},
-
-  // ---- 声卡 codec ----
-  {id:'10ec:0256', cat:'声卡', name:'Realtek ALC256', advice:'AppleALC + layout-id 常从 11 / 13 / 21 / 66 里试，ALC256 在部分机型需要 alc-verb 或 CodecCommander 修休眠后无声。先确认 HDEF 的 PCI 路径，再在 DeviceProperties 注入 layout-id。'},
-  {id:'10ec:0257', cat:'声卡', name:'Realtek ALC257', advice:'AppleALC layout-id 常用 11 / 13 / 21 / 99，笔记本外放与耳机切换靠 ALC 补丁，注意 jack sense。'},
-  {id:'10ec:0295', cat:'声卡', name:'Realtek ALC295', advice:'layout-id 常见 3 / 13 / 21 / 28，麦克风阵列常需额外 alc-verb 打开。'},
-  {id:'10ec:0897', cat:'声卡', name:'Realtek ALC897', advice:'台式机常见，layout-id 11 / 12 / 66 / 98 逐个试，前置面板需确认 pin 配置。'},
-  {id:'10ec:0286', cat:'声卡', name:'Realtek ALC286', advice:'少见，优先在 AppleALC 的 Platforms 里找同名 codec 的 layout。'},
-  {id:'8086:51c8', cat:'声卡', name:'Intel Smart Sound（SST / SOF）', advice:'这是 Intel 的 SST 控制器，不是 codec 本身。笔记本走 SST 时需要 AppleALC 的 SST 支持或直接用 USB 声卡；codec 一般挂在 10EC 下。'},
-
-  // ---- 蓝牙 ----
-  {id:'8087:0033', cat:'蓝牙', name:'Intel 蓝牙（AX211 配套）', advice:'走 USB，需要 BlueToolFixup + BrcmPatchRAM3 或 IntelBluetoothFirmware；唤醒后失效是常见问题。'},
-  {id:'8087:0029', cat:'蓝牙', name:'Intel 蓝牙（AX200 配套）', advice:'IntelBluetoothFirmware + BlueToolFixup，注意开机顺序与 USB 端口内建。'},
-  {id:'0a12:0001', cat:'蓝牙', name:'CSR 蓝牙适配器', advice:'老款 USB 蓝牙，基本免驱，注意端口内建。'},
-
-  // ---- 触控板 / 输入 ----
-  {id:'04f3:31b9', cat:'触控板', name:'ELAN I2C 触控板', advice:'走 VoodooI2C + VoodooI2CELAN，先确认 I2C 控制器（INT344B / INT34BB）在 ACPI 里没被改名，GPIO pinning 要对准。'},
-  {id:'06cb:cd41', cat:'触控板', name:'Synaptics I2C 触控板', advice:'VoodooI2CSynaptics，注意 I2C HID 设备要打 _DSM 或 SSDT-XOSI 补丁。'},
-  {id:'04f3:3140', cat:'触控板', name:'ELAN 触控板（另一批次）', advice:'同上，按 ELAN 系列驱动；多点手势需 VoodooI2CHID 配合。'},
+  {re:/^8086:(15b7|15b8|15b9|15bb|15bc|15bd|15be|15bf|15c0|15c1|15df|15e3|0d55|156f|1570|1571)/i, cat:'eth', level:'work', name:'Intel I219 / I218 千兆',
+   advice:'IntelMausi.kext 直接驱动，零配置。掉千兆先查 BIOS 的节能以太网与 EEE。'},
+  {re:/^8086:(1533|1531|1521|1522|1523|1524|10d3|10f6|150c|150d|150e|150f|1516|1517|1518|1519)/i, cat:'eth', level:'work', name:'Intel I210 / I211 / 82574 千兆',
+   advice:'IntelMausi 或 AppleIntelE1000e 都能带，服务器级网卡基本零配置。'},
+  {re:/^8086:(1563|15ab|15ac|1560|1561|1562)/i, cat:'eth', level:'work', name:'Intel I225 / I226 2.5G',
+   advice:'2.5G 网卡需要 AppleIntelI210Ethernet 或第三方 kext 支持，部分批次要降速才稳。'},
+  {re:/^10ec:(8168|8169|8161|8136|8105|816d)/i, cat:'eth', level:'work', name:'Realtek RTL8111 / 8168 千兆',
+   advice:'用 RealtekRTL8111.kext（Mieze 版）。掉线优先关 EEE、关巨型帧，Wake on LAN 在 macOS 上本身不可靠。'},
+  {re:/^10ec:(8125|8125b|8126)/i, cat:'eth', level:'work', name:'Realtek RTL8125 2.5G',
+   advice:'LucyRTL8125Ethernet.kext，注意 2.5G 协商在部分交换机上会掉到 1G 或不通。'},
+  {re:/^14e4:(16b4|1699|16a9|16b0|165e|1668|16bc)/i, cat:'eth', level:'work', name:'Broadcom NetXtreme 千兆',
+   advice:'Broadcom 网卡 macOS 支持有限，多数靠 AppleBCM5701Ethernet 只认苹果原装型号，普通 PCIe 卡不保证。'},
 
   // ---- 显卡（AMD） ----
-  {id:'1002:73ff', cat:'显卡', name:'AMD Radeon RX 6600/6650', advice:'Navi 23 免驱（需 WhateverGreen），注意 Resizable BAR 与 Above4G 解码；Ventura 之后需要禁用某些 DRM 硬解场景。'},
-  {id:'1002:73df', cat:'显卡', name:'AMD Radeon RX 6700/6750', advice:'Navi 22 免驱，注意 6700 系列在部分版本需 device-id 伪装成 73FF。'},
-  {id:'1002:731f', cat:'显卡', name:'AMD Radeon RX 5700/5700XT', advice:'Navi 10 免驱，注意关闭 CSM 与开启 Above4G。'},
-  {id:'1002:67df', cat:'显卡', name:'AMD Radeon RX 580/570', advice:'Polaris 免驱，注意显存需 8GB 以上才建议用于 macOS。'},
-  {id:'1002:683f', cat:'显卡', name:'AMD Radeon HD 7700 系列', advice:'老 GCN，Ventura 之后基本不建议。'},
+  {re:/^1002:(73bf|73af|73a5|73a3|73a2|73a1|73c0|73c1|73c3)/i, cat:'gpu', level:'work', name:'AMD Radeon RX 6800 / 6900（Navi 21）',
+   advice:'免驱但要 WhateverGreen，注意 Resizable BAR、Above 4G Decoding 打开，显存建议 16G 版本。6900 XT 在部分版本要 device-id 伪装。'},
+  {re:/^1002:(73ff|7408|73e0|73e1|73e3|7431|7432|7433|7434)/i, cat:'gpu', level:'work', name:'AMD Radeon RX 6600 / 6650（Navi 23）',
+   advice:'免驱，性价比最高的黑苹果卡之一。注意 6600 系列在 Ventura 之后要关掉 Above4G 冲突项，BIOS 里 CSM 必须关。'},
+  {re:/^1002:(73df|73cf|73d0|73d1|73d2|73d3|73d4|73d5|73d6|73d7)/i, cat:'gpu', level:'work', name:'AMD Radeon RX 6700 / 6750（Navi 22）',
+   advice:'免驱，但 6700 非 XT 批次需要 device-id 伪装成 73FF 才能认。买之前确认具体型号。'},
+  {re:/^1002:(731f|7310|7312|7313|7314|7318|7319|731a|731b|731d|731e)/i, cat:'gpu', level:'work', name:'AMD Radeon RX 5700 / 5700 XT（Navi 10）',
+   advice:'免驱，注意关闭 CSM、开 Above4G。5700 XT 公版散热差，长时间编译会降频，和驱动无关。'},
+  {re:/^1002:(67df|67ff|67c0|67c1|67c2|67c3|67c4|67c7|67d0|67b0|67b1)/i, cat:'gpu', level:'work', name:'AMD Radeon RX 470/480/570/580/590（Polaris）',
+   advice:'经典免驱卡，8G 版本可用。注意矿卡固件被改过会导致花屏，买二手先看 BIOS 是否原厂。'},
+  {re:/^1002:(687f|687f|6863|6861|6862|6864|6868|6869|686a|686b)/i, cat:'gpu', level:'work', name:'AMD Radeon RX Vega 56 / 64',
+   advice:'Vega 10 免驱，但功耗高、风扇策略激进，需要 WhateverGreen + 自定义 PP_PhmSoftPowerPlayTable 才安静。'},
+  {re:/^1002:(66af|66a0|66a1|66a2|66a3|66a7|66a8)/i, cat:'gpu', level:'work', name:'AMD Radeon VII / Vega 20',
+   advice:'免驱，HBM2 显存，做视频剪辑很稳。注意电源和散热。'},
+  {re:/^1002:(683f|683d|682f|682d|6819|6818|6798|679e)/i, cat:'gpu', level:'bad', name:'AMD 老 GCN（HD 7000 / R7 系列）',
+   advice:'Ventura 之后基本没有可用驱动，建议停在 Monterey，或者干脆换卡。'},
+  {re:/^1002:(15dd|15d8|1638|1636|164c|164d|1681)/i, cat:'gpu', level:'bad', name:'AMD 核显 / APU 集成显卡',
+   advice:'AMD APU 的核显 macOS 不驱动，Ryzen 装机必须配独显。这点和 Intel 核显不同，没有伪装空间。'},
+
+  // ---- 显卡（NVIDIA） ----
+  {re:/^10de:(1c82|1c81|1c83|1c02|1c03|1c04|1b80|1b81|1b83|1b84|1b87|1b06)/i, cat:'gpu', level:'bad', name:'NVIDIA GeForce GTX 10 系（Pascal）',
+   advice:'Pascal 只有 High Sierra 之前的 Web Driver 能带，Mojave 之后彻底没戏。现在只能当摆设或换 AMD。'},
+  {re:/^10de:(1f02|1f03|1f04|1f06|1f07|1f08|1f09|1f0a|1f0b|1e02|1e04|1e07|2182|2184)/i, cat:'gpu', level:'bad', name:'NVIDIA GeForce RTX 20 / 30 系（Turing / Ampere）',
+   advice:'Turing 之后 NVIDIA 在 macOS 上完全没有驱动，也没有 Web Driver。RTX 卡在黑苹果里等于废卡。'},
+  {re:/^10de:(0fc0|0fc1|0fc2|0fc3|0fc4|0fc5|0fc6|0fd0|0fd1|0fd2|0fd3|0fd4|0fd5|0fd6|0fd8|0fd9|0fe0|0fe1|0fe2|0fe3|0fe4|0fe7|0fe8|0fe9|0fea|0feb|0fec|0fed|0fee|0fef|0ff0|0ff1|0ff2|0ff3|0ff4|0ff5|0ff6|0ff7|0ff8|0ff9|0ffa|0ffb|0ffc|0ffd|0ffe|0fff|11fa|11fc|11fd|11fe|11ff)/i, cat:'gpu', level:'bad', name:'NVIDIA GeForce GTX 700/900 系（Kepler / Maxwell）',
+   advice:'Kepler 在 High Sierra 之前还免驱，现在新版 macOS 不支持。老卡除非装老系统，否则没意义。'},
+  {re:/^10de:(0de0|0de1|0de2|0de3|0de4|0de5|0de7|0de8|0de9|0dea|0deb|0dec|0ded|0dee|0def|0df0|0df1|0df2|0df3|0df4|0df5|0df6|0df7|0df8|0df9|0dfa|0dfb|0dfc|0dfd|0dfe|0dff)/i, cat:'gpu', level:'bad', name:'NVIDIA GeForce 400/500 系（Fermi）',
+   advice:'Fermi 早在 Yosemite 之后就不支持了。'},
+
+  // ---- 声卡 ----
+  {re:/^10ec:(0250|0251|0252|0253|0254|0255|0256|0257|0258|0259|025a|025b|0260|0262|0268|0269|026a|0282|0284|0285|0286|0287|0289|028a|028b|028c|0290|0291|0292|0293|0294|0295|0296|0297|0298|0299|029a|029b|0892|0893|0897|0898|08b0|08b1)/i, cat:'audio', level:'work', name:'Realtek HD Audio codec',
+   advice:'AppleALC 驱动，layout-id 需要按 codec 逐个试（常见 1/3/11/13/21/28/66/69/99）。笔记本外放与耳机切换常要 alc-verb 或 CodecCommander 修休眠后无声。'},
+  {re:/^8086:(51c8|51cc|51cd|02c8|9dc8|a348|a3b0|a348|43c8|a0c8|7a48)/i, cat:'audio', level:'work', name:'Intel Smart Sound（SST / SOF 控制器）',
+   advice:'这是 Intel 的音频控制器，不是 codec。笔记本走 SST 时要么 AppleALC 的 SST 支持，要么在 BIOS 里切 HD Audio，要么直接上 USB 声卡。'},
+  {re:/^1002:(aa00|aa10|aa20|ab00|ab10|ab20|0400|7919)/i, cat:'audio', level:'work', name:'AMD / ATI HDMI Audio',
+   advice:'独显的 HDMI 音频走 AppleHDAController 自动带，但在 Black Screen 补丁或 connector 改错时会丢。先修显示再查音频。'},
+  {re:/^10de:(0e1b|0e19|0fb8|0fb9|10f0|10f8|1aeb)/i, cat:'audio', level:'na', name:'NVIDIA HDMI Audio',
+   advice:'NVIDIA 卡没驱动时 HDMI 音频也没意义，先解决显卡。'},
 
   // ---- 存储 ----
-  {id:'144d:a80a', cat:'硬盘', name:'三星 980 PRO（NVMe）', advice:'macOS 对部分三星主控 trim 支持一般，建议开启 Trim 并注意固件版本；睡眠唤醒掉盘先查 NVMe 电源管理。'},
-  {id:'144d:a808', cat:'硬盘', name:'三星 970 EVO Plus（NVMe）', advice:'部分批次固件与 macOS 不兼容，会表现为安装阶段找不到盘，更新固件通常能解决。'},
-  {id:'15b7:5017', cat:'硬盘', name:'WD SN560 / SN570 系列（NVMe）', advice:'SN560 常见于轻薄本原装盘，个别批次在 macOS 安装时掉盘或休眠后不认盘，优先确认固件版本，必要时换 SN570/SN770 或三星 970 EVO。'},
-  {id:'1e0f:0001', cat:'硬盘', name:'KIOXIA / 东芝 NVMe', advice:'东芝主控兼容性总体好，注意关闭 BIOS 里的 SATA/NVMe RAID 模式。'},
-  {id:'1987:xxxx', cat:'硬盘', name:'Phison 主控 NVMe', advice:'群联主控部分型号掉盘，尽量选 DRAM 缓存的盘。'}
+  {re:/^15b7:(5017|5018|5019|501a|501b|501c|501d|501e|501f|5020|5021|5022|5023|5024|5025|5006|5008|5009|500a|500b|500c|500d|500e|500f)/i, cat:'nand', level:'work', name:'Western Digital NVMe（SN 系列）',
+   advice:'SN520/SN730/SN750 早期批次在 macOS 上有掉盘与休眠不认盘的记录，SN550 之后基本正常。判断依据是渣顿固件版本，更新后再试。'},
+  {re:/^144d:(a808|a809|a80a|a80b|a80c|a80d|a80e|a810|a811|a812|a813|a814|a815|a816|a817|a818|a819|a820|a821|a822)/i, cat:'nand', level:'work', name:'Samsung NVMe（970 / 980 / PM 系列）',
+   advice:'970 EVO Plus 部分批次固件与 macOS 冲突，安装阶段找不到盘，更新固件能解决。PM981/PM991 是明确黑名单，装不了系统，直接换盘。'},
+  {re:/^1987:(5001|5002|5003|5004|5005|5006|5007|5008|5012|5013|5016|5017|5018|5019|5020)/i, cat:'nand', level:'work', name:'Phison 主控 NVMe',
+   advice:'群联主控（常见于入门国产盘与部分原装盘）兼容性波动大，优先选带 DRAM 缓存的型号。掉盘先查固件。'},
+  {re:/^126f:(2260|2262|2263|2264|2265|2266|2267|2268|2269|2270|2271)/i, cat:'nand', level:'work', name:'Silicon Motion 主控 NVMe',
+   advice:'SMI 主控兼容性总体正常，个别型号与 TRIM 有冲突，遇到掉速先关 trimforce。'},
+  {re:/^1c5c:(1327|1527|1747|1e07|1f07|2007|2107|2207)/i, cat:'nand', level:'work', name:'SK hynix NVMe',
+   advice:'海力士原厂盘兼容性不错，注意部分 OEM 盘（PC401/PC601）需要更新固件才认。'},
+  {re:/^1e0f:(0001|0002|0003|0004|0005|0006|0007|0008|0009)/i, cat:'nand', level:'work', name:'KIOXIA / 东芝 NVMe',
+   advice:'东芝主控兼容性好，只要 BIOS 里不把 NVMe 设成 RAID / RST 模式就行。'},
+  {re:/^8086:(0974|0a54|0a55|0b60|0b62|f1a5|f1a6|f1a8|f1aa|a1a5|a1a6)/i, cat:'nand', level:'work', name:'Intel NVMe（600p / 660p / 傲腾）',
+   advice:'Intel 600p / 660p / H10 这类 QLC 盘在 macOS 上掉盘与卡顿记录较多，不建议做系统盘，做数据盘也要谨慎。'},
+
+  // ---- USB 控制器 ----
+  {re:/^8086:(9ded|9d2f|a36d|a0ed|a12f|a22f|a32f|43ed|43ee|7aed|51ed|51ee|54ed|02ed|1e31|1e26|8c26|8c2d|8c31|9c31)/i, cat:'usb', level:'work', name:'Intel xHCI USB 控制器',
+   advice:'macOS 对 Intel xHCI 支持良好，只需要 USB 端口映射。别再用 XhciPortLimit，它在 Big Sur 之后已经失效，会把端口砍到 15 个以内。'},
+  {re:/^1b21:(1242|2142|1142|1042|1241|3242)/i, cat:'usb', level:'work', name:'ASMedia USB 3.x 控制器',
+   advice:'ASMedia 控制器部分型号 macOS 不认，需要 GenericUSBXHCI 或直接禁用该控制器。外接硬盘盒掉线常是这里的问题。'},
+  {re:/^1b21:(0611|0612|1060|1061|1062|1064|1065)/i, cat:'sata', level:'work', name:'ASMedia SATA 控制器',
+   advice:'AHCI 模式可以被 macOS 原生带，注意 BIOS 里不要设 RAID。'},
+
+  // ---- 触控板 / 输入 ----
+  {re:/^04f3:(3[0-9a-f]{2}|2[0-9a-f]{2})/i, cat:'input', level:'work', name:'ELAN I2C 触控板',
+   advice:'VoodooI2C + VoodooI2CELAN，先确认 I2C 控制器（INT344B / INT34BB）没被 ACPI 改名，GPIO pinning 要对准。多点手势靠 VoodooI2CHID 补。'},
+  {re:/^06cb:(cd[0-9a-f]{2}|7e[0-9a-f]{2}|ce[0-9a-f]{2}|29[0-9a-f]{2})/i, cat:'input', level:'work', name:'Synaptics I2C 触控板',
+   advice:'VoodooI2CSynaptics，注意 I2C HID 设备需要 _DSM 或 SSDT-XOSI 补丁，否则设备树里根本看不到。'},
+  {re:/^04f3:.*/i, cat:'input', level:'work', name:'ELAN 触控设备',
+   advice:'按 ELAN 系列驱动，触摸屏另算。'},
+
+  // ---- 芯片组 / 桥 ----
+  {re:/^8086:(a30c|a30d|a30e|a300|a301|a302|a303|a304|a305|a306|a307|a308|a309|a30a|a30b|9d09|9d0b|9d0d|9d0e|9d0f|9d10)/i, cat:'chip', level:'na', name:'Intel PCH / PCIe 根桥',
+   advice:'芯片组本身不需要驱动，但 PCH 会影响 SMBus 与 CPU 电源管理。AppleSMBusPCI 不加载时睡眠唤醒会不稳。'},
+  {re:/^8086:.*/i, cat:'chip', level:'na', name:'Intel 设备（其它）',
+   advice:'这类多为桥接器、SATA、SMBus、串口等控制器，一般不影响开机，遇到睡眠问题再查。'},
+  {re:/^1002:.*/i, cat:'chip', level:'na', name:'AMD 设备（其它）',
+   advice:'AMD 平台注意内核补丁（AMD Vanilla），Ryzen 需要 OpenCore 的 Kernel Patch 与 cpuid 修补。'},
+  {re:/^10de:.*/i, cat:'chip', level:'na', name:'NVIDIA 设备（其它）',
+   advice:'NVIDIA 在 macOS 上除了专业卡外基本没有可用驱动。'}
 ];
 
-var NAMES = {
-  '显卡':'显卡与帧缓冲','无线网卡':'无线与蓝牙','有线网卡':'有线网络','声卡':'音频 codec','蓝牙':'蓝牙','触控板':'触控板与输入','硬盘':'存储'
-};
+// 声卡 codec 表：ioreg 里 codec 常以 "ALC256" 出现在 IOAudio / HDEF 节点，而不是 PCI ID
+var CODECS = [
+  {n:'ALC256', l:'11 / 13 / 21 / 66 / 69', note:'常见于轻薄本，休眠后无声要 CodecCommander'},
+  {n:'ALC257', l:'11 / 13 / 21 / 99', note:'与 256 接近，外放/耳机切换常需 alc-verb'},
+  {n:'ALC258', l:'11 / 13 / 66', note:'少见，优先在 AppleALC 里搜同名 codec'},
+  {n:'ALC269', l:'1 / 3 / 11 / 13 / 28 / 29 / 48 / 66 / 76', note:'老平台最多变体的一颗，逐个试'},
+  {n:'ALC270', l:'3 / 13 / 28 / 31', note:'部分需要手动改 pin 配置'},
+  {n:'ALC286', l:'3 / 13 / 21', note:'少见，别急着重装系统'},
+  {n:'ALC288', l:'3 / 11 / 13 / 21 / 28 / 66', note:'台式机常见'},
+  {n:'ALC290', l:'3 / 13 / 28 / 31 / 99', note:'注意麦克风阵列'},
+  {n:'ALC292', l:'12 / 28 / 66 / 99', note:'笔记本常见，外放容易哑'},
+  {n:'ALC293', l:'11 / 12 / 28 / 66', note:'与 292 接近'},
+  {n:'ALC294', l:'11 / 13 / 15 / 21 / 28 / 66', note:'笔记本常见'},
+  {n:'ALC295', l:'3 / 13 / 21 / 28 / 77', note:'jack sense 常出问题'},
+  {n:'ALC298', l:'11 / 13 / 29 / 47 / 66', note:'部分机型要修 GPIO'},
+  {n:'ALC3204', l:'11 / 13 / 28', note:'少见'},
+  {n:'ALC3234', l:'11 / 13 / 21', note:'少见'},
+  {n:'ALC3236', l:'11 / 13 / 21 / 66', note:'少见'},
+  {n:'ALC3268', l:'11 / 13 / 21', note:'少见'},
+  {n:'ALC700', l:'11 / 13 / 21 / 66', note:'少见'},
+  {n:'ALC880', l:'5 / 7 / 11 / 12 / 13 / 17 / 21 / 28 / 52 / 98', note:'老台式机'},
+  {n:'ALC882', l:'5 / 7 / 11 / 12 / 13 / 21 / 28 / 52 / 98', note:'老台式机'},
+  {n:'ALC883', l:'5 / 7 / 11 / 12 / 13 / 21 / 28 / 52 / 98', note:'老台式机'},
+  {n:'ALC887', l:'5 / 7 / 11 / 12 / 13 / 17 / 18 / 20 / 21 / 28 / 52 / 87 / 98 / 99', note:'台式机最常见，几乎都能出声'},
+  {n:'ALC888', l:'1 / 3 / 5 / 7 / 11 / 12 / 13 / 17 / 28 / 52 / 98', note:'老台式机'},
+  {n:'ALC889', l:'1 / 3 / 5 / 7 / 11 / 12 / 13 / 17 / 28 / 52 / 98', note:'老台式机'},
+  {n:'ALC892', l:'1 / 7 / 12 / 17 / 28 / 66 / 92 / 99', note:'台式机常用'},
+  {n:'ALC897', l:'11 / 12 / 66 / 98', note:'新台式机常见，前置面板要确认 pin'},
+  {n:'ALC898', l:'1 / 3 / 5 / 7 / 11 / 12 / 13 / 28 / 52 / 98', note:'老台式机'},
+  {n:'ALC1150', l:'1 / 3 / 7 / 11 / 28 / 52 / 99', note:'Z97 时代常见'},
+  {n:'ALC1200', l:'7 / 11 / 13 / 28 / 56 / 69', note:'新主板常见'},
+  {n:'ALC1220', l:'7 / 11 / 13 / 28 / 56 / 69', note:'新主板常见，注意 7.1 声道配置'}
+];
 
-var ORDER = ['显卡','无线网卡','有线网卡','声卡','蓝牙','触控板','硬盘'];
+var CATNAME = {gpu:'显卡与帧缓冲', wifi:'无线网络', eth:'有线网络', audio:'音频', nand:'存储', usb:'USB 控制器', sata:'SATA 控制器', tb:'雷电', input:'触控板与输入', chip:'芯片组 / 其它'};
+var CATORDER = ['gpu','wifi','eth','audio','nand','usb','sata','tb','input','chip'];
+var LEVELTEXT = {ok:'原生免驱', work:'需补丁', bad:'不建议', na:'无需处理'};
 
 var SAMPLE = '+-o IOPCIDevice  <class IOPCIDevice, id 0x1000001d7, registered, matched>\n' +
 '    "IONameMatched" = "pci8086,46a0"\n' +
 '    "model" = <"Intel Iris Xe Graphics">\n' +
+'    "SystemProductName" = "MacBookPro16,1"\n' +
 '+-o pci8086,51f1@14  <class IOPCIDevice>\n' +
 '    "IONameMatched" = "pci8086,51f1"\n' +
-'+-o pci10ec,256@1f,3  <class IOPCIDevice>\n' +
+'+-o pci10ec,0256@1f,3  <class IOPCIDevice>\n' +
 '    "IONameMatched" = "pci10ec,0256"\n' +
 '    "IOClass" = "AppleHDAController"\n' +
+'    "IOAudioDeviceName" = "Realtek ALC256"\n' +
 '+-o pci15b7,5017@17  <class IOPCIDevice>\n' +
 '    "IONameMatched" = "pci15b7,5017"\n' +
 '    "Product Name" = "WD SN560 1TB"\n' +
+'+-o pci8086,a0f0@14,3  <class IOPCIDevice>\n' +
+'    "IONameMatched" = "pci8086,a0f0"\n' +
+'+-o pci8086,15b8@1f,6  <class IOPCIDevice>\n' +
+'    "IONameMatched" = "pci8086,15b8"\n' +
+'+-o pci1002,73ff@1,0  <class IOPCIDevice>\n' +
+'    "IONameMatched" = "pci1002,73ff"\n' +
+'+-o AppleACPIPlatformExpert\n' +
+'    "cpu-brand" = "Intel(R) Core(TM) i5-13500H"\n' +
 '+-o IOUSBHostDevice@1a100000\n' +
 '    "idVendor" = 32807\n' +
 '    "idProduct" = 51\n' +
 '    "USB Product Name" = "Intel Bluetooth"\n';
 
 var $ = function(s){ return document.querySelector(s); };
+var HW = (typeof window.HWDB !== 'undefined') ? window.HWDB : {v:{},d:{},usb:{}};
 
 function hex4(v){ return ('0000'+v.toString(16)).slice(-4); }
 
 function collect(text){
-  var found = {}; // id -> {count, ctx:[], usb:false}
+  var found = {};
   var re = /pci([0-9a-fA-F]{4}),([0-9a-fA-F]{1,4})/g, m;
   while ((m = re.exec(text)) !== null){
     var id = m[1].toLowerCase() + ':' + ('0000' + m[2].toLowerCase()).slice(-4);
-    if (!found[id]) found[id] = {id:id, count:0, ctx:[]};
+    if (!found[id]) found[id] = {id:id, count:0, ctx:[], usb:false};
     found[id].count++;
     var from = Math.max(0, m.index - 90), to = Math.min(text.length, m.index + 120);
     var ctx = text.slice(from, to).replace(/\s+/g,' ').slice(0,150);
     if (found[id].ctx.length < 2 && found[id].ctx.indexOf(ctx) === -1) found[id].ctx.push(ctx);
   }
-  // USB 设备：idVendor / idProduct 十进制
-  var ure = /"idVendor"\s*=\s*(\d+)[\s\S]{0,200}?"idProduct"\s*=\s*(\d+)/g;
+  var ure = /"idVendor"\s*=\s*(\d+)[\s\S]{0,220}?"idProduct"\s*=\s*(\d+)/g;
   while ((m = ure.exec(text)) !== null){
     var v = parseInt(m[1],10), p = parseInt(m[2],10);
     var uid = hex4(v) + ':' + hex4(p);
     if (!found[uid]) found[uid] = {id:uid, count:0, ctx:[], usb:true};
     found[uid].count++;
-    if (found[uid].ctx.length < 2) found[uid].ctx.push(('USB ' + uid + ' ' + text.slice(m.index, Math.min(text.length, m.index + 160)).replace(/\s+/g,' ')).slice(0,150));
+    if (found[uid].ctx.length < 2){
+      var uctx = text.slice(m.index, Math.min(text.length, m.index + 200)).replace(/\s+/g,' ');
+      found[uid].ctx.push(('USB ' + uid + ' ' + uctx).slice(0,150));
+    }
   }
   return found;
 }
@@ -219,24 +384,54 @@ function detectModel(text){
     /"SystemProductName"\s*=\s*"([^"]+)"/i,
     /"ModelIdentifier"\s*=\s*"([^"]+)"/i,
     /"board-id"\s*=\s*"([^"]+)"/i,
-    /"product-name"\s*=\s*"([^"]+)"/i,
-    /\b(MacBookPro\d{1,2},\d|Macmini\d{1,2},\d|iMac\d{1,2},\d|MacPro\d{1,2},\d|Mac\d{1,2},\d)\b/i
+    /\b(MacBookPro\d{1,2},\d|Macmini\d{1,2},\d|iMac\d{1,2},\d|iMacPro\d{1,2},\d|MacPro\d{1,2},\d|Mac\d{1,2},\d)\b/i
   ];
   for (var i=0;i<pats.length;i++){ var m = text.match(pats[i]); if (m) return m[1]; }
   return '';
 }
 
 function detectCpu(text){
-  var m = text.match(/"(?:cpu-brand|CPU Brand|Processor Name)"\s*=\s*(?:<)?"?([^"<]{4,60})/i);
+  var m = text.match(/"(?:cpu-brand|CPU Brand|Processor Name)"\s*=\s*(?:<)?"?([^"<]{4,64})/i);
   if (m) return m[1].trim();
-  var c = text.match(/\b(i3-|i5-|i7-|i9-|Ryzen|Threadripper|Core i)[\w\-\.]{2,20}/i);
+  var m2 = text.match(/"(?:CPU Type|Processor Name)"\s*=\s*\{?([^}]{4,64})/i);
+  if (m2) return m2[1].trim();
+  var c = text.match(/\b(i[3579]-[\w\-\.]{2,20}|Ryzen[\w\-\. ]{2,20}|Threadripper[\w\-\. ]{2,20}|Core i[\w\-\.]{2,20})/i);
   if (c) return c[0];
   return '';
 }
 
+function detectCodec(text){
+  var out = [], m;
+  var re = /\bALC(\d{3,4})\b/g;
+  while ((m = re.exec(text)) !== null){
+    var name = 'ALC' + m[1];
+    if (out.indexOf(name) === -1) out.push(name);
+  }
+  return out;
+}
+
+function spec(id){
+  var pair = HW.d[id];
+  if (pair) return pair;             // hwdb: 名称
+  return null;
+}
+
+function guessCat(name){
+  name = (name || '').toLowerCase();
+  if (/wi-?fi|wireless|802\.11|wlan/.test(name)) return 'wifi';
+  if (/ethernet|gigabit|lan controller|network controller/.test(name)) return 'eth';
+  if (/graphics|display controller|vga|3d controller/.test(name)) return 'gpu';
+  if (/audio/.test(name)) return 'audio';
+  if (/nvme|non-volatile|ssd/.test(name)) return 'nand';
+  if (/sata|ahci|raid/.test(name)) return 'sata';
+  if (/usb|xhci|ehci|uhci/.test(name)) return 'usb';
+  if (/thunderbolt/.test(name)) return 'tb';
+  return 'chip';
+}
+
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]; }); }
 
-var lastReport = '';
+var lastReport = '', lastState = null;
 
 function render(text){
   var found = collect(text);
@@ -245,76 +440,162 @@ function render(text){
     $('#res').innerHTML = '<div class="empty">没从这段文本里认出任何 pci 设备 ID。确认粘贴的是 <b>ioreg -l</b> 的完整输出（里面有 "IONameMatched" = "pci8086,..." 这样的行）。</div>';
     return;
   }
-  // 命中规则
-  var hits = [];
+
+  var model = detectModel(text), cpu = detectCpu(text), codecs = detectCodec(text);
+  var items = [];
+
   ids.forEach(function(id){
-    for (var i=0;i<PCI.length;i++){
-      if (PCI[i].id && PCI[i].id.toLowerCase() === id){ hits.push({id:id, rule:PCI[i], data:found[id]}); return; }
+    var hwname = spec(id);
+    var vendor = HW.v[id.split(':')[0]] || '';
+    var fullname = (hwname ? (vendor ? vendor + ' ' : '') + hwname : '');
+    var rule = null;
+    for (var i=0;i<KB.length;i++){ if (KB[i].re.test(id)) { rule = KB[i]; break; } }
+
+    var cat, name, level, advice;
+    if (rule){
+      cat = rule.cat;
+      name = rule.name;
+      // 规则给了具体型号名时，附带真实设备名作为补充
+      level = rule.level;
+      advice = rule.advice;
+    } else {
+      cat = guessCat(hwname);
+      name = fullname || ('未知设备 ' + id);
+      level = 'na';
+      advice = '没收录到规则库里，先按类别给个方向：' +
+        ({wifi:'macOS 原生只认 Broadcom，其它品牌基本要换卡。',
+          eth:'Intel 走 IntelMausi，Realtek 走对应 kext，多数能搞定。',
+          gpu:'先确认这一代是否有 macOS 驱动，再看能否伪装 device-id。',
+          audio:'需要 AppleALC，layout-id 要试。',
+          nand:'先查是否在 NVMe 黑名单里，再看固件版本。',
+          sata:'AHCI 模式原生支持，RAID 模式不行。',
+          usb:'需要 USB 端口映射，注意 15 端口上限。',
+          tb:'需要 SSDT-TB3，热插拔另配。',
+          chip:'桥接器一类，一般不影响开机。'}[cat] || '信息不足，把完整 ioreg 发过来看。');
     }
+    items.push({id:id, cat:cat, name:name, vendor:vendor, hwname:hwname, level:level, advice:advice, data:found[id]});
   });
-  // 同分类合并去重（显卡只留一张卡的信息，避免重复刷屏）
+
+  // 声卡 codec 表匹配
+  codecs.forEach(function(c){
+    var row = null;
+    for (var i=0;i<CODECS.length;i++){ if (CODECS[i].n === c) { row = CODECS[i]; break; } }
+    items.push({id:c, cat:'audio', name:'Realtek ' + c, vendor:'Realtek', hwname:'HD Audio codec', level:'work',
+      advice: row ? ('走 AppleALC，layout-id 候选 ' + row.l + '。' + row.note + '。') : ('走 AppleALC，layout-id 需要逐个试；笔记本外放与耳机切换常要 alc-verb 补。'),
+      data:{ctx:[('codec 名称：' + c)], count:1}});
+  });
+
+  // 排序：按类别顺序
   var byCat = {};
-  hits.forEach(function(h){ (byCat[h.rule.cat] = byCat[h.rule.cat] || []).push(h); });
+  items.forEach(function(it){ (byCat[it.cat] = byCat[it.cat] || []).push(it); });
+  // 每类按严重程度排：bad > work > ok > na
+  var LV = {bad:0, work:1, ok:2, na:3};
+  Object.keys(byCat).forEach(function(c){ byCat[c].sort(function(a,b){ return LV[a.level] - LV[b.level]; }); });
 
-  var model = detectModel(text), cpu = detectCpu(text);
-  var totalDev = ids.length;
-
+  // ---- 汇总 ----
+  var total = ids.length;
   var sum = '<div class="sum">' +
-    '<div class="box"><div class="k">识别到的设备 ID</div><div class="v">'+ totalDev +' 个</div></div>' +
-    '<div class="box"><div class="k">命中的已知硬件</div><div class="v">'+ hits.length +' 项</div></div>' +
+    '<div class="box"><div class="k">识别到的设备</div><div class="v">'+ total +' 个 ID</div></div>' +
+    '<div class="box"><div class="k">库内查到型号</div><div class="v">'+ items.filter(function(i){ return i.hwname && HW.d[i.id]; }).length +' 个</div></div>' +
     '<div class="box"><div class="k">机型 / SMBIOS</div><div class="v">'+ esc(model || '未读到') +'</div></div>' +
     '<div class="box"><div class="k">平台</div><div class="v">'+ esc(cpu || '未读到') +'</div></div>' +
   '</div>';
 
-  var cards = '';
-  ORDER.forEach(function(cat){
-    if (!byCat[cat]) return;
+  // ---- 结论条：无线 / 显卡 / 存储 / 音频 ----
+  function verdictFor(cat){
     var list = byCat[cat];
-    // 每类只展开第一条有建议的，其余并进证据行
-    list.forEach(function(h, idx){
-      var extra = '';
-      if (idx === 0 && list.length > 1){
-        extra = '<div class="ev">同类还有：' + list.slice(1).map(function(x){ return x.rule.name + '（' + x.id + '）'; }).join('、') + '</div>';
-      }
+    if (!list) return null;
+    var worst = list[0];
+    var lv = worst.level;
+    var txt = '';
+    if (cat === 'wifi'){
+      txt = worst.level === 'ok' ? '<b>' + esc(worst.name) + '</b> 原生免驱，隔空投送、接力可以直接用。'
+          : worst.level === 'bad' ? '<b>' + esc(worst.name) + '</b> 在 macOS 上没有可用驱动，只能用有线、USB 无线或换卡。'
+          : '<b>' + esc(worst.name) + '</b> 能跑但要 itlwm + HeliPort，隔空投送、随航这些原生功能没有。';
+    } else if (cat === 'gpu'){
+      txt = worst.level === 'ok' ? '<b>' + esc(worst.name) + '</b> 免驱。'
+          : worst.level === 'bad' ? '<b>' + esc(worst.name) + '</b> 没有驱动。' + (worst.id.indexOf('1002') === 0 ? '需要配独显或换平台。' : '')
+          : '<b>' + esc(worst.name) + '</b> 能驱动，但要 WhateverGreen 与帧缓冲/device-id 配套，输出口要逐项核对。';
+    } else if (cat === 'nand'){
+      txt = '<b>' + esc(worst.name) + '</b>（' + worst.id + '）注意兼容性，' + (worst.level === 'bad' ? '建议直接换盘。' : '优先更新固件，装系统前先确认不在黑名单里。');
+    } else if (cat === 'audio'){
+      txt = '';
+    }
+    return {lv:lv, txt:txt, item:worst};
+  }
+
+  var verdicts = '';
+  [['wifi','无线'],['gpu','显卡'],['nand','存储'],['audio','音频']].forEach(function(pair){
+    var v = verdictFor(pair[0]);
+    if (!v) return;
+    var body;
+    if (pair[0] === 'audio'){
+      // 优先用 codec 项，没有才用 PCI 音频控制器
+      var cd = (byCat['audio'] || []).filter(function(x){ return /^ALC/.test(x.id); })[0] || v.item;
+      body = '<b>' + esc(cd.name) + '</b> ' + esc(cd.advice);
+    } else {
+      body = v.txt;
+    }
+    verdicts += '<div class="vr"><span class="tag ' + (v.lv === 'na' ? 'work' : v.lv) + '">' +
+      (v.lv === 'ok' ? '可用' : v.lv === 'work' ? '要补丁' : v.lv === 'bad' ? '不可用' : '待查') + '</span>' +
+      '<div class="vt"><b>' + pair[1] + '</b>：' + body + '</div></div>';
+  });
+  // 无线的蓝牙属于 USB，单独补一条
+  var btItem = null;
+  items.forEach(function(it){ if (!btItem && it.data && it.data.usb && /bluetooth/i.test(it.hwname || it.name)) btItem = it; });
+
+  var verdictBox = verdicts ? '<div class="verdict"><div class="vh">按这台机器现在的硬件，结论是这样</div>' + verdicts + '</div>' : '';
+
+  // ---- 分类卡片 ----
+  var cards = '';
+  CATORDER.forEach(function(cat){
+    var list = byCat[cat];
+    if (!list) return;
+    cards += '<h2 class="sec">' + (CATNAME[cat] || cat) + ' <span style="font-size:12px;color:var(--text-mute);font-weight:400">' + list.length + ' 项</span></h2>';
+    list.forEach(function(it){
+      var lvcls = it.level === 'ok' ? 'ok' : it.level === 'work' ? 'work' : it.level === 'bad' ? 'bad' : '';
       cards += '<div class="item">' +
-        '<div class="cat">'+ esc(NAMES[cat] || cat) +'</div>' +
-        '<h3>'+ esc(h.rule.name) +'<span class="badge">'+ h.id +'</span>' +
-          (list.length > 1 && idx === 0 ? '<span class="badge warn">共 '+ list.length +' 项</span>' : '') +
+        '<h3>' + esc(it.name) + '<span class="badge ' + lvcls + '">' + (LEVELTEXT[it.level] || '') + '</span>' +
+        '<span class="badge">' + esc(it.id) + '</span>' +
+        (it.hwname ? '<span style="font-size:12px;color:var(--text-mute)">' + esc(it.hwname) + '</span>' : '') +
         '</h3>' +
-        '<p>'+ esc(h.rule.advice) +'</p>' +
-        extra +
-        '<div class="ev">命中依据：' + esc(h.data.ctx[0] || h.id) + '</div>' +
+        '<p>' + esc(it.advice) + '</p>' +
+        (it.data && it.data.ctx && it.data.ctx[0] ? '<div class="ev">命中依据：' + esc(it.data.ctx[0]) + '</div>' : '') +
       '</div>';
     });
   });
 
-  // 未识别设备
-  var unknown = ids.filter(function(id){ return !hits.some(function(h){ return h.id === id; }); });
+  // ---- 未识别 ----
+  var unknown = items.filter(function(it){ return !it.hwname && !HW.d[it.id] && it.cat === 'chip' && !KB.some(function(k){ return k.re.test(it.id); }) && !/[A-Z]/.test(it.name); });
   var unkBox = '';
   if (unknown.length){
-    unkBox = '<details><summary>另有 '+ unknown.length +' 个未收录的设备 ID（多为桥接器、SATA 控制器、RGB 控制器，一般不影响黑苹果）</summary><pre>' +
-      unknown.map(function(id){
-        var c = found[id].ctx[0] || '';
-        return id + ' ×' + found[id].count + '\n  ' + c;
-      }).join('\n') + '</pre></details>';
+    unkBox = '<details><summary>另有 ' + unknown.length + ' 个设备库里没查到的 ID（多为桥接器、SATA、RGB 控制器，一般不影响黑苹果）</summary><pre>' +
+      unknown.map(function(it){ return it.id + ' ×' + it.data.count + '\n  ' + (it.data.ctx[0] || ''); }).join('\n') + '</pre></details>';
   }
 
-  // 报告文本
-  lastReport = ['ioreg 诊断报告 —— 冷月技术网', '机型：' + (model || '未读到'), '平台：' + (cpu || '未读到'), ''].join('\n')
-    + hits.map(function(h){ return '[' + h.rule.cat + '] ' + h.rule.name + ' (' + h.id + ')'; }).join('\n');
+  // ---- 报告 ----
+  lastReport = ['ioreg 诊断报告 —— 冷月技术网', '机型：' + (model || '未读到'), '平台：' + (cpu || '未读到'),
+    '设备 ID 数：' + total, ''].join('\n')
+    + items.map(function(it){ return '[' + (CATNAME[it.cat] || it.cat) + '][' + (LEVELTEXT[it.level] || '') + '] ' + it.name + ' (' + it.id + ')' + (it.hwname ? ' — ' + it.hwname : ''); }).join('\n');
 
-  $('#res').innerHTML = sum +
-    '<div style="display:flex;align-items:center;gap:12px;margin:24px 0 14px;flex-wrap:wrap">' +
-      '<span style="font-size:19px;font-weight:800;line-height:1.4">诊断结果</span>' +
+  $('#res').innerHTML = sum + verdictBox +
+    '<div style="display:flex;align-items:center;gap:12px;margin:26px 0 12px;flex-wrap:wrap">' +
+      '<span style="font-size:19px;font-weight:800;line-height:1.4">逐项结果</span>' +
       '<button class="btn btn-ghost" id="copy" style="padding:7px 14px;font-size:13px">复制报告</button>' +
     '</div>' + cards + unkBox;
 
   var cp = $('#copy');
   if (cp) cp.addEventListener('click', function(){
-    navigator.clipboard.writeText(lastReport).then(function(){
-      cp.textContent = '已复制';
-      setTimeout(function(){ cp.textContent = '复制报告'; }, 1600);
-    });
+    var txt = lastReport;
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ ok(); }, function(){ fallback(txt); });
+    } else fallback(txt);
+    function ok(){ cp.textContent = '已复制'; setTimeout(function(){ cp.textContent = '复制报告'; }, 1600); }
+    function fallback(t){
+      var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); ok(); }catch(e){}
+      document.body.removeChild(ta);
+    }
   });
 }
 
@@ -329,7 +610,7 @@ $('#pick').addEventListener('click', function(){ $('#file').click(); });
 $('#file').addEventListener('change', function(e){
   var f = e.target.files[0]; if (!f) return;
   var fr = new FileReader();
-  fr.onload = function(){ $('#src').value = String(fr.result).slice(0, 4000000); render(String(fr.result).slice(0, 4000000)); };
+  fr.onload = function(){ var t = String(fr.result).slice(0, 4000000); $('#src').value = t; render(t); };
   fr.readAsText(f);
 });
 </script>

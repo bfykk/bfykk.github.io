@@ -42,9 +42,10 @@
 <p>config.plist 里最容易出错的地方之一就是 DeviceProperties：路径写错、值类型写错、字节序写错，三种都会让注入静默失效。</p>
 <h2>支持的三类注入</h2>
 <ul>
-<li><b>核显</b>：AAPL,ig-platform-id + device-id，13 代平台靠它拿加速</li>
-<li><b>声卡</b>：layout-id / alc-layout-id，配 AppleALC</li>
-<li><b>自定义</b>：data / integer / string / boolean 任意属性</li>
+<li><b>核显</b>：19 条 ig-platform-id 预设，覆盖 Ivy Bridge 到 Comet Lake / Ice Lake，按代际分组</li>
+<li><b>device-id</b>：按 ig-platform-id 自动取高 16 位，2 字节小端，字节序不用自己算</li>
+<li><b>声卡</b>：18 条 layout-id 预设，按 ALC256/257、ALC295/294/298、台式机 ALC887/892/897/1200/1220 分组</li>
+<li><b>自定义</b>：data / integer / string / boolean 任意属性，integer 与 data 两种写法同时给</li>
 </ul>
 <h2>怎么用</h2>
 <ol>
@@ -94,3 +95,4 @@
 })();</script>
 </body>
 </html>
+

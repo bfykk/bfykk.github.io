@@ -79,6 +79,7 @@ pre.export{margin-top:16px;background:var(--bg-soft);border:1px solid var(--bord
       <button class="btn btn-ghost" id="expand">展开全部</button>
       <button class="btn btn-ghost" id="collapse">折叠全部</button>
       <button class="btn btn-ghost" id="export">导出 XML</button>
+      <button class="btn btn-ghost" id="check">检查结构</button>
       <button class="btn btn-ghost" id="demo">载入示例</button>
     </div>
 
@@ -430,6 +431,72 @@ function exportXml(){
   });
 }
 
+// ================= 结构检查 =================
+function checkTree(){
+  if (!ROOT){ $('#msg').className = 'msg err'; $('#msg').textContent = '先打开一个 plist。'; return; }
+  var issues = [];
+  var escT = function(s){ return String(s).replace(/[&<>]/g, function(c){ return ({'&':'&amp;','<':'&lt;','>':'&gt;'})[c]; }); };
+
+  if (ROOT.t !== 'dict'){
+    issues.push(['warn','顶层不是 dict', 'plist 顶层通常是 dict（也有顶层 array 的情况），config.plist 一定是 dict。']);
+  }
+
+  (function walk(n, path){
+    if (!n) return;
+    if (n.t === 'dict'){
+      var seen = {};
+      n.v.forEach(function(pair){
+        var k = pair.k;
+        if (!k || !String(k).trim()){
+          issues.push(['error','空键名', '位置：' + path]);
+        } else if (seen[k]){
+          issues.push(['warn','重复键：' + k, '位置：' + path + '（同一层出现两次，后一个会覆盖前一个，OpenCore 会直接报 Schema 错）']);
+        } else if (/\s/.test(String(k).trim())){
+          issues.push(['warn','键名含空格：' + k, '位置：' + path + '（键名不能带空格，多半是手写多打了一个）']);
+        }
+        seen[k] = 1;
+        if (/^aapl,/i.test(String(k)) && String(k) !== 'AAPL,ig-platform-id' && /ig.?platform/i.test(String(k))){
+          issues.push(['error','键名大小写疑似错误：' + k, '位置：' + path + '（正确写法是 AAPL,ig-platform-id，大小写错等于没注入）']);
+        }
+        walk(pair.v, path + '/' + k);
+      });
+    } else if (n.t === 'array'){
+      n.v.forEach(function(c, i){ walk(c, path + '[' + i + ']'); });
+    }
+    if (n.t === 'data'){
+      var s = String(n.v || '').replace(/\s+/g,'');
+      if (!s) issues.push(['warn','空的 data','位置：' + path]);
+      else if (!/^[A-Za-z0-9+/]+={0,2}$/.test(s)) issues.push(['error','data 里有非法字符','位置：' + path + '（只能是 base64 字符，别混进 0x 或空格）']);
+      else if (s.length % 4 !== 0) issues.push(['warn','data 长度不是 4 的倍数','位置：' + path + '（base64 不完整，字节数会算错）']);
+    }
+    if (n.t === 'int' && !/^-?\d+$/.test(String(n.v).trim())){
+      issues.push(['error','integer 不是数字：' + n.v,'位置：' + path]);
+    }
+    if (n.t === 'real' && !/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(String(n.v).trim())){
+      issues.push(['warn','real 不是合法数字：' + n.v,'位置：' + path]);
+    }
+    if (n.t === 'date' && !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(String(n.v).trim())){
+      issues.push(['warn','date 格式不是 ISO8601：' + n.v,'位置：' + path + '（应为 2024-01-01T00:00:00Z）']);
+    }
+  })(ROOT, 'root');
+
+  if (!issues.length) issues.push(['ok','结构检查通过','没发现重复键、空键名与非法值，可以放心导出。']);
+
+  var cnt = {error:0, warn:0, ok:0};
+  issues.forEach(function(i){ cnt[i[0]]++; });
+  var html = '<div class="bar" style="margin:0 0 10px">' +
+    '<span style="font-size:13px;color:var(--text-sub)">错误 <b style="color:#f87171">' + cnt.error + '</b> · 风险 <b style="color:#fbbf24">' + cnt.warn + '</b> · 通过 <b style="color:#4ade80">' + cnt.ok + '</b></span></div>';
+  issues.forEach(function(i){
+    var color = i[0] === 'error' ? '#f87171' : i[0] === 'warn' ? '#fbbf24' : '#4ade80';
+    html += '<div style="border-left:3px solid ' + color + ';padding:8px 12px;margin-bottom:8px;background:var(--card);border-radius:8px">' +
+      '<div style="font-size:13.5px;font-weight:600">' + escT(i[1]) + '</div>' +
+      (i[2] ? '<div style="font-size:12.5px;color:var(--text-mute);margin-top:3px">' + escT(i[2]) + '</div>' : '') + '</div>';
+  });
+  $('#msg').className = 'msg';
+  $('#msg').textContent = '结构检查完成。';
+  $('#io').innerHTML = html;
+}
+
 // ================= 入口 =================
 function loadText(text){
   try {
@@ -496,6 +563,7 @@ $('#collapse').addEventListener('click', function(){
   });
 });
 $('#export').addEventListener('click', exportXml);
+$('#check').addEventListener('click', checkTree);
 
 var DEMO = '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0"><dict>' +
 '<key>Boot</key><dict><key>Timeout</key><integer>5</integer><key>PickerMode</key><string>External</string></dict>' +
@@ -503,6 +571,7 @@ var DEMO = '<?xml version="1.0" encoding="UTF-8"?>\n<plist version="1.0"><dict>'
 '<key>Debug</key><true/></dict></plist>';
 $('#demo').addEventListener('click', function(){ $('#pastePanel').style.display='block'; $('#src').value = DEMO; loadText(DEMO); });
 if (location.search.indexOf('demo') !== -1){ $('#pastePanel').style.display='block'; $('#src').value = DEMO; loadText(DEMO); }
+if (location.search.indexOf('check') !== -1){ checkTree(); }
 </script>
 </body>
 </html>

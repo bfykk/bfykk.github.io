@@ -77,7 +77,7 @@ pre{font-size:12px;color:var(--text-mute);overflow:auto;margin-top:10px;max-heig
   <div class="wrap">
     <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>config.plist 体检</span></div>
     <h1>config.plist 在线体检</h1>
-    <p class="lead">把 OpenCore 的 config.plist 拖进来，当场检查顶层结构、kext 加载顺序、Quirks 冲突、驱动缺失、SMBIOS 与 boot-args。所有解析在浏览器本地完成，文件不会离开这台电脑。</p>
+    <p class="lead">把 OpenCore 的 config.plist 拖进来，当场检查顶层结构、kext 顺序与条目完整性、Booter / Kernel Quirks 冲突、ACPI 重复补丁、三码格式、NVRAM 残留、DeviceProperties 类型、boot-args 危险项，共 22 组规则。所有解析在浏览器本地完成，文件不会离开这台电脑。</p>
 
     <div class="panel">
       <label for="src">粘贴 config.plist 内容（XML 格式）</label>
@@ -289,7 +289,150 @@ function check(cfg, rawText){
     add('info','Kernel.Block 与 Kernel.Force 同时有内容','两者作用相反，同时存在容易互相打架，排查问题时优先清空。','按需只保留一个。');
   }
 
-  // 12 大小
+  // 12 Booter Quirks 互斥
+  var bq = get(cfg, 'Booter.Quirks') || {};
+  if (bq.EnableWriteUnprotector === true && bq.RebuildAppleMemoryMap === true){
+    add('error','Booter.Quirks 里 EnableWriteUnprotector 与 RebuildAppleMemoryMap 同时打开',
+      '这两个项是二选一的替代关系，同时开会造成内存映射修补互相覆盖，典型现象是随机卡在 AppleACPICPU 或进系统后 panic。',
+      '保留 RebuildAppleMemoryMap（0.7+ 新方案），关掉 EnableWriteUnprotector；老平台反过来。');
+  }
+  if (bq.DevirtualiseMmio === true && (!Array.isArray(bq.MmioWhitelist) || !bq.MmioWhitelist.length)){
+    add('info','DevirtualiseMmio 打开了但没有 MmioWhitelist',
+      '多数平台直接开就行，但部分主板需要把固件占用的 MMIO 区域列进白名单，否则会花屏或卡死。',
+      '先试默认，出问题再按 OpenCore 调试日志里的 MmioWhitelist 提示补条目。');
+  }
+  if (bq.SetupVirtualMap === true && bq.DevirtualiseMmio === true){
+    add('info','SetupVirtualMap 与 DevirtualiseMmio 同时启用',
+      '两者都改内存映射，老平台（Skylake 之前）容易冲突。', '先关 DevirtualiseMmio 试，稳定后再逐个加回。');
+  }
+
+  // 13 Kernel Quirks
+  var kq = get(cfg, 'Kernel.Quirks') || {};
+  if (kq.AppleXcpmCfgLock === true){
+    add('info','AppleXcpmCfgLock = true','这说明你的主板 CFG Lock 没关，靠 Quirk 硬绕过去，偶尔会引起睡眠异常。','进 BIOS 找 CFG Lock / MSR 0xE2 关掉，然后把这个 Quirk 设回 false。');
+  }
+  if (kq.DisbaleIoMapper === true || kq.DisabeIoMapper === true || kq.DisablIoMapper === true || kq.DisableIoMapper === true){
+    add('info','DisableIoMapper 打开','这是在绕过 VT-d 的 DMA 保护，性能与稳定性都不如直接在 BIOS 关 VT-d。','BIOS 里关闭 VT-d / IOMMU，然后把 DisableIoMapper 设回 false。');
+  }
+  if (kq.ProvideCurrentCpuInfo === true){
+    add('info','ProvideCurrentCpuInfo = true','AMD 平台必需（提供正确的 CPU 信息给 XNU），Intel 平台一般不需要。','Intel 平台建议关掉，避免线程数与频率识别异常。');
+  }
+  if (typeof kq.SetApfsTrimTimeout === 'number' && kq.SetApfsTrimTimeout === -1){
+    add('info','SetApfsTrimTimeout = -1','关闭了 TRIM 等待，能让开机快一点，但长时间使用后 SSD 写入放大更明显。','SSD 正常的话建议设 0（默认等待）或 4294967295（完全关闭，按需）。');
+  }
+
+  // 14 Kernel.Add 条目完整性
+  if (Array.isArray(kadd) && kadd.length){
+    var broken = kadd.filter(function(k){ return k && k.Enabled && String(k.BundlePath||'').trim() && (!String(k.PlistPath||'').trim() || !String(k.ExecutablePath||'').trim()); });
+    if (broken.length){
+      add('warn','kext 条目缺少 PlistPath / ExecutablePath：' + broken.slice(0,3).map(function(k){ return String(k.BundlePath); }).join('、'),
+        'OC 0.6.6 之后每个 kext 条目都要三键齐全，缺了会直接拒绝加载并打印 Schema 错误。',
+        '用 ProperTree 的 Clean Snapshot 重新扫描 kext 目录，或手工补 PlistPath=Contents/Info.plist、ExecutablePath=Contents/MacOS/对应名字。');
+    }
+    var kernelOrder = kadd.filter(function(k){ return k && k.Enabled && (k.MinKernel || k.MaxKernel); });
+    var reversed = kernelOrder.filter(function(k){
+      var mn = String(k.MinKernel||''), mx = String(k.MaxKernel||'');
+      return mn && mx && mn !== '' && mx !== '' && mn > mx;
+    });
+    if (reversed.length){
+      add('warn','kext 的 MinKernel 大于 MaxKernel：' + reversed.slice(0,3).map(function(k){ return String(k.BundlePath); }).join('、'),
+        '版本区间反了，这个 kext 在任何版本都不会加载。', '把 MinKernel 与 MaxKernel 对调，或改成 20.0.0 / 21.0.0 这种正常区间。');
+    }
+  }
+
+  // 15 ACPI 冲突
+  var adel = get(cfg, 'ACPI.Delete') || [];
+  if (Array.isArray(aadd) && Array.isArray(adel) && aadd.length && adel.length){
+    var overlap = [];
+    adel.forEach(function(d){
+      if (!d || !d.Enabled) return;
+      var nm = String(d.TableSignature || d.OemTableId || '');
+      aadd.forEach(function(a){ if (a && a.Enabled && nm && String(a.Path||'').indexOf(nm) !== -1) overlap.push(nm); });
+    });
+    if (overlap.length) add('warn','同一张 ACPI 表既 Delete 又 Add：' + overlap.slice(0,2).join('、'),
+      '先删后加的顺序容易让补丁互相覆盖，最终加载的不是你想要的那张表。', '确认只保留一种方式：要么删原表，要么加自定义 SSDT。');
+  }
+  var apatch = get(cfg, 'ACPI.Patch') || [];
+  if (Array.isArray(apatch)){
+    var same = apatch.filter(function(p){ return p && p.Enabled && String(p.Find||'') && String(p.Find||'') === String(p.Replace||''); });
+    if (same.length) add('warn','ACPI.Patch 里有 Find 与 Replace 完全相同', '这种补丁不产生任何变化，纯属冗余，还可能拖慢启动。', '删掉这些无效补丁。');
+    var noCount = apatch.filter(function(p){ return p && p.Enabled && (p.Count === 0 || p.Count === undefined); });
+    if (noCount.length) add('info','ACPI.Patch 的 Count 为 0 或未设置', 'Count=0 代表全局替换，改错一个字节就把整张表写坏。', '能确定次数就填具体数字，不确定就先用 Count=1 试。');
+  }
+
+  // 16 PlatformInfo 三码
+  var g = get(cfg, 'PlatformInfo.Generic') || {};
+  var serial = String(g.SystemSerialNumber || '');
+  if (serial && (serial.length < 10 || serial.length > 13)){
+    add('warn','序列号长度不像苹果格式：' + serial,
+      '正常 Mac 序列号是 10–12 位，长度不对说明是手写或粘贴错的，App Store 与 iMessage 会拒绝。', '用 GenSMBIOS 重新生成整套三码，别手拼。');
+  }
+  if (g.MLB && String(g.MLB).length !== 17){
+    add('info','MLB 长度不是 17 位：' + g.MLB,
+      '绝大多数机型的 MLB 是 17 位，长度不对多半是抄错或用了别的机型的三码。', '按当前 SystemProductName 对应的机型重新生成。');
+  }
+  if (g.SystemUUID && !/^[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}$/.test(String(g.SystemUUID))){
+    add('warn','SystemUUID 格式不对：' + g.SystemUUID,
+      '必须是 8-4-4-4-12 的标准 UUID，格式错会导致 iMessage 设备识别失败。', '用 GenSMBIOS 或 uuidgen 生成标准 UUID。');
+  }
+
+  // 17 Misc.Security 组合
+  var dmg = get(cfg, 'Misc.Security.DmgLoading');
+  if (sbm === 'Disabled' && dmg === 'Signed'){
+    add('error','SecureBootModel = Disabled 但 DmgLoading = Signed',
+      '这套组合互相矛盾：关掉安全启动模型却要求签名镜像，安装阶段会直接拒绝加载系统镜像，卡在苹果标志。',
+      '要么 SecureBootModel 设 Default，要么 DmgLoading 改 Any。');
+  }
+  if (get(cfg,'Misc.Security.Vault') && String(get(cfg,'Misc.Security.Vault')) !== 'Optional'){
+    add('info','Vault 不是 Optional：' + get(cfg,'Misc.Security.Vault'),
+      '非 Optional 需要 Vault.plist 与签名，自己改配置后很容易变成拒绝启动。', '除非团队流程要求，否则改回 Optional。');
+  }
+  if (get(cfg,'Misc.Security.ExposeSerial') === true){
+    add('warn','ExposeSerial = true','会把真实序列号暴露到日志与界面上，做案例截图时容易泄露。', '改成 false。');
+  }
+
+  // 18 UEFI 关键项
+  if (get(cfg,'UEFI.Quirks.RequestBootVarRouting') !== true){
+    add('info','RequestBootVarRouting 没有开',
+      'OC 0.8 之后这个项建议为 true，否则启动盘的默认选择不会正确保存，重启后可能又回到别的盘。',
+      '把 UEFI > Quirks > RequestBootVarRouting 设为 true。');
+  }
+  var apfs = get(cfg, 'UEFI.APFS') || {};
+  if (typeof apfs.MinDate === 'number' && apfs.MinDate > 0 && apfs.MinDate < 20200901){
+    add('info','APFS MinDate 设得偏早：' + apfs.MinDate,'限制放得太宽，会允许加载很旧的 APFS 驱动。','一般保持 -1；需要限制时按官方表格填。');
+  }
+
+  // 19 NVRAM.Delete 残留
+  var nvdel = get(cfg, 'NVRAM.Delete') || {};
+  var k1 = nvdel['7C436110-AB2A-4BBB-A880-FE41995C9F82'];
+  if (typeof ba === 'string' && ba.trim() === '' && !(k1 && JSON.stringify(k1).indexOf('boot-args') !== -1)){
+    add('info','boot-args 清空了，但 NVRAM.Delete 没有 boot-args',
+      '上一轮写进 NVRAM 的参数会残留，你以为删了其实还在用。', '在 NVRAM > Delete 的同一 GUID 下加 boot-args。');
+  }
+
+  // 20 DeviceProperties 类型
+  if (dp && typeof dp === 'object'){
+    Object.keys(dp).forEach(function(path){
+      var d = dp[path];
+      if (!d || typeof d !== 'object') return;
+      if (typeof d['layout-id'] === 'string'){
+        add('error','layout-id 写成了字符串（' + path + '）','AppleALC 只认 data 或 integer，字符串会被直接忽略，表现为完全没声音。','改成 <data> 小端 4 字节，或用本站 Device Properties 生成器产出正确写法。');
+      }
+      if (typeof d['AAPL,ig-platform-id'] === 'string'){
+        add('error','AAPL,ig-platform-id 写成了字符串（' + path + '）','帧缓冲注入必须是 data，字符串不生效，典型现象是核显不加速、外接屏不亮。','改成 <data>（小端 4 字节）。');
+      }
+    });
+  }
+
+  // 21 boot-args 危险项
+  if (typeof ba === 'string'){
+    if (/cpus=1/.test(ba)) add('warn','boot-args 里有 cpus=1','只用一个核心启动，性能掉到底，长时间留着会让人误判机器坏了。','排查完立即删掉。');
+    if (/-liluoff/.test(ba)) add('warn','boot-args 里有 -liluoff','Lilu 被彻底关掉，显卡、音频、蓝牙补丁全部失效。','排查完删掉。');
+    if ((ba.match(/agdpmod=/g) || []).length > 1) add('warn','boot-args 里写了多个 agdpmod','只有最后一个生效，前面的是无效噪音。','只保留一个。');
+    if (/slide=0/.test(ba)) add('info','boot-args 里有 slide=0','固定内核偏移，只对老平台的 KASLR 卡死有意义，新平台留着没好处。','确认问题解决后删掉。');
+  }
+
+  // 22 大小
   if (rawText.length > 200000) add('info','文件偏大：' + Math.round(rawText.length/1024) + ' KB','config.plist 通常只有几十 KB，特别大往往是塞了大量 DeviceProperties 或历史残留。','用 ProperTree 清理无用节点。');
 }
 

@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>boot-args 生成器 黑苹果启动参数 - 冷月技术网</title>
-<meta name="description" content="按需求勾选，直接拼出 OpenCore 的 boot-args 一行，附每个参数的用途、适用平台与副作用说明。">
+<meta name="description" content="45 个黑苹果 boot-args 参数按问题分类，勾选即拼成一行可用的字符串，每个参数标注用途、适用平台与副作用，并自动提示互斥项。">
 <link rel="canonical" href="https://lyjsw.dpdns.org/boot-args/">
 <meta property="og:title" content="boot-args 生成器 - 冷月技术网">
-<meta property="og:description" content="在线拼装黑苹果 boot-args 启动参数。">
+<meta property="og:description" content="在线拼装黑苹果 boot-args 启动参数，含 45 个常用参数与互斥检查。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://lyjsw.dpdns.org/boot-args/">
 <link rel="icon" href="../assets/avatar.png">
@@ -18,6 +18,9 @@
 .lab{padding:96px 0 70px;min-height:100vh}
 .lab h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px}
 .lab .lead{color:var(--text-sub);font-size:15px;max-width:780px}
+.dbline{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.dbline span{font-size:12px;color:var(--text-mute);border:1px solid var(--border);border-radius:20px;padding:4px 10px}
+.dbline span b{color:var(--accent)}
 .panel{margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
 .panel + .panel{margin-top:16px}
 .grp{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
@@ -28,10 +31,12 @@
 .opt .nm{font-family:"JetBrains Mono",monospace;font-size:13.5px;font-weight:600}
 .opt .ds{font-size:12.5px;color:var(--text-mute);margin-top:2px;line-height:1.65}
 .opt .risk{font-size:12px;color:#fbbf24;margin-top:3px}
+.opt input[type=number]{width:86px;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:5px 8px;font-family:"JetBrains Mono",monospace;font-size:13px;margin-left:8px}
 label.add{display:block;font-size:13px;color:var(--text-mute);margin:14px 0 8px}
 input[type=text]{width:100%;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:10px;
   padding:10px 12px;font-family:"JetBrains Mono",monospace;font-size:13px;outline:none}
 input:focus{border-color:var(--border-strong)}
+.search{width:100%;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13.5px;outline:none;margin-bottom:6px;font-family:inherit}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:18px}
 .btn{cursor:pointer;border-radius:10px;padding:10px 18px;font-size:14px;font-weight:600;border:1px solid transparent;font-family:inherit}
 .btn-primary{background:var(--accent);color:var(--accent-ink)}
@@ -40,7 +45,7 @@ input:focus{border-color:var(--border-strong)}
 .out{margin-top:20px;background:var(--bg-soft);border:1px solid var(--border-strong);border-radius:12px;padding:16px;
   font-family:"JetBrains Mono",monospace;font-size:14px;word-break:break-all;color:var(--text)}
 .out.empty{color:var(--text-mute);font-size:13px}
-.warnbox{border:1px solid rgba(251,191,36,.45);background:rgba(251,191,36,.08);border-radius:12px;padding:12px 14px;font-size:13.5px;color:#fbbf24;margin-top:14px}
+.warnbox{border:1px solid rgba(251,191,36,.45);background:rgba(251,191,36,.08);border-radius:12px;padding:12px 14px;font-size:13.5px;color:#fbbf24;margin-top:14px;line-height:1.75}
 .note{font-size:13px;color:var(--text-sub);margin-top:14px;line-height:1.8}
 .note b{color:var(--accent)}
 .foot-cta{margin-top:32px;padding:20px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub)}
@@ -66,33 +71,16 @@ input:focus{border-color:var(--border-strong)}
   <div class="wrap">
     <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../tools/index.html">工具下载</a><span>/</span><span>boot-args</span></div>
     <h1>boot-args 生成器</h1>
-    <p class="lead">勾选你现在要解决的问题，直接得到一行可用的 boot-args。每个参数都标了适用平台与副作用，不用再翻论坛抄别人的字符串。</p>
+    <p class="lead">勾选你现在要解决的问题，直接得到一行可用的 boot-args。每个参数都标了适用平台与副作用，互斥项会自动拦下来，不用再翻论坛抄别人的字符串。</p>
+    <div class="dbline">
+      <span>收录 <b id="cnt">52</b> 个参数</span>
+      <span><b>8</b> 个分类</span>
+      <span><b>12</b> 条冲突检查</span>
+    </div>
 
     <div class="panel">
-      <div class="grp">排查与日志</div>
-      <div class="opt"><input type="checkbox" id="v"><div class="txt"><div class="nm">-v</div><div class="ds">详细模式，卡住时能看到最后一行停在哪。装好系统就该去掉。</div></div></div>
-      <div class="opt"><input type="checkbox" id="keepsyms"><div class="txt"><div class="nm">keepsyms=1</div><div class="ds">内核崩溃时保留符号，配合 -v 能看到具体出错函数，排查 panic 必备。</div></div></div>
-      <div class="opt"><input type="checkbox" id="debug"><div class="txt"><div class="nm">debug=0x100</div><div class="ds">禁止自动重启，panic 画面停住方便拍照。会明显拖慢启动。</div><div class="risk">副作用：崩溃后不会自动恢复，笔记本可能停在黑屏。</div></div></div>
-      <div class="opt"><input type="checkbox" id="nolilis"><div class="txt"><div class="nm">-lilubetaall</div><div class="ds">让 Lilu 及其插件在未适配的新系统版本上也强行加载，新系统刚发布时常用。</div><div class="risk">副作用：可能引起不稳定，系统适配后应删掉。</div></div></div>
-
-      <div class="grp" style="margin-top:18px">显卡与显示</div>
-      <div class="opt"><input type="checkbox" id="pikera"><div class="txt"><div class="nm">agdpmod=pikera</div><div class="ds">AMD Navi（RX 5500/5600/5700/6600/6800）黑屏的经典解法。</div></div></div>
-      <div class="opt"><input type="checkbox" id="noegpu"><div class="txt"><div class="nm">-wegnoegpu</div><div class="ds">禁用独显，只留核显输出。笔记本核显直连屏幕时常用。</div></div></div>
-      <div class="opt"><input type="checkbox" id="igfxonln"><div class="txt"><div class="nm">igfxonln=1</div><div class="ds">强制核显在线，解决外接屏唤醒后不亮。</div></div></div>
-      <div class="opt"><input type="checkbox" id="igfxvesa"><div class="txt"><div class="nm">-igfxvesa</div><div class="ds">核显走 VESA 基础输出，先让画面出来，用于判断问题是否在显卡加速。</div><div class="risk">副作用：没有硬件加速，界面会卡，仅用于排查。</div></div></div>
-      <div class="opt"><input type="checkbox" id="shikigva"><div class="txt"><div class="nm">shikigva=80</div><div class="ds">老平台的 DRM 视频播放修补，Monterey 之前较常用。</div></div></div>
-
-      <div class="grp" style="margin-top:18px">音频</div>
-      <div class="opt"><input type="checkbox" id="alcid"><div class="txt"><div class="nm">alcid=11</div><div class="ds">临时指定 AppleALC 布局，等价于在 DeviceProperties 里注入 layout-id。用于快速试布局。</div><div class="risk">注意：两个地方都写且值不同时，以 boot-args 为准，容易混淆。</div></div></div>
-
-      <div class="grp" style="margin-top:18px">平台与兼容</div>
-      <div class="opt"><input type="checkbox" id="npci2"><div class="txt"><div class="nm">npci=0x2000</div><div class="ds">PCI 配置空间分配问题的经典解法，常见于 AMD 显卡卡 PCI 阶段。</div><div class="risk">与 npci=0x3000 互斥；BIOS 开了 Above 4G 后通常不再需要。</div></div></div>
-      <div class="opt"><input type="checkbox" id="npci3"><div class="txt"><div class="nm">npci=0x3000</div><div class="ds">另一种 PCI 修正值，0x2000 无效时试它。</div><div class="risk">与 npci=0x2000 互斥，只能留一个。</div></div></div>
-      <div class="opt"><input type="checkbox" id="nocompat"><div class="txt"><div class="nm">-no_compat_check</div><div class="ds">跳过机型号兼容性检查，让不受支持的机型能装上新系统。</div><div class="risk">副作用：系统更新与部分功能可能异常，属于临时手段。</div></div></div>
-      <div class="opt"><input type="checkbox" id="darkwake"><div class="txt"><div class="nm">darkwake=0</div><div class="ds">调整休眠后的唤醒行为，解决「睡了就醒不过来」或「一睡就醒」。</div></div></div>
-      <div class="opt"><input type="checkbox" id="slide0"><div class="txt"><div class="nm">slide=0</div><div class="ds">固定内核加载偏移，解决 KASLR 相关的随机卡死，老平台偶尔需要。</div></div></div>
-      <div class="opt"><input type="checkbox" id="xcpm"><div class="txt"><div class="nm">-xcpm</div><div class="ds">老 Ivy Bridge / Haswell 平台的电源管理模式，现代平台不需要。</div></div></div>
-      <div class="opt"><input type="checkbox" id="cpus1"><div class="txt"><div class="nm">cpus=1</div><div class="ds">只用一个核心启动，用于判断是否 CPU 电源管理导致的问题。</div><div class="risk">副作用：性能骤降，仅排查用。</div></div></div>
+      <input type="text" class="search" id="q" placeholder="搜参数，比如 pikera / 黑屏 / 蓝牙 / DRM">
+      <div id="opts"></div>
 
       <label class="add" for="extra">额外参数（原样追加，用空格分隔）</label>
       <input type="text" id="extra" placeholder="例：-brcmfxbeta unfairgva=1">
@@ -125,43 +113,178 @@ input:focus{border-color:var(--border-strong)}
     apply(next); try { localStorage.setItem('ly-theme', next); } catch(e){}
   });
 })();
+
 var $ = function(s){ return document.querySelector(s); };
-var FLAGS = { v:'-v', keepsyms:'keepsyms=1', debug:'debug=0x100', nolilis:'-lilubetaall',
-  pikera:'agdpmod=pikera', noegpu:'-wegnoegpu', igfxonln:'igfxonln=1', igfxvesa:'-igfxvesa', shikigva:'shikigva=80',
-  alcid:'alcid=11', npci2:'npci=0x2000', npci3:'npci=0x3000', nocompat:'-no_compat_check',
-  darkwake:'darkwake=0', slide0:'slide=0', xcpm:'-xcpm', cpus1:'cpus=1' };
 
-function build(){
-  var picked = [];
-  Object.keys(FLAGS).forEach(function(id){ var el = document.getElementById(id); if (el && el.checked) picked.push(FLAGS[id]); });
-  var extra = $('#extra').value.trim();
-  if (extra) picked.push(extra.replace(/\s+/g,' '));
+// 参数库：val 为最终写入 boot-args 的字符串；num 表示可带数字输入
+var DATA = [
+ {g:'排查与日志', items:[
+  {id:'v', val:'-v', nm:'-v', ds:'详细模式，卡住时能看到最后一行停在哪。装好系统就该去掉，否则每次开机都刷屏。'},
+  {id:'keepsyms', val:'keepsyms=1', nm:'keepsyms=1', ds:'内核崩溃时保留符号，配合 -v 能看到具体出错函数，报 panic 时必备。'},
+  {id:'debug', val:'debug=0x100', nm:'debug=0x100', ds:'禁止自动重启，崩在什么地方画面就停在那里，方便拍照。', risk:'副作用：会明显拖慢启动，日常不要带。'},
+  {id:'lilubetaall', val:'-lilubetaall', nm:'-lilubetaall', ds:'让 Lilu 及其全部插件在未适配的新系统版本上强行加载，新系统刚出来时常用。', risk:'系统适配后要删，留着容易不稳。'},
+  {id:'liluoff', val:'-liluoff', nm:'-liluoff', ds:'完全禁用 Lilu，用来判断问题是不是 Lilu 引起的。', risk:'副作用：依赖 Lilu 的显卡/音频/蓝牙都会回到未修补状态。'},
+  {id:'liludbgall', val:'-liludbgall', nm:'-liludbgall', ds:'打开 Lilu 与全部插件的调试日志，配合 -v 抓驱动加载顺序。'},
+  {id:'serial', val:'serial=5', nm:'serial=5', ds:'把内核日志输出到串口，虚拟机与带串口的台机用，笔记本基本用不上。'},
+  {id:'safe', val:'-x', nm:'-x', ds:'安全模式启动，只加载必要驱动。用来区分「驱动冲突」还是「系统本体坏了」。', risk:'副作用：显卡无加速、USB 大半不可用，只适合排查。'},
+  {id:'single', val:'-s', nm:'-s', ds:'单用户模式，进命令行做修复（比如换回坏掉的 kext）。'},
+  {id:'ignorecache', val:'-f', nm:'-f', ds:'忽略 kext 缓存强制重建，老系统（Sierra 之前）常用，新系统基本不需要。'}
+ ]},
+ {g:'显卡 · AMD', items:[
+  {id:'pikera', val:'agdpmod=pikera', nm:'agdpmod=pikera', ds:'AMD Navi（RX 5500/5600/5700/6600/6800）开机黑屏、进系统后黑屏的经典解法。'},
+  {id:'vit9696', val:'agdpmod=vit9696', nm:'agdpmod=vit9696', ds:'另一种 board-id 修补值，pikera 无效时试它，多见于 Vega 与老 Polaris。'},
+  {id:'agdpignore', val:'agdpmod=ignore', nm:'agdpmod=ignore', ds:'直接跳过 board-id 检查，用于判断黑屏是否由这个环节引起。'},
+  {id:'radpg', val:'radpg=15', nm:'radpg=15', ds:'RX 400/500 系列（Polaris）的电源门控修复，解决开机后风扇狂转、系统卡死。'},
+  {id:'radvesa', val:'-radvesa', nm:'-radvesa', ds:'AMD 卡走 VESA 基础输出，先确认屏能亮再谈加速。', risk:'副作用：无加速，界面极卡。'},
+  {id:'raddvi', val:'-raddvi', nm:'-raddvi', ds:'DVI 输出兼容修补，老卡接 DVI 显示器黑屏时用。'},
+  {id:'rad24', val:'-rad24', nm:'-rad24', ds:'强制 24 位色输出，解决颜色异常或偏色。'},
+  {id:'radcodec', val:'-radcodec', nm:'-radcodec', ds:'修正 AMD 硬解 codec 列表，VideoProc 里 H.264 硬解不可用时试。'},
+  {id:'shiki80', val:'shikigva=80', nm:'shikigva=80', ds:'DRM 视频修补，Netflix / Apple TV 黑屏或花屏时常用值（Monterey 之前更常见）。'},
+  {id:'shiki40', val:'shikigva=40', nm:'shikigva=40', ds:'DRM 修补的另一档，配合 Apple TV 与画中画场景试。'},
+  {id:'shiki16', val:'shikigva=16', nm:'shikigva=16', ds:'只修硬件解码路径的最小集合，冲突少但覆盖也少。'},
+  {id:'unfairgva', val:'unfairgva=1', nm:'unfairgva=1', ds:'解锁受限制的 GVA 硬解能力，老平台播 4K DRM 内容时用。'}
+ ]},
+ {g:'核显 · Intel', items:[
+  {id:'igfxonln', val:'igfxonln=1', nm:'igfxonln=1', ds:'强制核显保持在线，解决外接屏休眠唤醒后不亮、只在开机时亮一次。'},
+  {id:'igfxvesa', val:'-igfxvesa', nm:'-igfxvesa', ds:'核显走 VESA 输出，先让画面出来，用来判断问题是否出在帧缓冲。', risk:'副作用：没有硬件加速。'},
+  {id:'igfxbls', val:'-igfxbls', nm:'-igfxbls', ds:'新平台核显背光修复（Brightness Fix），Kaby Lake 之后的笔记本更适用。'},
+  {id:'igfxblr', val:'-igfxblr', nm:'-igfxblr', ds:'老平台背光寄存器修复，Skylake / Kaby Lake 笔记本亮度调不动时试。'},
+  {id:'igfxcdc', val:'-igfxcdc', nm:'-igfxcdc', ds:'修正 HDMI 时钟，接 HDMI 显示器无信号或分辨率异常时用。'},
+  {id:'igfxdvmt', val:'-igfxdvmt', nm:'-igfxdvmt', ds:'按 DVMT 预分配显存启动，BIOS 里改不了 DVMT 时（常见于笔记本）靠它。'},
+  {id:'wegbeta', val:'-wegbeta', nm:'-wegbeta', ds:'让 WhateverGreen 在未适配的新系统上强行加载。', risk:'系统适配后应删除。'},
+  {id:'wegdbg', val:'-wegdbg', nm:'-wegdbg', ds:'打开 WhateverGreen 调试日志，配合 -v 看帧缓冲注入过程。'},
+  {id:'wegnoegpu', val:'-wegnoegpu', nm:'-wegnoegpu', ds:'禁用独显，只留核显输出。笔记本核显直连屏幕、独显只做计算时常用。'}
+ ]},
+ {g:'音频', items:[
+  {id:'alcid', val:'alcid=', nm:'alcid=', ds:'临时指定 AppleALC 布局号，等价于在 DeviceProperties 里注入 layout-id，用来快速试布局。', num:true, def:11, risk:'两处都写且值不同时以 boot-args 为准，容易自己把自己绕进去。'},
+  {id:'alcverbs', val:'alcverbs=1', nm:'alcverbs=1', ds:'启用 alc-verb 通道，配合 CodecCommander 修休眠后无声、耳机不切换。'},
+  {id:'alcbeta', val:'-alcbeta', nm:'-alcbeta', ds:'AppleALC 在新系统上强行加载。', risk:'系统适配后删除。'},
+  {id:'alcdbg', val:'-alcdbg', nm:'-alcdbg', ds:'打开 AppleALC 调试日志，看 codec 与 layout 匹配过程。'}
+ ]},
+ {g:'网络', items:[
+  {id:'brcmfxbeta', val:'-brcmfxbeta', nm:'-brcmfxbeta', ds:'AirportBrcmFixup 在新系统上强行加载，Broadcom 卡升级系统后不认时用。'},
+  {id:'brcmcountry', val:'brcmfx-country=#a', nm:'brcmfx-country=#a', ds:'把无线地区码强制设为 #a（不限地区），解决 5G 频段缺失、信道受限。', risk:'部分卡在特定国家法规下会降速。'},
+  {id:'brcmdriver', val:'brcmfx-driver=1', nm:'brcmfx-driver=1', ds:'强制让 AirportBrcmFixup 接管驱动，用于两张网卡冲突、只有一张能用的场景。'}
+ ]},
+ {g:'蓝牙', items:[
+  {id:'btlfxbeta', val:'-btlfxbeta', nm:'-btlfxbeta', ds:'BlueToolFixup 在新系统上强行加载，Monterey 之后蓝牙失效时常用。', risk:'系统适配后删除。'},
+  {id:'btlfxallow', val:'-btlfxallowanyaddr', nm:'-btlfxallowanyaddr', ds:'允许不规范的蓝牙地址，解决部分 Intel 蓝牙配对失败、搜不到设备。'},
+  {id:'btlfxoff', val:'-btlfxoff', nm:'-btlfxoff', ds:'关闭 BlueToolFixup，用来判断蓝牙问题是否由它引起。'}
+ ]},
+ {g:'平台与兼容', items:[
+  {id:'npci2', val:'npci=0x2000', nm:'npci=0x2000', ds:'PCI 配置空间分配问题的经典解法，常见于 AMD 显卡卡在 PCI 阶段。', risk:'与 npci=0x3000 互斥；BIOS 开了 Above 4G 后通常不再需要。'},
+  {id:'npci3', val:'npci=0x3000', nm:'npci=0x3000', ds:'另一种 PCI 修正值，0x2000 无效时试它。', risk:'与 npci=0x2000 互斥。'},
+  {id:'nocompat', val:'-no_compat_check', nm:'-no_compat_check', ds:'跳过机型兼容性检查，让不受支持的机型装上更新的系统。', risk:'系统更新与部分功能可能异常，属于临时手段。'},
+  {id:'darkwake0', val:'darkwake=0', nm:'darkwake=0', ds:'关闭暗唤醒，解决「一睡就醒」或者合盖后风扇转个不停。'},
+  {id:'darkwake8', val:'darkwake=8', nm:'darkwake=8', ds:'只唤醒必要的服务，解决「睡了就再也醒不过来」。', risk:'与 darkwake=0 二选一，不要同时写。'},
+  {id:'slide', val:'slide=0', nm:'slide=0', ds:'固定内核加载偏移，解决 KASLR 相关的随机卡死（老平台偶尔需要）。'},
+  {id:'cpus1', val:'cpus=1', nm:'cpus=1', ds:'只用一个核心启动，用于判断 CPU 电源管理是否导致卡死。', risk:'副作用：性能骤降，仅排查用，定位完立刻删。'},
+  {id:'xcpm', val:'-xcpm', nm:'-xcpm', ds:'Ivy Bridge / Haswell 老平台的电源管理模式，现代平台不需要。'}
+ ]},
+ {g:'存储与其它', items:[
+  {id:'nvmefixbeta', val:'-nvmefixbeta', nm:'-nvmefixbeta', ds:'NVMeFix 在新系统上强行加载，解决休眠掉盘、功耗偏高。'},
+  {id:'nvmefixoff', val:'-nvmefixoff', nm:'-nvmefixoff', ds:'关闭 NVMeFix，用来判断掉盘问题是否由它引起。'},
+  {id:'disablevdsp', val:'-disablevdsp', nm:'-disablevdsp', ds:'关闭虚拟显示处理，多屏混插异常时试。'}
+ ]}
+];
 
-  var out = picked.join(' ');
-  var warn = [];
-  if (picked.indexOf('npci=0x2000') !== -1 && picked.indexOf('npci=0x3000') !== -1) warn.push('npci=0x2000 与 npci=0x3000 不能同时存在，只保留一个。');
-  if (picked.indexOf('-igfxvesa') !== -1 && picked.indexOf('igfxonln=1') !== -1) warn.push('-igfxvesa 会让核显不加速，igfxonln=1 就没意义了，排查时二选一。');
-  if (picked.indexOf('-v') !== -1 && picked.indexOf('debug=0x100') !== -1) warn.push('-v 与 debug=0x100 同时用会非常慢，除了抓 panic 没必要一起开。');
-  if (picked.indexOf('cpus=1') !== -1 && picked.length > 2) warn.push('cpus=1 会严重拖慢系统，定位完请马上删掉。');
-  if (!out) warn.push('没有勾选任何项目，boot-args 应该留空字符串。');
+var TOTAL = 0; DATA.forEach(function(g){ TOTAL += g.items.length; });
 
-  var box = $('#out');
-  if (out){ box.className = 'out'; box.textContent = out; }
-  else { box.className = 'out empty'; box.textContent = '（留空，也就是不加任何启动参数）'; }
-  $('#warn').innerHTML = warn.length ? '<div class="warnbox">' + warn.join('<br>') + '</div>' : '';
-  return out;
+function render(){
+  var q = ($('#q').value || '').trim().toLowerCase();
+  var html = '';
+  DATA.forEach(function(g, gi){
+    var items = g.items.filter(function(it){
+      if (!q) return true;
+      return (it.nm + ' ' + it.ds + ' ' + it.val).toLowerCase().indexOf(q) !== -1;
+    });
+    if (!items.length) return;
+    html += '<div class="grp"' + (gi ? ' style="margin-top:18px"' : '') + '>' + g.g + '</div>';
+    items.forEach(function(it){
+      var num = '';
+      if (it.num){
+        num = '<input type="number" min="1" max="99" value="' + (it.def || 11) + '" data-num="' + it.id + '">';
+      }
+      html += '<div class="opt"><input type="checkbox" id="' + it.id + '">' +
+        '<div class="txt"><div class="nm">' + it.nm + (it.num ? 'N' : '') + num + '</div>' +
+        '<div class="ds">' + it.ds + '</div>' +
+        (it.risk ? '<div class="risk">' + it.risk + '</div>' : '') +
+        '</div></div>';
+    });
+  });
+  if (!html) html = '<div class="ds" style="padding:20px 0">没搜到这个参数，点「清空勾选」旁边的手动输入框直接写吧。</div>';
+  $('#opts').innerHTML = html;
+  // 恢复已勾选状态
+  DATA.forEach(function(g){ g.items.forEach(function(it){ var el=document.getElementById(it.id); if(el && picked[it.id]) el.checked=true; }); });
+  build();
 }
 
+var picked = {};
+var allItems = [];
+DATA.forEach(function(g){ g.items.forEach(function(it){ allItems.push(it); }); });
+
+function valOf(it){
+  if (!it.num) return it.val;
+  var inp = document.querySelector('input[data-num="' + it.id + '"]');
+  var n = inp ? parseInt(inp.value, 10) : (it.def || 11);
+  if (!n || n < 1) n = it.def || 11;
+  return 'alcid=' + n;
+}
+
+function build(){
+  var out = [], now = [];
+  allItems.forEach(function(it){
+    var el = document.getElementById(it.id);
+    if (el && el.checked){ picked[it.id] = true; out.push(valOf(it)); now.push(it); }
+    else picked[it.id] = false;
+  });
+  var extra = $('#extra').value.trim();
+  if (extra) out.push(extra.replace(/\s+/g,' '));
+
+  var joined = out.join(' ');
+  var warn = [];
+  var ids = now.map(function(x){ return x.id; });
+  function both(a,b,msg){ if (ids.indexOf(a) !== -1 && ids.indexOf(b) !== -1) warn.push(msg); }
+
+  both('npci2','npci3','npci=0x2000 与 npci=0x3000 不能同时存在，只留一个。');
+  both('igfxvesa','igfxonln','-igfxvesa 会让核显不加速，igfxonln=1 也就没意义，排查时二选一。');
+  both('v','debug','-v 与 debug=0x100 一起用会非常慢，除了抓 panic 没必要同时开。');
+  both('darkwake0','darkwake8','darkwake=0 与 darkwake=8 是两种处理方向，只能留一个。');
+  both('shiki80','shiki40','shikigva 只能写一个值，多个只会让最后一个生效。');
+  both('shiki80','shiki16','shikigva 只能写一个值。');
+  both('radvesa','radcodec','-radvesa 是放弃加速，此时 -radcodec 没有意义。');
+  both('liluoff','lilubetaall','-liluoff 会直接关掉 Lilu，跟 -lilubetaall 冲突。');
+  both('btlfxoff','btlfxbeta','-btlfxoff 关掉 BlueToolFixup，-btlfxbeta 却要它加载，自相矛盾。');
+
+  if (ids.indexOf('cpus1') !== -1 && ids.length > 2) warn.push('cpus=1 会严重拖慢系统，定位完请马上删掉。');
+  if (ids.indexOf('liluoff') !== -1) warn.push('-liluoff 会让显卡、音频、蓝牙全部回到未修补状态，只在排查时用。');
+  if (!joined) warn.push('没有勾选任何项目，boot-args 应该留空字符串。');
+
+  var box = $('#out');
+  if (joined){ box.className = 'out'; box.textContent = joined; }
+  else { box.className = 'out empty'; box.textContent = '（留空，也就是不加任何启动参数）'; }
+  $('#warn').innerHTML = warn.length ? '<div class="warnbox">' + warn.join('<br>') + '</div>' : '';
+  return joined;
+}
+
+$('#q').addEventListener('input', render);
 $('#gen').addEventListener('click', build);
 $('#copy').addEventListener('click', function(){
   var v = build();
-  navigator.clipboard.writeText(v).then(function(){ $('#copy').textContent='已复制'; setTimeout(function(){ $('#copy').textContent='复制'; },1600); });
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(v).then(function(){ $('#copy').textContent='已复制'; setTimeout(function(){ $('#copy').textContent='复制'; },1600); });
+  }
 });
 $('#reset').addEventListener('click', function(){
-  Object.keys(FLAGS).forEach(function(id){ var el = document.getElementById(id); if (el) el.checked = false; });
+  allItems.forEach(function(it){ var el = document.getElementById(it.id); if (el) el.checked = false; picked[it.id] = false; });
   $('#extra').value = ''; build();
 });
-build();
+$('#opts').addEventListener('change', function(e){
+  if (e.target && e.target.type === 'number') build();
+});
+
+render();
+
 if (location.search.indexOf('demo') !== -1){
   ['v','keepsyms','pikera'].forEach(function(id){ var el=document.getElementById(id); if(el) el.checked=true; });
   build();

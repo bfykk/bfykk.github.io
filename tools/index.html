@@ -61,42 +61,42 @@
       <div class="card pg-item">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/><path d="M8 11h6M11 8v6"/></svg></div>
         <h3><a class="wlink" href="ioreg.html">ioreg 在线诊断</a></h3>
-        <p>粘贴 ioreg 输出，自动认出显卡、无线网卡、声卡 codec、蓝牙、触控板、NVMe，并给出处理方向。</p>
+        <p>粘贴 ioreg 输出，用 5457 条 PCI 设备库加 62 条黑苹果规则认硬件，直接给可用 / 要补丁 / 不可用的结论。</p>
         <div class="chips"><span class="chip">本站可用</span><span class="chip">诊断</span></div>
         <a class="dllink" href="/ioreg/">打开工具 →</a>
       </div>
       <div class="card pg-item">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7l2 2 3-3"/><path d="M8 14h8M8 17h5"/></svg></div>
         <h3><a class="wlink" href="plist-check.html">config.plist 在线体检</a></h3>
-        <p>检查顶层结构、kext 顺序、Quirk 冲突、驱动缺失、三码与 boot-args，按错误 / 风险 / 建议分级。</p>
+        <p>22 组规则：顶层结构、kext 顺序与三键完整性、Booter / Kernel Quirks 冲突、ACPI 重复补丁、三码格式、boot-args 危险项。</p>
         <div class="chips"><span class="chip">本站可用</span><span class="chip">体检</span></div>
         <a class="dllink" href="/plist-check/">打开工具 →</a>
       </div>
       <div class="card pg-item">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 3v9a3 3 0 1 0 6 0V3"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M12 18v3"/></svg></div>
         <h3><a class="wlink" href="usb-map.html">USB 端口映射生成器</a></h3>
-        <p>填端口名与类型，直接生成 USBPorts.kext 的 Info.plist，解决 15 端口截断与内建蓝牙掉线。</p>
+        <p>14 个常见 XHCI 控制器预设，批量生成端口名，直接出 USBPorts.kext 的 Info.plist。</p>
         <div class="chips"><span class="chip">本站可用</span><span class="chip">USB</span></div>
         <a class="dllink" href="/usb-map/">打开工具 →</a>
       </div>
       <div class="card pg-item">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h13"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="19" cy="18" r="2"/></svg></div>
         <h3><a class="wlink" href="device-props.html">Device Properties 生成器</a></h3>
-        <p>核显 ig-platform-id、声卡 layout-id、自定义属性，生成 integer 与 data 两种写法，不用手算字节序。</p>
+        <p>19 条 ig-platform-id、18 条 layout-id 预设，device-id 自动推导，字节序算好直接抄。</p>
         <div class="chips"><span class="chip">本站可用</span><span class="chip">注入</span></div>
         <a class="dllink" href="/device-props/">打开工具 →</a>
       </div>
       <div class="card pg-item">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 8h14M5 12h9M5 16h6"/><path d="M17 14l3 3-3 3"/></svg></div>
         <h3><a class="wlink" href="boot-args.html">boot-args 生成器</a></h3>
-        <p>按要解决的问题勾选参数，拼出一行可用的 boot-args，附用途、适用平台与副作用，还会提示互斥项。</p>
+        <p>52 个参数分 8 类，勾选就拼成一行可用的 boot-args，附用途与副作用，互斥项自动拦下。</p>
         <div class="chips"><span class="chip">本站可用</span><span class="chip">启动参数</span></div>
         <a class="dllink" href="/boot-args/">打开工具 →</a>
       </div>
       <div class="card pg-item">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h6v6H4zM14 7h6v6h-6zM4 17h16"/><path d="M7 13v3M17 13v3"/></svg></div>
         <h3><a class="wlink" href="plist.html">plist 查看与编辑器</a></h3>
-        <p>XML 与二进制 plist 都能开，树状改值、增删键、导出标准 XML，文件只在浏览器内存里处理。</p>
+        <p>XML 与二进制 plist 都能开，树状改值、增删键、导出 XML，还能查重复键、空键名和非法 data。</p>
         <div class="chips"><span class="chip">本站可用</span><span class="chip">plist</span></div>
         <a class="dllink" href="/plist/">打开工具 →</a>
       </div>
@@ -287,5 +287,6 @@
 })();</script>
 </body>
 </html>
+
 
 

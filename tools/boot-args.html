@@ -42,10 +42,10 @@
 <p>论坛上抄来的 boot-args 往往只抄了结果，没抄场景。这里按「你要解决什么」来选，顺带把副作用写清楚。</p>
 <h2>覆盖的参数</h2>
 <ul>
-<li>排查：<code>-v</code>、<code>keepsyms=1</code>、<code>debug=0x100</code>、<code>-lilubetaall</code></li>
-<li>显卡：<code>agdpmod=pikera</code>、<code>-wegnoegpu</code>、<code>igfxonln=1</code>、<code>-igfxvesa</code></li>
-<li>音频：<code>alcid=11</code></li>
-<li>平台：<code>npci=0x2000/0x3000</code>、<code>-no_compat_check</code>、<code>darkwake=0</code>、<code>slide=0</code></li>
+<li>52 个参数，按排查 / AMD 显卡 / Intel 核显 / 音频 / 网络 / 蓝牙 / 平台兼容 / 存储 八类分好</li>
+<li>每个参数都写清用途、适用平台与副作用，不想要的自己别勾</li>
+<li>12 条互斥检查：npci 两个值、darkwake 两种方向、shikigva 多值、-liluoff 与 beta 参数这类会互相打架的组合直接拦下</li>
+<li>可搜索：输入「黑屏」「蓝牙」「DRM」就能筛出相关参数</li>
 </ul>
 <h2>怎么用</h2>
 <ol>
@@ -95,3 +95,4 @@
 })();</script>
 </body>
 </html>
+
