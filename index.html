@@ -95,7 +95,7 @@
 <!-- ===== 数据条 ===== -->
 <div class="wrap">
   <div class="stats reveal">
-    <div class="stat"><div class="n">52</div><div class="t">开源仓库</div></div>
+    <div class="stat"><div class="n">50+</div><div class="t">机型交付</div></div>
     <div class="stat"><div class="n">12+</div><div class="t">机型 EFI 实作</div></div>
     <div class="stat"><div class="n">双平台</div><div class="t">AMD / Intel 攻坚</div></div>
     <div class="stat"><div class="n">2020</div><div class="t">起持续维护</div></div>
@@ -560,6 +560,22 @@
   }
   init('dlList', 'dlPager', 6, 'dl', 'downloads');
   init('toolList', 'toolPager', 6, 'tools', 'tools');
+})();
+
+/* ===== 整张卡片可点：点卡片任意处进入详情页 ===== */
+(function(){
+  var links = document.querySelectorAll('.wlink');
+  Array.prototype.forEach.call(links, function(a){
+    var card = a.parentNode;
+    while(card && !(card.classList && (card.classList.contains('work') || card.classList.contains('card'))) && card !== document.body) card = card.parentNode;
+    if(!card || card === document.body) return;
+    card.classList.add('card-click');
+    card.addEventListener('click', function(e){
+      if(e.target.closest('a')) return;
+      var href = a.getAttribute('href');
+      if(href) window.location.href = href;
+    });
+  });
 })();
 </script>
 </body>
