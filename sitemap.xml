@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://lyjsw.dpdns.org/</loc><priority>1.0</priority><changefreq>weekly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/works/</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/downloads/</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/</loc><priority>0.9</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/contact/</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/downloads/tahoe.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/downloads/sequoia.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/downloads/sonoma.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>

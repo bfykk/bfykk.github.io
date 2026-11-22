@@ -36,10 +36,10 @@
     <a class="brand" href="#top"><i class="dot"></i><span>冷月技术网</span></a>
     <nav class="menu">
       <a href="#top">主页</a>
-      <a href="#works">案例</a>
-      <a href="#downloads">系统下载</a>
-      <a href="#tools">工具下载</a>
-      <a href="#contact">联系</a>
+      <a href="works/index.html">案例</a>
+      <a href="downloads/index.html">系统下载</a>
+      <a href="tools/index.html">工具下载</a>
+      <a href="contact/index.html">联系</a>
     </nav>
     <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
       <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
@@ -157,287 +157,50 @@
   </div>
 </section>
 
-<!-- ===== 作品 ===== -->
-<section id="works">
+<!-- ===== 四个专区入口 ===== -->
+<section id="areas">
   <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">Cases</div>
-      <h2>成功案例</h2>
-      <p class="sec-desc">按机型交付的实作记录。每台机器单独验证，以下是已跑通的成果 —— 具体引导文件与配置不对外提供。</p>
+    <div class="sec-head">
+      <div class="eyebrow">Sections</div>
+      <h2>四个专区，各看各的</h2>
+      <p class="sec-desc">案例、系统下载、工具下载、联系各自独立成页，每个都有单独的网址，可以直接收藏或发给别人。</p>
     </div>
 
-    <div class="works">
-      <div class="work reveal">
-        <div class="work-top"><h3>荣耀 BRN-GXXX · 13 代</h3><span class="badge">已交付</span></div>
-        <p>i5-13500H 笔记本，AX211 无线、ALC256 声卡、I2C 触控板全部打通，睡眠唤醒与亮度调节正常。</p>
-        <div class="chips"><span class="chip">13th Gen</span><span class="chip">笔记本</span><span class="chip">全功能</span></div>
+    <div class="grid2">
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M8 5V3M16 5V3"/></svg></div>
+        <h3><a class="wlink" href="works/index.html">成功案例</a></h3>
+        <p>6 台已交付机型，从 13 代荣耀笔记本到 X299 工作站，每台单独验证、逐项硬件记录。</p>
+        <div class="chips"><span class="chip">6 个机型</span><span class="chip">已交付</span></div>
+        <a class="dllink" href="works/index.html">进入案例 →</a>
       </div>
 
-      <div class="work reveal">
-        <div class="work-top"><h3>华硕 ROG Z590 · i9-11900K</h3><span class="badge">已交付</span></div>
-        <p>台式旗舰配置，RX 6800XT 独显直通，雷电扩展卡与多屏输出长期稳定运行。</p>
-        <div class="chips"><span class="chip">台式</span><span class="chip">Z590</span><span class="chip">AMD GPU</span></div>
-      </div>
-
-      <div class="work reveal">
-        <div class="work-top"><h3>ThinkPad X390</h3><span class="badge">已交付</span></div>
-        <p>经典商务本，无线与手势触控板可用，指纹模块无解后做了取舍并提前告知客户。</p>
-        <div class="chips"><span class="chip">ThinkPad</span><span class="chip">商务本</span></div>
-      </div>
-
-      <div class="work reveal">
-        <div class="work-top"><h3>戴尔 G3 15 3590</h3><span class="badge">已交付</span></div>
-        <p>游戏本方案，独显屏蔽后核显输出正常，散热与功耗曲线重新调过，风扇不再狂转。</p>
-        <div class="chips"><span class="chip">Dell</span><span class="chip">游戏本</span></div>
-      </div>
-
-      <div class="work reveal">
-        <div class="work-top"><h3>Z490 ITX · 雷电 3</h3><span class="badge">已交付</span></div>
-        <p>小体积台式，雷电 3 扩展卡识别正常，外接显卡坞与多屏输出均验证通过。</p>
-        <div class="chips"><span class="chip">ITX</span><span class="chip">雷电3</span></div>
-      </div>
-
-      <div class="work reveal">
-        <div class="work-top"><h3>X299 · i9-10980XE</h3><span class="badge">已交付</span></div>
-        <p>工作站级多核平台，内存通道与多核调度识别正确，长时间满载运行稳定。</p>
-        <div class="chips"><span class="chip">X299</span><span class="chip">工作站</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 系统下载 ===== -->
-<section id="downloads">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">Downloads</div>
-      <h2>系统下载</h2>
-      <p class="sec-desc">macOS 原版安装镜像，从最新稳定版倒序排列，覆盖 10.13.6 至今。只走 Apple 官方渠道与开源工具，不转第三方魔改包。</p>
-    </div>
-
-    <div class="works" id="dlList">
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/tahoe.html">macOS Tahoe 26</a></h3><span class="badge">最新</span></div>
-        <p>最新正式版。Intel 机型的最后一代官方支持，AMD 平台需要搭配合适的内核补丁。</p>
-        <div class="chips"><span class="chip">26.x</span><span class="chip">约 14 GB</span><span class="chip">Intel / AMD</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/sequoia.html">macOS Sequoia 15</a></h3><span class="badge">稳定</span></div>
-        <p>目前黑苹果最成熟的一代，13 代笔记本上驱动组合齐全，社区资料也最多。</p>
-        <div class="chips"><span class="chip">15.x</span><span class="chip">约 13 GB</span><span class="chip">Intel / AMD</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/sonoma.html">macOS Sonoma 14</a></h3><span class="badge">兼容好</span></div>
-        <p>老平台友好，无线网卡与触控板补丁方案成熟，轻量使用完全够。</p>
-        <div class="chips"><span class="chip">14.x</span><span class="chip">约 12 GB</span><span class="chip">Intel / AMD</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/ventura.html">macOS Ventura 13</a></h3><span class="badge">老机型</span></div>
-        <p>对早期平台和部分无线网卡更宽容，硬件限制多的机器可以先从这一代验证。</p>
-        <div class="chips"><span class="chip">13.x</span><span class="chip">约 12 GB</span><span class="chip">Intel / AMD</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/monterey.html">macOS Monterey 12</a></h3><span class="badge">稳</span></div>
-        <p>驱动生态完整，对 10 代以前的机器尤其省心，睡眠唤醒问题少。</p>
-        <div class="chips"><span class="chip">12.x</span><span class="chip">约 11 GB</span><span class="chip">Intel</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/big-sur.html">macOS Big Sur 11</a></h3><span class="badge">经典</span></div>
-        <p>Apple Silicon 时代的起点，Intel 兼容性依然很好，老平台过渡首选。</p>
-        <div class="chips"><span class="chip">11.x</span><span class="chip">约 12 GB</span><span class="chip">Intel</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/catalina.html">macOS Catalina 10.15</a></h3><span class="badge">旧</span></div>
-        <p>最后一代支持 32 位应用，老软件依赖多的机器有它的价值。</p>
-        <div class="chips"><span class="chip">10.15.x</span><span class="chip">约 8 GB</span><span class="chip">Intel</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/mojave.html">macOS Mojave 10.14</a></h3><span class="badge">旧</span></div>
-        <p>暗色模式首发版本，老显卡与旧平台的驱动包袱最轻。</p>
-        <div class="chips"><span class="chip">10.14.x</span><span class="chip">约 6 GB</span><span class="chip">Intel</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-
-      <div class="work pg-item">
-        <div class="work-top"><h3><a class="wlink" href="downloads/high-sierra.html">macOS High Sierra 10.13.6</a></h3><span class="badge">最低</span></div>
-        <p>本清单的最低版本，老硬件与 NVIDIA 显卡用户的常见选择。</p>
-        <div class="chips"><span class="chip">10.13.6</span><span class="chip">约 5 GB</span><span class="chip">Intel</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">gibMacOS 获取 →</a>
-      </div>
-    </div>
-    <div class="pager" id="dlPager"></div>
-    <p class="pg-tip">这一页的地址可以直接复制分享，重新打开会停在同一页</p>
-
-    <div class="posts reveal" style="margin-top:26px">
-      <div class="big">镜像都从 Apple 服务器直取</div>
-      <div class="small">上述版本通过开源工具 gibMacOS 从 Apple 官方服务器下载完整安装器，不含任何第三方修改。装机前请先确认机型兼容性。</div>
-      <div class="timeline-note">official source · no modified image</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== 工具下载 ===== -->
-<section id="tools">
-  <div class="wrap">
-    <div class="sec-head reveal">
-      <div class="eyebrow">Tools</div>
-      <h2>工具下载</h2>
-      <p class="sec-desc">黑苹果全流程会用到的开源工具，按用途分类。链接均指向作者官方发布页，本站只做整理，不二次打包。</p>
-    </div>
-
-    <div class="grid3" id="toolList">
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 19h20M8 16v3M16 16v3"/></svg></div>
-        <h3><a class="wlink" href="tools/opencore.html">OpenCore</a></h3>
-        <p>现代黑苹果的标准引导器，模块化设计，配置全部集中在 config.plist。</p>
-        <div class="chips"><span class="chip">引导核心</span></div>
-        <a class="dllink" href="https://github.com/acidanthera/OpenCorePkg/releases" target="_blank" rel="noopener">官方发布页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="17" cy="17" r="2.4"/></svg></div>
-        <h3><a class="wlink" href="tools/ocat.html">OCAT（OCAuxiliaryTools）</a></h3>
-        <p>图形化编辑 config.plist，带版本升级与完整性校验，新手最常用。</p>
-        <div class="chips"><span class="chip">配置编辑</span></div>
-        <a class="dllink" href="https://github.com/ic005k/OCAuxiliaryTools/releases" target="_blank" rel="noopener">官方发布页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 3h9l4 4v14H6z"/><path d="M15 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></div>
-        <h3><a class="wlink" href="tools/propertree.html">ProperTree</a></h3>
-        <p>轻量 plist 编辑器，支持 Snapshot 自动扫描 kext 与 ACPI 目录。</p>
-        <div class="chips"><span class="chip">plist</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/ProperTree" target="_blank" rel="noopener">官方项目页 →</a>
-      </div>
-
-      <div class="card pg-item">
+      <div class="card">
         <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 21h16"/></svg></div>
-        <h3><a class="wlink" href="tools/gibmacos.html">gibMacOS</a></h3>
-        <p>从 Apple 官方服务器直接拉取各版本完整安装器，本页镜像都靠它。</p>
-        <div class="chips"><span class="chip">镜像下载</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/gibMacOS" target="_blank" rel="noopener">官方项目页 →</a>
+        <h3><a class="wlink" href="downloads/index.html">系统下载</a></h3>
+        <p>10.13.6 到 Tahoe 26，9 个版本从新到旧排列，全部走 Apple 官方渠道，不转第三方魔改包。</p>
+        <div class="chips"><span class="chip">9 个版本</span><span class="chip">官方源</span></div>
+        <a class="dllink" href="downloads/index.html">进入系统下载 →</a>
       </div>
 
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h6M7 14h4"/><circle cx="17" cy="12" r="2"/></svg></div>
-        <h3><a class="wlink" href="tools/gensmbios.html">GenSMBIOS</a></h3>
-        <p>生成三码（序列号 / MLB / UUID），保证 iMessage 与 App Store 可用。</p>
-        <div class="chips"><span class="chip">三码</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/GenSMBIOS" target="_blank" rel="noopener">官方项目页 →</a>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14.7 6.3a4 4 0 0 0 5 5L21 10l-7 7-3-3 7-7-1.3 1.3z"/><path d="M10 13L3 20"/></svg></div>
+        <h3><a class="wlink" href="tools/index.html">工具下载</a></h3>
+        <p>OpenCore、OCAT、Hackintool 等 13 个开源工具索引，含本站可直接用的 EDID 编辑器。</p>
+        <div class="chips"><span class="chip">13 个工具</span><span class="chip">官方发布页</span></div>
+        <a class="dllink" href="tools/index.html">进入工具下载 →</a>
       </div>
 
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h6"/><path d="M16 15l3 3 3-3"/></svg></div>
-        <h3><a class="wlink" href="tools/ssdttime.html">SSDTTime</a></h3>
-        <p>自动生成本机需要的 SSDT，省掉手写 ACPI 补丁的大部分工作量。</p>
-        <div class="chips"><span class="chip">ACPI</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/SSDTTime" target="_blank" rel="noopener">官方项目页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 21V9a6 6 0 0 1 12 0v12"/><rect x="3" y="18" width="8" height="3" rx="1"/><rect x="13" y="18" width="8" height="3" rx="1"/></svg></div>
-        <h3><a class="wlink" href="tools/usbmap.html">USBMap</a></h3>
-        <p>生成 USB 端口映射，解决端口数量上限与内建设备识别问题。</p>
-        <div class="chips"><span class="chip">USB</span></div>
-        <a class="dllink" href="https://github.com/corpnewt/USBMap" target="_blank" rel="noopener">官方项目页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-        <h3><a class="wlink" href="tools/hackintool.html">Hackintool</a></h3>
-        <p>综合诊断工具，看显卡帧缓冲、平台 ID、PCI 拓扑与电源状态。</p>
-        <div class="chips"><span class="chip">诊断</span></div>
-        <a class="dllink" href="https://github.com/benbaker76/Hackintool" target="_blank" rel="noopener">官方项目页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 4h14v16H5z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg></div>
-        <h3><a class="wlink" href="tools/maciasl.html">MaciASL</a></h3>
-        <p>ACPI 编辑器，改 DSDT / SSDT 与编译补丁都靠它。</p>
-        <div class="chips"><span class="chip">ACPI</span></div>
-        <a class="dllink" href="https://github.com/Acidanthera/MaciASL/releases" target="_blank" rel="noopener">官方发布页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg></div>
-        <h3><a class="wlink" href="tools/lilu.html">Lilu 全家桶</a></h3>
-        <p>Lilu + WhateverGreen + AppleALC，显卡、音频、补丁注入的核心三件套。</p>
-        <div class="chips"><span class="chip">核心 kext</span></div>
-        <a class="dllink" href="https://github.com/acidanthera/Lilu/releases" target="_blank" rel="noopener">官方发布页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18"/><path d="M5 9l7-6 7 6"/><path d="M5 15l7 6 7-6"/></svg></div>
-        <h3><a class="wlink" href="tools/oclp.html">OpenCore Legacy Patcher</a></h3>
-        <p>给不被官方支持的老 Mac 打补丁，也可用于部分老平台的驱动解锁。</p>
-        <div class="chips"><span class="chip">老机型</span></div>
-        <a class="dllink" href="https://github.com/dortania/OpenCore-Legacy-Patcher/releases" target="_blank" rel="noopener">官方发布页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10a12 12 0 0 1 16 0"/><path d="M7 13.5a8 8 0 0 1 10 0"/><path d="M10 17a4 4 0 0 1 4 0"/><circle cx="12" cy="20" r="1"/></svg></div>
-        <h3><a class="wlink" href="tools/itlwm.html">itlwm / AirportItlwm</a></h3>
-        <p>Intel 无线网卡驱动，AX 系列能跑起来基本靠它加固件。</p>
-        <div class="chips"><span class="chip">无线</span></div>
-        <a class="dllink" href="https://github.com/OpenIntelWireless/itlwm/releases" target="_blank" rel="noopener">官方发布页 →</a>
-      </div>
-
-      <div class="card pg-item">
-        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg></div>
-        <h3><a class="wlink" href="tools/edid-editor.html">EDID 编辑器</a></h3>
-        <p>解析与修改显示器 EDID：厂商、时序、HDR、CTA-861 扩展块，浏览器里直接改完导出。</p>
-        <div class="chips"><span class="chip">显示器</span><span class="chip">本站可用</span></div>
-        <a class="dllink" href="/edid-editor/">打开编辑器 →</a>
-      </div>
-    </div>
-    <div class="pager" id="toolPager"></div>
-    <p class="pg-tip">这一页的地址可以直接复制分享，重新打开会停在同一页</p>
-
-    <div class="posts reveal" style="margin-top:26px">
-      <div class="big">只做索引，不做二次分发</div>
-      <div class="small">以上均为开源项目的官方仓库，版本更新以上游发布为准。工具用错照样能把机器装崩，不确定的话直接问。</div>
-      <div class="timeline-note">upstream release · no repack</div>
-    </div>
-  </div>
-</section>
-
-<!-- ===== CTA ===== -->
-<section id="contact">
-  <div class="cta reveal">
-    <div class="cta-in">
-      <div>
-        <div class="eyebrow">Contact</div>
-        <h2>你的机型能不能装，聊两句就知道</h2>
-        <p>把型号、CPU、无线网卡型号发过来，我先判断可行性再谈方案。</p>
-      </div>
-      <div class="hero-actions" style="margin-top:0">
-        <a class="btn btn-primary" href="tencent://message/?uin=1102962755">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M21 11.5a8.4 8.4 0 0 1-9.1 8.4L3.4 21l1.2-8.2A8.4 8.4 0 1 1 16.4-1.3z"/></svg>
-          QQ 1102962755
-        </a>
-        <a class="btn btn-ghost" id="taobaoLink" href="https://lyjsw.taobao.com" target="_blank" rel="noopener" style="border-color:var(--border-strong);color:var(--text)">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M5 8h14l-1.2 11.2a1 1 0 0 1-1 .8H7.2a1 1 0 0 1-1-.8L5 8z"/><path d="M8.5 8V6a3.5 3.5 0 0 1 7 0v2"/></svg>
-          淘宝店铺
-        </a>
+      <div class="card">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 11.5a8.4 8.4 0 0 1-9.1 8.4L3.4 21l1.2-8.2A8.4 8.4 0 1 1 16.4-1.3z"/></svg></div>
+        <h3><a class="wlink" href="contact/index.html">联系</a></h3>
+        <p>QQ 1102962755 与淘宝店铺两个渠道，远程协助全国可做，装机前先判断可行性。</p>
+        <div class="chips"><span class="chip">QQ</span><span class="chip">淘宝店铺</span></div>
+        <a class="dllink" href="contact/index.html">进入联系页 →</a>
       </div>
     </div>
   </div>
 </section>
-
 <footer>
   <div class="wrap foot-in">
     <div class="l"><i class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></i><b>冷月技术网</b><span>· 重庆</span></div>
@@ -580,3 +343,4 @@
 </script>
 </body>
 </html>
+
