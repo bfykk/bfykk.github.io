@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EDID 编辑器 - 解析与修改显示器 EDID</title>
+<meta name="description" content="在线 EDID 编辑器：解析厂商、基本时序、CTA-861 扩展块与 HDR 元数据，改完可导出，全程在浏览器本地运行不上传。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/tools/edid-editor.html">
+<meta property="og:title" content="EDID 编辑器 - 解析与修改显示器 EDID">
+<meta property="og:description" content="在线 EDID 编辑器：解析厂商、基本时序、CTA-861 扩展块与 HDR 元数据，改完可导出，全程在浏览器本地运行不上传。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://lyjsw.dpdns.org/tools/edid-editor.html">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"EDID 编辑器 - 解析与修改显示器 EDID","description":"在线 EDID 编辑器：解析厂商、基本时序、CTA-861 扩展块与 HDR 元数据，改完可导出，全程在浏览器本地运行不上传。","url":"https://lyjsw.dpdns.org/tools/edid-editor.html","inLanguage":"zh-CN","author":{"@type":"Organization","name":"冷月技术网"},"publisher":{"@type":"Organization","name":"冷月技术网"},"isPartOf":{"@type":"WebSite","name":"冷月技术网","url":"https://lyjsw.dpdns.org/"}}</script>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html#top"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html#top">主页</a>
+      <a href="../index.html#works">案例</a>
+      <a href="../index.html#downloads">系统下载</a>
+      <a href="../index.html#tools">工具下载</a>
+      <a href="../index.html#contact">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main class="page">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html#tools">工具下载</a><span>/</span><span>EDID 编辑器</span></div>
+    <h1>EDID 编辑器</h1>
+    <div class="page-meta"><span class="chip">显示器 / 在线</span></div>
+    <div class="prose">
+<p>显示器 EDID 的在线解析与编辑器，本站内嵌运行，源码来自开源项目 thyge/edid-editor（MIT）。EDID 就是显示器递给系统的那一包字节，写清了它是什么厂商、多大、支持哪些分辨率和刷新率、支不支持 HDR。</p>
+<p>黑苹果场景里它有三个用处：一是核实显示器到底报了什么时序，排查"系统里选不到想要的分辨率"；二是改 EDID 让系统识别出隐藏的刷新率或色深；三是核对外接屏走的是 HDMI 还是 DP、有没有被转接芯片改过数据。</p>
+<h2>能干什么</h2>
+<ul>
+<li>解析基础块（0x00–0x7F）与 CTA-861 / DisplayID 扩展块，精确到每个 bit</li>
+<li>查看厂商、产品型号、序列号、生产周期、Preferred Timing</li>
+<li>编辑 Established Timings、Standard Timings、详细时序（分辨率 / 刷新率 / 像素时钟）</li>
+<li>改完导出新的 EDID 文件，用于 OpenCore 的 EDID 注入或后续处理</li>
+</ul>
+<h2>上手要点</h2>
+<ol>
+<li>先把显示器原始 EDID 导出来备份（Windows 用 Registry 或 CRU，Linux 用 xrandr --verbose），改坏了还能回去。</li>
+<li>改时序时像素时钟、前后沿、同步宽度要成套改，只改分辨率不改时序参数，系统会直接忽略这条记录。</li>
+<li>校验和（checksum）工具会自动重算，但自己手改字节时要留最后一块的校验位。</li>
+<li>注入 EDID 属于系统层改动，先在另一块屏或安全模式下验证，别把唯一显示输出改没了。</li>
+</ol>
+<div class="note">所有解析与保存都在浏览器本地完成，EDID 文件不会上传到任何服务器。原作者项目：github.com/thyge/edid-editor</div>
+<h2>官方入口</h2>
+<p style="margin-top:26px"><a class="btn btn-primary" href="../edid-editor/" target="_blank" rel="noopener">打开编辑器 →</a></p>
+    </div>
+    <div class="pagenav"><a href="itlwm.html">← itlwm / AirportItlwm</a><a href="../index.html#tools">全部工具</a></div>
+    <div class="page-cta">
+      <p>机型不确定能不能装？把 <b>型号 / CPU / 无线网卡</b> 发过来，先判断可行性，再谈方案。</p>
+      <div class="hero-actions" style="margin:0">
+        <a class="btn btn-primary" href="tencent://message/?uin=1102962755">QQ 1102962755</a>
+        <a class="btn btn-ghost" href="https://lyjsw.taobao.com" target="_blank" rel="noopener">淘宝店铺</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="wrap foot-in">
+    <div class="l"><i class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></i><b>冷月技术网</b><span>· 重庆</span></div>
+    <div>© 2026 冷月技术网 · Built for the machines that shouldn't work</div>
+  </div>
+</footer>
+<script>(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  var stored = null;
+  try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    sun.style.display = dark ? 'block' : 'none';
+    moon.style.display = dark ? 'none' : 'block';
+  }
+  function sys(){ return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  apply(stored || sys());
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+  var mq = window.matchMedia('(prefers-color-scheme: light)');
+  if(mq.addEventListener) mq.addEventListener('change', function(){ if(!stored) apply(sys()); });
+})();</script>
+</body>
+</html>

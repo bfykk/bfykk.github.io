@@ -22,4 +22,6 @@
 <url><loc>https://lyjsw.dpdns.org/tools/lilu.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/tools/oclp.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/tools/itlwm.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/tools/edid-editor.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/edid-editor/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
 </urlset>
