@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EFI 选择器 11-14 代通用黑苹果 EFI 怎么选 - 冷月技术网</title>
+<meta name="description" content="填一个 CPU 型号，直接告诉你该用哪一份黑苹果通用 EFI：11/12/13/14 代、笔记本还是台式、要不要换 config-desktop.plist。">
+<link rel="canonical" href="https://lyjsw.dpdns.org/efi/">
+<meta property="og:title" content="EFI 选择器 - 冷月技术网">
+<meta property="og:description" content="按 CPU 型号挑对应代际的黑苹果通用 EFI，附每代的验证状态与坑。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://lyjsw.dpdns.org/efi/">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.pk{padding:96px 0 70px;min-height:100vh}
+.pk h1{font-size:30px;letter-spacing:-.02em;margin-bottom:10px;color:var(--text)}
+.pk .lead{color:var(--text-sub);font-size:15px;max-width:800px;line-height:1.85}
+.dbline{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+.dbline span{font-size:12px;color:var(--text-mute);border:1px solid var(--border);border-radius:20px;padding:4px 10px}
+.dbline span b{color:var(--accent)}
+.panel{margin-top:24px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:14px}
+input[type=text]{flex:1;min-width:220px;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:10px;
+  padding:11px 13px;font-family:"JetBrains Mono",monospace;font-size:14px;outline:none}
+input:focus{border-color:var(--border-strong)}
+.btn{cursor:pointer;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:600;border:1px solid transparent;font-family:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--text-sub);border-color:var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-strong)}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg button{cursor:pointer;padding:8px 16px;border-radius:9px;font-size:13.5px;font-weight:600;font-family:inherit;
+  background:var(--bg-soft);color:var(--text-sub);border:1px solid var(--border)}
+.seg button.on{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);border-color:var(--border-strong)}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.tags button{cursor:pointer;font-size:12px;font-family:"JetBrains Mono",monospace;padding:5px 10px;border-radius:7px;
+  background:var(--bg-soft);color:var(--text-mute);border:1px solid var(--border)}
+.tags button:hover{color:var(--accent);border-color:var(--border-strong)}
+.res{margin-top:18px;border-radius:14px;border:1px solid var(--border);background:var(--bg-soft);padding:18px;display:none}
+.res.on{display:block}
+.res .hd{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.res .gen{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.res .who{font-size:12.5px;color:var(--text-mute);font-family:"JetBrains Mono",monospace;margin-top:4px}
+.res dl{margin:14px 0 0;display:grid;grid-template-columns:96px 1fr;gap:8px 14px;font-size:13.5px}
+.res dt{color:var(--text-mute);font-size:13px}
+.res dd{margin:0;color:var(--text);line-height:1.7}
+.res .acts{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+.warnbox{border:1px solid rgba(251,191,36,.45);background:rgba(251,191,36,.08);border-radius:12px;padding:12px 14px;font-size:13.5px;color:#fbbf24;margin-top:14px;line-height:1.75}
+.miss{border-color:rgba(251,113,133,.4);background:rgba(251,113,133,.07);color:#fb7185}
+.sec{margin-top:40px;font-size:17px;font-weight:700;letter-spacing:-.3px}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-size:12px;color:var(--text-mute);font-weight:600;letter-spacing:.03em}
+td code{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--accent)}
+.note{font-size:13px;color:var(--text-sub);margin-top:14px;line-height:1.85}
+.note b{color:var(--accent)}
+.foot-cta{margin-top:34px;padding:22px;border:1px solid var(--border);border-radius:14px;background:var(--card);font-size:14px;color:var(--text-sub);display:flex;gap:18px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.foot-cta a{color:var(--accent);font-weight:600}
+@media(max-width:640px){.pk{padding:86px 0 50px}.pk h1{font-size:24px}.res dl{grid-template-columns:1fr;gap:4px 0}th:nth-child(3),td:nth-child(3){display:none}}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a><a href="../works/index.html">案例</a><a href="../downloads/index.html">系统下载</a><a href="../tools/index.html">工具下载</a><a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="pk">
+  <div class="wrap">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><a href="../works/index.html">案例</a><span>/</span><span>EFI 选择器</span></div>
+    <h1>EFI 选择器</h1>
+    <p class="lead">把 CPU 型号填进去，直接告诉你该下哪一份通用 EFI、要不要换成台式 config、这一代有哪几处会咬人。型号判断只看 dash 后面那串数字，认不出来就直接说认不出来，不乱猜。</p>
+    <div class="dbline">
+      <span><b>4</b> 份通用包</span>
+      <span>11 / 12 / 13 / 14 代</span>
+      <span>笔记本 + 台式</span>
+      <span>每份 <b>32.9 MB</b></span>
+    </div>
+
+    <div class="panel">
+      <label class="add" style="display:block;font-size:13px;color:var(--text-mute);margin-bottom:8px">CPU 型号（比如 i5-13500H、i7-12700K、i9-11900K、i7-14700KF）</label>
+      <div class="row">
+        <input type="text" id="cpu" placeholder="i5-13500H" autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary" id="go">识别并选包</button>
+      </div>
+      <div class="tags" id="tags">
+        <button data-cpu="i5-13500H">i5-13500H</button>
+        <button data-cpu="i9-11900K">i9-11900K</button>
+        <button data-cpu="i7-12700K">i7-12700K</button>
+        <button data-cpu="i5-1240P">i5-1240P</button>
+        <button data-cpu="i7-14700K">i7-14700K</button>
+        <button data-cpu="i9-10980XE">i9-10980XE</button>
+      </div>
+
+      <div style="margin-top:16px;font-size:13px;color:var(--text-mute)">机器形态（默认按后缀自动判断，笔记本 H/P/U 系列，台式 K/KF/F 或没后缀）</div>
+      <div class="seg" id="form" style="margin-top:8px">
+        <button data-form="auto" class="on">自动判断</button>
+        <button data-form="laptop">笔记本</button>
+        <button data-form="desktop">台式</button>
+      </div>
+
+      <div class="res" id="res"></div>
+      <div id="warn"></div>
+    </div>
+
+    <div class="sec">四份包差在哪</div>
+    <table>
+      <tr><th>包</th><th>SMBIOS</th><th>大小核补丁</th><th>说明</th></tr>
+      <tr><td><code>EFI-Intel-11th-Common.zip</code></td><td>MacBookPro16,1</td><td>关</td><td>11 代没有大小核，开着反而拖调度。Z590 / B560 与 11 代笔记本</td></tr>
+      <tr><td><code>EFI-Intel-12th-Common.zip</code></td><td>MacBookPro16,2</td><td>开</td><td>12 代开始大小核，CpuTopologyRebuild 必须开</td></tr>
+      <tr><td><code>EFI-Intel-13th-Common.zip</code></td><td>MacBookPro16,2</td><td>开</td><td>实机跑通过的那份扒掉个人化配置后的版本</td></tr>
+      <tr><td><code>EFI-Intel-14th-Common.zip</code></td><td>MacBookPro16,2</td><td>开</td><td>沿用 13 代结构，PlatformInfo 一致</td></tr>
+    </table>
+
+    <div class="sec">验证状态，直说</div>
+    <table>
+      <tr><th>平台</th><th>状态</th><th>细节</th></tr>
+      <tr><td>荣耀 BRN-GXXX · i5-13500H（13 代）</td><td>实机逐项验证</td><td>AX211 无线、ALC256 声卡、I2C 触控板、睡眠唤醒、亮度调节全打通，这份包就是它扒掉个人化配置后的版本</td></tr>
+      <tr><td>华硕 ROG Z590 · i9-11900K（11 代台式）</td><td>交付过，本包未复测</td><td>RX 6800XT 独显直通、雷电卡、多屏输出当年是交付过的；这份 11 代通用包没有在它身上重新跑一遍</td></tr>
+      <tr><td>12 代 / 14 代</td><td>没有实机记录</td><td>按代际差异参数化推导，属于可用起点，不是插上就完美的成品</td></tr>
+    </table>
+
+    <div class="note">
+      三件事得提前接住：<b>三码是空的</b>，用 GenSMBIOS 自己生成，不填上不了 iCloud；<b>Intel 11 代往后的核显 macOS 没有驱动</b>，能进系统能出声能上网能睡，但显卡没硬件加速，要加速只能台式加 AMD 独显或走 OCLP 打补丁；<b>无线网卡</b>是 Intel 就留着 Itlwm，换成博通的话把那几个 Intel 驱动关掉。
+    </div>
+
+    <div class="foot-cta">
+      <div>机型太偏、或者上面没你的平台？把 <b>型号 / CPU / 无线网卡</b> 发过来，先判断可行性再谈方案。</div>
+      <div class="row" style="margin:0">
+        <a class="btn btn-primary" href="tencent://message/?uin=1102962755">QQ 1102962755</a>
+        <a class="btn btn-ghost" href="../works/index.html">回案例页</a>
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="wrap foot-in">
+    <div class="l"><i class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></i><b>冷月技术网</b><span>· 重庆</span></div>
+    <div>© 2026 冷月技术网 · Built for the machines that shouldn't work</div>
+  </div>
+</footer>
+<script>
+(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  var stored = null;
+  try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    sun.style.display = dark ? 'block' : 'none';
+    moon.style.display = dark ? 'none' : 'block';
+  }
+  function sys(){ return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  apply(stored || sys());
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+  var mq = window.matchMedia('(prefers-color-scheme: light)');
+  if(mq.addEventListener) mq.addEventListener('change', function(){ if(!stored) apply(sys()); });
+
+  // ---- 选择器逻辑 ----
+  var GEN = {
+    11: {file:'EFI-Intel-11th-Common.zip', smbios:'MacBookPro16,1', topo:'关（11 代没有大小核）',
+         note:'Z590 / B560 这类 500 系平台，11 代桌面和移动都能起步。'},
+    12: {file:'EFI-Intel-12th-Common.zip', smbios:'MacBookPro16,2', topo:'开（CpuTopologyRebuild）',
+         note:'600 系平台，大小核调度靠 CpuTopologyRebuild 处理，关掉会只认到小核。'},
+    13: {file:'EFI-Intel-13th-Common.zip', smbios:'MacBookPro16,2', topo:'开（CpuTopologyRebuild）',
+         note:'这一份是实机跑通过的那台扒掉个人化配置后的版本，可用度最高。'},
+    14: {file:'EFI-Intel-14th-Common.zip', smbios:'MacBookPro16,2', topo:'开（CpuTopologyRebuild）',
+         note:'结构沿用 13 代，700 系改款平台和笔记本都能起步，但没有实机记录。'}
+  };
+  var LAPTOP_HINT = 'H / HK / HX / HS / P / U / G / Y 这些后缀基本是笔记本，包里的 config.plist 直接能用。';
+  var DESK_HINT = '台式要动一步：把 OC 目录里的 config-desktop.plist 改名为 config.plist 覆盖原文件（原文件先备份）。它已经把 VoodooI2C、VoodooPS2、电池、亮度、PNLFS 这些笔记本专用项关掉了。';
+
+  var cpuEl = document.getElementById('cpu'), resEl = document.getElementById('res'), warnEl = document.getElementById('warn');
+  var form = 'auto';
+
+  document.getElementById('form').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    form = b.dataset.form;
+    [].forEach.call(this.querySelectorAll('button'), function(x){ x.classList.toggle('on', x === b); });
+    if(cpuEl.value.trim()) run();
+  });
+
+  document.getElementById('tags').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    cpuEl.value = b.dataset.cpu;
+    run();
+  });
+
+  document.getElementById('go').addEventListener('click', run);
+  cpuEl.addEventListener('keydown', function(e){ if(e.key === 'Enter') run(); });
+
+  function parseCpu(raw){
+    var s = raw.trim().toLowerCase().replace(/\s/g,'');
+    var digits = '', suffix = '';
+    var m = s.match(/i([3579])-(\d{3,5})([a-z]{0,3})/);
+    if(m){ digits = m[2]; suffix = m[3] || ''; }
+    else {
+      var m2 = s.match(/(\d{4,5})([a-z]{0,3})/);
+      if(!m2) return null;
+      digits = m2[1]; suffix = m2[2] || '';
+    }
+    if(!digits) return null;
+    var gen = parseInt(digits.slice(0,2), 10);
+    var lap = /^(h|hk|hx|hs|p|u|g|y)/.test(suffix);
+    return { digits: digits, suffix: suffix, gen: gen, laptop: lap };
+  }
+
+  function run(){
+    warnEl.innerHTML = '';
+    var raw = cpuEl.value.trim();
+    if(!raw){
+      resEl.className = 'res on';
+      resEl.innerHTML = '<div class="gen">先填个型号</div><div class="who">比如 i5-13500H</div>';
+      return;
+    }
+    var p = parseCpu(raw);
+    if(!p){
+      resEl.className = 'res on';
+      resEl.innerHTML = '<div class="gen">认不出这个型号</div><div class="who">' + esc(raw) + '</div>' +
+        '<dl><dt>怎么办</dt><dd>写完整的 Intel 型号，形如 i5-13500H / i7-12700K。AMD 平台不在这次通用包范围内。</dd></dl>';
+      return;
+    }
+    var gen = p.gen;
+    if(!GEN[gen]){
+      resEl.className = 'res on';
+      resEl.innerHTML = '<div class="gen">' + (gen >= 8 && gen <= 10 ? gen + ' 代，不在这次的通用包里' : '这个代际没覆盖') +
+        '</div><div class="who">' + esc(raw) + ' → 判成 ' + gen + ' 代' + (p.suffix ? ' · ' + p.suffix.toUpperCase() : '') + '</div>' +
+        '<dl><dt>说明</dt><dd>' +
+        (gen >= 8 && gen <= 10
+          ? '8–10 代的核显在 macOS 里是有驱动的，思路跟 11 代往后完全不同（要注入 ig-platform-id，不是走无加速路线）。这份通用包不适用，我可以按你这台机器单独出一条。'
+          : '只做了 11 / 12 / 13 / 14 代四份，再往前的平台不在这套骨架的适用范围里。') +
+        '</dd></dl>';
+      return;
+    }
+    var g = GEN[gen];
+    var isLap = form === 'auto' ? p.laptop : (form === 'laptop');
+    var formTxt = isLap ? '笔记本' : '台式';
+    var formWhy = form === 'auto'
+      ? ('后缀 ' + (p.suffix ? p.suffix.toUpperCase() : '（无）') + ' → 判为' + formTxt)
+      : '手动指定为' + formTxt;
+
+    resEl.className = 'res on';
+    resEl.innerHTML =
+      '<div class="hd"><div><div class="gen">' + esc(raw) + ' → ' + gen + ' 代 · ' + formTxt + '</div>' +
+      '<div class="who">' + formWhy + ' · SMBIOS ' + g.smbios + '</div></div>' +
+      '<span class="badge" style="font-size:11px;padding:5px 10px;border-radius:6px;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);border:1px solid var(--border-strong);white-space:nowrap;font-weight:600">' +
+      (gen === 13 ? '实机验证' : '已整理') + '</span></div>' +
+      '<dl>' +
+      '<dt>下这份</dt><dd><code style=\'font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--accent)\'>' + g.file + '</code>　32.9 MB</dd>' +
+      '<dt>形态步骤</dt><dd>' + (isLap ? LAPTOP_HINT : DESK_HINT) + '</dd>' +
+      '<dt>大小核</dt><dd>' + g.topo + '</dd>' +
+      '<dt>这一代</dt><dd>' + g.note + '</dd>' +
+      '<dt>必须做</dt><dd>三码是空的，用 GenSMBIOS 选 ' + g.smbios + ' 生成 Serial / MLB / SystemUUID / ROM，填进 PlatformInfo → Generic，不然上不了 iCloud。</dd>' +
+      '</dl>' +
+      '<div class="acts">' +
+      '<a class="btn btn-primary" href="' + g.file + '" download>下载 ' + gen + ' 代 EFI</a>' +
+      '<a class="btn btn-ghost" href="../works/index.html">看全部四份</a>' +
+      '<a class="btn btn-ghost" href="../device-props/index.html">配声卡 layout</a>' +
+      '</div>';
+
+    if(!isLap) warnEl.innerHTML = '<div class="warnbox">台式别忘了换 config：包里默认那份是笔记本的（带触控板与电池驱动）。用 config-desktop.plist 覆盖，否则开机可能卡在电池或触控板初始化上。</div>';
+    else if(gen >= 11) warnEl.innerHTML = '<div class="warnbox">' + gen + ' 代核显在 macOS 里没有驱动：能进系统、能出声、能上网、能睡眠，但图形没有硬件加速。要加速只能台式加 AMD 独显，或走 OCLP 打补丁。</div>';
+  }
+
+  function esc(s){
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // 支持带参数直接出结果：/efi/?cpu=i5-13500H&form=desktop
+  try {
+    var qs = new URLSearchParams(location.search);
+    var qcpu = qs.get('cpu');
+    var qform = qs.get('form');
+    if(qform === 'laptop' || qform === 'desktop'){
+      form = qform;
+      [].forEach.call(document.getElementById('form').querySelectorAll('button'), function(x){
+        x.classList.toggle('on', x.dataset.form === qform);
+      });
+    }
+    if(qcpu){ cpuEl.value = qcpu; run(); }
+  } catch(e){}
+})();
+</script>
+</body>
+</html>
