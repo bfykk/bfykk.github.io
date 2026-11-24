@@ -38,6 +38,14 @@
     <div class="crumb"><a href="../index.html">主页</a><span>/</span><span>系统下载</span></div>
     <h1>系统下载</h1>
     <div class="prose" style="margin-top:18px"><p>macOS 原版安装镜像，从最新稳定版倒序排列，覆盖 Big Sur 11 至今。点「立即下载」直接拿天翼云盘的地址和提取码，镜像取自 Apple 官方安装器，不含第三方修改。</p></div>
+
+    <div class="pintop">
+      <div class="pt-l">
+        <b>安装工具下载</b>
+        <span>写盘、格式化、挂载 DMG 这些装机要用的小工具，打包一份放这儿，省得一个个去找。</span>
+      </div>
+      <button class="btn btn-primary" type="button" data-os="installer">立即下载</button>
+    </div>
     <div class="works" id="dlList" style="margin-top:36px">
 
       <div class="work pg-item">
@@ -168,6 +176,11 @@
   });
 })();</script>
 <style>
+.pintop{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:26px;padding:18px 22px;border-radius:14px;border:1px solid rgba(34,211,238,.38);background:linear-gradient(96deg,rgba(34,211,238,.12),rgba(34,211,238,.03))}
+.pintop .pt-l{display:flex;flex-direction:column;gap:5px;min-width:0}
+.pintop .pt-l b{font-size:15.5px;letter-spacing:-.2px}
+.pintop .pt-l span{font-size:12.5px;color:var(--text-sub);line-height:1.6}
+.pintop .btn{flex:0 0 auto}
 .osdl{border:0;background:transparent;padding:0;margin-top:14px;cursor:pointer;appearance:none;color:var(--accent)}
 .osdl:hover{transform:translateX(2px)}
 .dlm{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:20px}
@@ -205,7 +218,9 @@ var OS_DL = {
   'sonoma':   { name: 'macOS Sonoma 14.8.9（23J631）',     url: 'https://cloud.189.cn/web/share?code=BBzeemfm26Nb', code: '5vsw' },
   'ventura':  { name: 'macOS Ventura 13.7.8（22H730）',    url: 'https://cloud.189.cn/web/share?code=j6ZvErEvQFza', code: '2yvw' },
   'monterey': { name: 'macOS Monterey 12.7.6（21H1320）',  url: 'https://cloud.189.cn/web/share?code=7JVbia7rmEBb', code: '6ign' },
-  'big-sur':  { name: 'macOS Big Sur 11.7.11（20G1443）',  url: 'https://cloud.189.cn/web/share?code=FNn6vuE3Efme', code: 'm3uk' }
+  'big-sur':  { name: 'macOS Big Sur 11.7.11（20G1443）',  url: 'https://cloud.189.cn/web/share?code=FNn6vuE3Efme', code: 'm3uk' },
+  'installer':{ name: '安装工具包', url: 'https://cloud.189.cn/web/share?code=32ABvmzMvQzm', code: '4ufy',
+                tip: '装机用的小工具合集，先转存到自己网盘再下。解压后按里面说明用，别直接双击运行不明 exe。' }
 };
 (function(){
   var dlm = document.getElementById('dlm');
@@ -219,7 +234,7 @@ var OS_DL = {
     ttl.textContent = d.name;
     if(d.url){
       url.textContent = d.url; url.href = d.url; url.removeAttribute('data-pending');
-      note.textContent = '天翼云盘原版安装器。先转存到自己网盘再下，直链有时效。';
+      note.textContent = d.tip || '天翼云盘原版安装器。先转存到自己网盘再下，直链有时效。';
     } else {
       url.textContent = '链接整理中'; url.href = '#'; url.setAttribute('data-pending', '1');
       note.textContent = '这个版本的云盘地址还在整理，补齐之后按钮会直接跳出地址和提取码。急用可以先找我拿。';
@@ -232,7 +247,7 @@ var OS_DL = {
   function close(){ dlm.hidden = true; document.body.style.overflow = ''; }
 
   document.addEventListener('click', function(e){
-    var btn = e.target.closest ? e.target.closest('.osdl') : null;
+    var btn = e.target.closest ? e.target.closest('[data-os]') : null;
     if(btn){ openDl(btn.getAttribute('data-os')); return; }
     if(e.target.id === 'dlmX' || e.target.hasAttribute('data-dlm-close')){ close(); }
   });
