@@ -174,9 +174,19 @@
           <input class="inp" id="fDate" type="date">
         </div>
         <div class="fld">
-          <label>标签 <span>（逗号隔开，可空）</span></label>
-          <input class="inp" id="fTags" placeholder="OpenCore, 声卡, 网卡">
+          <label>分类 <span>（决定它归到哪一栏）</span></label>
+          <select class="inp" id="fCat">
+            <option>装机记录</option>
+            <option>硬件实测</option>
+            <option>工具用法</option>
+            <option>排错笔记</option>
+            <option>随笔</option>
+          </select>
         </div>
+      </div>
+      <div class="fld">
+        <label>标签 <span>（逗号隔开，可空，可以随便写）</span></label>
+        <input class="inp" id="fTags" placeholder="OpenCore, 声卡, 网卡">
       </div>
       <div class="fld">
         <label>摘要 <span>（列表页显示这一句，一两行就够）</span></label>

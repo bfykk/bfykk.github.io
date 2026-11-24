@@ -77,7 +77,12 @@
 
   /* ---------- 文章页模板 ---------- */
   function buildPost(p) {
-    var tags = (p.tags || []).map(function (t) { return '<span class="chip">' + esc(t) + '</span>'; }).join('');
+    var tags = (p.tags || []).map(function (t) {
+      return '<a class="chip" style="text-decoration:none" href="index.html?tag=' + encodeURIComponent(t) + '">' + esc(t) + '</a>';
+    }).join('');
+    var catChip = p.cat
+      ? '<a class="chip" style="text-decoration:none" href="index.html?cat=' + encodeURIComponent(p.cat) + '">' + esc(p.cat) + '</a>'
+      : '';
     var bodyHtml = window.LYMD ? window.LYMD(p.body || '') : '<pre>' + esc(p.body) + '</pre>';
     var ld = {
       '@context': 'https://schema.org', '@type': 'BlogPosting',
@@ -135,7 +140,7 @@
       '  <div class="wrap">',
       '    <div class="crumb"><a href="index.html">博客</a><span>/</span><span>' + esc(p.title) + '</span></div>',
       '    <h1>' + esc(p.title) + '</h1>',
-      '    <div class="page-meta"><span class="chip">' + esc(p.date) + '</span>' + tags + '</div>',
+      '    <div class="page-meta"><span class="chip">' + esc(p.date) + '</span>' + catChip + tags + '</div>',
       '    <div class="prose">',
       bodyHtml,
       '    </div>',
@@ -211,6 +216,7 @@
       title: $('fTitle').value.trim(),
       slug: $('fSlug').value.trim().toLowerCase(),
       date: $('fDate').value,
+      cat: $('fCat') ? $('fCat').value : '',
       tags: $('fTags').value.split(/[,，]/).map(function (s) { return s.trim(); }).filter(Boolean),
       summary: $('fSummary').value.trim(),
       body: $('fBody').value
@@ -223,6 +229,15 @@
     $('fTags').value = (p.tags || []).join(', ');
     $('fSummary').value = p.summary || '';
     $('fBody').value = p.body || '';
+    var sel = $('fCat'), c = p.cat || '装机记录';
+    if (sel) {
+      var known = false;
+      for (var i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].value === c) known = true;
+      }
+      if (!known && c) sel.add(new Option(c, c));
+      sel.value = c;
+    }
     switchTab('write');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -267,7 +282,7 @@
       return putFile('blog/' + p.slug + '.html', buildPost(p), old ? old.sha : null, 'post: ' + stamp);
     }).then(function () {
       var idx = posts.findIndex(function (x) { return x.slug === p.slug; });
-      var entry = { slug: p.slug, title: p.title, date: p.date, tags: p.tags, summary: p.summary, body: p.body };
+      var entry = { slug: p.slug, title: p.title, date: p.date, cat: p.cat, tags: p.tags, summary: p.summary, body: p.body };
       if (idx > -1) posts[idx] = entry; else posts.push(entry);
       posts.sort(function (a, b) { return (b.date || '').localeCompare(a.date || ''); });
       return putFile('blog/posts.json', JSON.stringify(posts, null, 1), postsSha, 'posts index: ' + p.slug);

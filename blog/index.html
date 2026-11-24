@@ -20,6 +20,11 @@
 .post-card p{font-size:13.5px;line-height:1.75;color:var(--text-sub);margin:0}
 .post-card .ptags{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
 .empty{color:var(--text-sub);font-size:14px;border:1px dashed var(--border);border-radius:14px;padding:26px;text-align:center;margin-top:24px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:22px;min-height:30px}
+.fb{font-size:12.5px;padding:6px 13px;border-radius:9px;border:1px solid var(--border);color:var(--text-sub);text-decoration:none;transition:all .16s}
+.fb:hover{border-color:var(--border-strong);color:var(--accent)}
+.fb.on{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.fsep{width:1px;height:15px;background:var(--border);margin:0 3px}
 </style>
 </head>
 <body>
@@ -47,6 +52,7 @@
     <div class="prose">
       <p>装机的踩坑记录、硬件兼容实测，还有平时折腾下来的零碎笔记。不追热点，只写自己真机跑过的。</p>
     </div>
+    <div class="filters" id="filters"></div>
     <div id="postList" class="post-grid"></div>
     <div id="postEmpty" class="empty" style="display:none">还没有文章。等第一台机器跑通，我把过程写在这儿。</div>
     <div class="page-cta">
@@ -87,18 +93,50 @@
 })();</script>
 <script>
 (function(){
-  var list = document.getElementById('postList'), empty = document.getElementById('postEmpty');
+  var list = document.getElementById('postList'), empty = document.getElementById('postEmpty'), bar = document.getElementById('filters');
+  var qs = new URLSearchParams(location.search);
+  var curCat = qs.get('cat') || '', curTag = qs.get('tag') || '';
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function chip(label, href, on){ return '<a class="fb'+(on?' on':'')+'" href="'+href+'">'+esc(label)+'</a>'; }
   fetch('posts.json', { cache: 'no-cache' }).then(function(r){ return r.json(); }).then(function(posts){
-    if (!Array.isArray(posts) || !posts.length) { list.style.display='none'; empty.style.display='block'; return; }
+    if (!Array.isArray(posts) || !posts.length) {
+      list.style.display='none'; empty.style.display='block'; bar.style.display='none'; return;
+    }
     posts.sort(function(a,b){ return (b.date||'').localeCompare(a.date||''); });
-    list.innerHTML = posts.map(function(p){
-      var tags = (p.tags||[]).map(function(t){ return '<span class="chip">'+esc(t)+'</span>'; }).join('');
+
+    var cats = [], tags = [];
+    posts.forEach(function(p){
+      if (p.cat && cats.indexOf(p.cat) < 0) cats.push(p.cat);
+      (p.tags||[]).forEach(function(t){ if (tags.indexOf(t) < 0) tags.push(t); });
+    });
+    var f = chip('全部', 'index.html', !curCat && !curTag);
+    if (cats.length) f += '<span class="fsep"></span>' + cats.map(function(c){
+      return chip(c, '?cat=' + encodeURIComponent(c), curCat === c);
+    }).join('');
+    if (tags.length) f += '<span class="fsep"></span>' + tags.map(function(t){
+      return chip('#' + t, '?tag=' + encodeURIComponent(t), curTag === t);
+    }).join('');
+    bar.innerHTML = f;
+
+    var shown = posts.filter(function(p){
+      if (curCat && p.cat !== curCat) return false;
+      if (curTag && (p.tags||[]).indexOf(curTag) < 0) return false;
+      return true;
+    });
+    if (!shown.length) {
+      list.style.display='none'; empty.style.display='block';
+      empty.textContent = '这一栏还没文章，换别的看看。';
+      return;
+    }
+    list.style.display=''; empty.style.display='none';
+    list.innerHTML = shown.map(function(p){
+      var ct = p.cat ? '<span class="chip">'+esc(p.cat)+'</span>' : '';
+      var tg = (p.tags||[]).map(function(t){ return '<span class="chip">'+esc(t)+'</span>'; }).join('');
       return '<article class="card post-card">'
         + '<div class="pdate">'+esc(p.date||'')+'</div>'
         + '<h3><a href="'+esc(p.slug)+'.html">'+esc(p.title)+'</a></h3>'
         + '<p>'+esc(p.summary||'')+'</p>'
-        + (tags ? '<div class="ptags">'+tags+'</div>' : '')
+        + ((ct||tg) ? '<div class="ptags">'+ct+tg+'</div>' : '')
         + '<a class="dllink" href="'+esc(p.slug)+'.html">阅读全文 →</a>'
         + '</article>';
     }).join('');
