@@ -47,6 +47,13 @@
   font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-right:8px;vertical-align:1px}
 .who{font-size:12.5px;color:var(--text-sub);margin-top:8px}
 .who b{color:var(--accent-2)}
+.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.qgrid a{display:flex;flex-direction:column;gap:3px;padding:13px 15px;border-radius:11px;border:1px solid var(--border);
+  background:var(--bg-soft);text-decoration:none;transition:border-color .18s,background .18s}
+.qgrid a:hover{border-color:var(--border-strong)}
+.qgrid a b{font-size:14px;color:var(--text);font-weight:600}
+.qgrid a i{font-style:normal;font-size:11.5px;color:var(--text-mute);font-family:"JetBrains Mono",Consolas,monospace}
+@media(max-width:700px){.qgrid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -72,6 +79,20 @@
       这个页面直接往 GitHub 仓库提交文件，保存后 GitHub Pages 自动重建，一两分钟线上就能看到。
       只有你自己的浏览器里存着 token 才能用，别人打开是空白的。
     </p>
+
+    <section class="apanel" id="quickBox">
+      <h2>常用入口</h2>
+      <p class="sub">这几个地址不用硬记，从这儿点就行。想在外面直接打开，把下面标灰的那一行添加到浏览器收藏夹。</p>
+      <div class="qgrid">
+        <a href="index.html"><b>写文章</b><i>/bfykk/</i></a>
+        <a href="../blog/index.html"><b>博客首页</b><i>/blog/</i></a>
+        <a href="../downloads/index.html"><b>系统下载</b><i>/downloads/</i></a>
+        <a href="../tools/index.html"><b>工具下载</b><i>/tools/</i></a>
+        <a href="../works/index.html"><b>成功案例</b><i>/works/</i></a>
+        <a href="../contact/index.html"><b>联系方式</b><i>/contact/</i></a>
+      </div>
+      <div class="who">整站域名：<b>lyjsw.dpdns.org</b> · 后台记住一次 token 就行，下次打开自动登录</div>
+    </section>
 
     <section class="apanel" id="loginBox">
       <h2><i class="step">1</i>连上 GitHub</h2>
