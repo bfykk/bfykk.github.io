@@ -319,42 +319,130 @@
     });
   }
 
-  /* ---------- 登录 ---------- */
+  /* ---------- 密码锁（本机） ---------- */
+  var VK = 'ly-vault';
+
+  function b64arr(buf) {
+    var a = new Uint8Array(buf), s = '';
+    for (var i = 0; i < a.length; i++) s += String.fromCharCode(a[i]);
+    return btoa(s);
+  }
+  function arrB64(s) {
+    var bin = atob(s), a = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return a;
+  }
+  function getVault() {
+    try { return JSON.parse(localStorage.getItem(VK) || 'null'); } catch (e) { return null; }
+  }
+  function deriveKey(pw, saltBuf) {
+    return crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey'])
+      .then(function (km) {
+        return crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt: saltBuf, iterations: 150000, hash: 'SHA-256' },
+          km, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']
+        );
+      });
+  }
+  function saveVault(pw, tok) {
+    var salt = crypto.getRandomValues(new Uint8Array(16));
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    return deriveKey(pw, salt).then(function (k) {
+      return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, k, new TextEncoder().encode(tok));
+    }).then(function (ct) {
+      try {
+        localStorage.setItem(VK, JSON.stringify({ v: 1, salt: b64arr(salt), iv: b64arr(iv), ct: b64arr(ct) }));
+        localStorage.removeItem(TK);
+      } catch (e) {}
+    });
+  }
+  function openVault(pw) {
+    var v = getVault();
+    if (!v) return Promise.reject(new Error('empty'));
+    var salt = arrB64(v.salt), iv = arrB64(v.iv), ct = arrB64(v.ct);
+    return deriveKey(pw, salt).then(function (k) {
+      return crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, k, ct);
+    }).then(function (buf) { return new TextDecoder().decode(buf); });
+  }
+
+  /* ---------- 连接 ---------- */
   function onAuthed(login) {
     $('loginBox').hidden = true;
     $('editBox').hidden = false;
     $('listBox').hidden = false;
-    $('whoBox').innerHTML = '已连接：<b>' + esc(login || 'bfykk') + '</b> · 仓库 ' + REPO;
     loadPosts();
     setTimeout(function () {
       if (!$('fDate').value) $('fDate').value = today();
     }, 60);
   }
 
-  function verify(inputToken) {
-    var t = (inputToken || '').trim();
-    if (!t) return msg($('loginMsg'), '先把 token 粘进来。', 'bad');
-    token = t;
-    msg($('loginMsg'), '验证中…');
-    api('/user').then(function (u) {
-      try { localStorage.setItem(TK, t); } catch (e) {}
-      msg($('loginMsg'), '连上了，' + u.login, 'ok');
+  function connect(t, msgEl) {
+    var tk = (t || '').trim();
+    if (!tk) { msg(msgEl, '没有拿到 token，点「忘了密码 / 换电脑」重新配一次。', 'bad'); return Promise.resolve(false); }
+    token = tk;
+    msg(msgEl, '正在连 GitHub…');
+    return api('/user').then(function (u) {
+      msg(msgEl, '连上了，' + u.login, 'ok');
       onAuthed(u.login);
+      return true;
     }).catch(function (e) {
       token = '';
-      if (!e.status) msg($('loginMsg'), '连不上 api.github.com —— 这台机器要访问 GitHub 得开代理，开好再试。', 'bad');
-      else msg($('loginMsg'), 'token 不对或没权限（HTTP ' + e.status + '）。', 'bad');
+      if (!e.status) msg(msgEl, '连不上 api.github.com —— 这台机器访问 GitHub 要开代理，开好再点一次。', 'bad');
+      else if (e.status === 401 || e.status === 403) msg(msgEl, 'token 失效或没权限（HTTP ' + e.status + '），重新生成一个。', 'bad');
+      else msg(msgEl, '连接失败：' + e.message, 'bad');
+      return false;
     });
   }
 
   /* ---------- 绑定 ---------- */
   document.addEventListener('DOMContentLoaded', function () {
-    var saved = null;
-    try { saved = localStorage.getItem(TK); } catch (e) {}
-    if (saved) { $('fToken').value = saved; verify(saved); }
+    var vault = getVault(), legacy = null;
+    try { legacy = localStorage.getItem(TK); } catch (e) {}
 
-    $('btnVerify').addEventListener('click', function () { verify($('fToken').value); });
-    $('fToken').addEventListener('keydown', function (e) { if (e.key === 'Enter') verify(this.value); });
+    if (vault) {
+      $('unlockForm').hidden = false;
+      $('setupForm').hidden = true;
+      setTimeout(function () { $('fPass').focus(); }, 80);
+    } else {
+      $('unlockForm').hidden = true;
+      $('setupForm').hidden = false;
+      if (legacy) $('sToken').value = legacy;
+    }
+
+    function unlock() {
+      var pw = $('fPass').value;
+      if (!pw) return msg($('lockMsg'), '先输密码。', 'bad');
+      msg($('lockMsg'), '正在解锁…');
+      openVault(pw).then(function (tok) {
+        return connect(tok, $('lockMsg'));
+      }).catch(function (e) {
+        if (e && e.name === 'OperationError') msg($('lockMsg'), '密码不对。', 'bad');
+        else msg($('lockMsg'), '解锁失败：' + (e && e.message ? e.message : '本机没有保存的凭据'), 'bad');
+      });
+    }
+
+    function setup() {
+      var p1 = $('sPass1').value, p2 = $('sPass2').value, tk = $('sToken').value.trim() || legacy || '';
+      if (p1.length < 6) return msg($('setupMsg'), '密码至少 6 位。', 'bad');
+      if (p1 !== p2) return msg($('setupMsg'), '两次输的密码不一样。', 'bad');
+      if (!tk) return msg($('setupMsg'), '还得粘一次 token，只这一次。', 'bad');
+      msg($('setupMsg'), '保存中…');
+      saveVault(p1, tk).then(function () {
+        return connect(tk, $('setupMsg'));
+      }).catch(function (e) {
+        msg($('setupMsg'), '保存失败：' + (e && e.message ? e.message : '浏览器不支持加密存储'), 'bad');
+      });
+    }
+
+    $('btnUnlock').addEventListener('click', unlock);
+    $('fPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') unlock(); });
+    $('btnSetup').addEventListener('click', setup);
+    $('btnForget').addEventListener('click', function () {
+      if (!confirm('清掉这台电脑上保存的密码和 token？之后要重新粘一次 token。')) return;
+      try { localStorage.removeItem(VK); localStorage.removeItem(TK); } catch (e) {}
+      location.reload();
+    });
+
     $('btnPublish').addEventListener('click', publish);
     $('btnClear').addEventListener('click', function () {
       fillForm({ title: '', slug: '', date: today(), tags: [], summary: '', body: '' });

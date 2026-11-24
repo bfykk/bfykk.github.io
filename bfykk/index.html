@@ -77,7 +77,7 @@
     <h1 style="font-size:34px">写文章</h1>
     <p class="sub" style="font-size:14px;color:var(--text-sub);line-height:1.8">
       这个页面直接往 GitHub 仓库提交文件，保存后 GitHub Pages 自动重建，一两分钟线上就能看到。
-      只有你自己的浏览器里存着 token 才能用，别人打开是空白的。
+      密码和 token 都只存在你这台电脑的浏览器里，别人打开这个地址只会看到空白表单。
     </p>
 
     <section class="apanel" id="quickBox">
@@ -91,23 +91,52 @@
         <a href="../works/index.html"><b>成功案例</b><i>/works/</i></a>
         <a href="../contact/index.html"><b>联系方式</b><i>/contact/</i></a>
       </div>
-      <div class="who">整站域名：<b>lyjsw.dpdns.org</b> · 后台记住一次 token 就行，下次打开自动登录</div>
+      <div class="who">整站域名：<b>lyjsw.dpdns.org</b> · 密码设一次记牢，以后每次输密码就能进</div>
     </section>
 
     <section class="apanel" id="loginBox">
-      <h2><i class="step">1</i>连上 GitHub</h2>
+      <h2><i class="step">1</i>解锁</h2>
       <p class="sub">
-        去 GitHub 生成一个只给这个仓库写入权限的 token（Fine-grained token，仓库选 <b>bfykk.github.io</b>，权限给 <b>Contents: Read and write</b>），粘在下面。
-        token 只存在你这台机器的浏览器里，不会发给别人。
+        设一个自己的密码，以后输密码就能进去，不用再碰 token。
+        密码写在你这台电脑的浏览器里，token 是加密存的，页面里看不到明文。
       </p>
-      <div class="fld">
-        <label>GitHub token <span>（github_pat_ 开头，或 ghp_ 开头）</span></label>
-        <input class="inp" id="fToken" type="password" placeholder="粘贴 token" autocomplete="off" spellcheck="false">
+
+      <div id="unlockForm" hidden>
+        <div class="fld">
+          <label>密码</label>
+          <input class="inp" id="fPass" type="password" autocomplete="current-password" placeholder="输入密码">
+        </div>
+        <div class="abar">
+          <button class="btn btn-primary" id="btnUnlock" style="margin:0">进入</button>
+          <button class="mini" id="btnForget" style="padding:8px 13px">忘了密码 / 换电脑</button>
+          <div class="amsg" id="lockMsg"></div>
+        </div>
       </div>
-      <div class="abar">
-        <button class="btn btn-primary" id="btnVerify" style="margin:0">验证并保存</button>
-        <a class="mini" href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener" style="text-decoration:none;padding:8px 13px">去生成 token ↗</a>
-        <div class="amsg" id="loginMsg"></div>
+
+      <div id="setupForm" hidden>
+        <div class="row2">
+          <div class="fld">
+            <label>设置密码 <span>（至少 6 位，自己记得住就行）</span></label>
+            <input class="inp" id="sPass1" type="password" autocomplete="new-password" placeholder="比如 lengyue2026">
+          </div>
+          <div class="fld">
+            <label>再输一次</label>
+            <input class="inp" id="sPass2" type="password" autocomplete="new-password" placeholder="重复上面的密码">
+          </div>
+        </div>
+        <div class="fld">
+          <label>GitHub token <span>（这辈子只粘这一次，之后用密码解出来）</span></label>
+          <input class="inp" id="sToken" type="password" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
+        </div>
+        <div class="abar">
+          <button class="btn btn-primary" id="btnSetup" style="margin:0">保存并进入</button>
+          <a class="mini" href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener" style="text-decoration:none;padding:8px 13px">还没 token？去生成 ↗</a>
+          <div class="amsg" id="setupMsg"></div>
+        </div>
+        <p class="sub" style="margin:14px 0 0">
+          token 生成要点：Repository access 选 Only select repositories → <b>bfykk.github.io</b>；
+          Permissions 里只勾 <b>Contents: Read and write</b>。生成的字符串别发给任何人。
+        </p>
       </div>
       <div class="who" id="whoBox"></div>
     </section>
