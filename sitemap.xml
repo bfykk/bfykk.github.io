@@ -37,4 +37,5 @@
 <url><loc>https://lyjsw.dpdns.org/device-props/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/boot-args/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/plist/</loc><priority>0.7</priority><changefreq>monthly</changefreq></url>
+<url><loc>https://lyjsw.dpdns.org/blog/</loc><lastmod>2026-11-25</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
 </urlset>

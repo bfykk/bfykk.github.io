@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>写文章 · 冷月技术网</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="../assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+.apanel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px 26px;margin-top:20px}
+.apanel[hidden]{display:none}
+.apanel h2{font-size:16px;margin:0 0 6px;letter-spacing:.01em}
+.apanel .sub{font-size:13px;color:var(--text-sub);line-height:1.75;margin:0 0 16px}
+.fld{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.fld label{font-size:12.5px;color:var(--text-sub);font-weight:600;letter-spacing:.02em}
+.fld label span{color:var(--text-mute);font-weight:400}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.inp,.ed{width:100%;box-sizing:border-box;background:var(--bg-soft);border:1px solid var(--border);border-radius:11px;
+  padding:11px 13px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .18s}
+.inp:focus,.ed:focus{border-color:var(--border-strong)}
+.ed{line-height:1.8;resize:vertical;font-family:"JetBrains Mono",Consolas,monospace;font-size:13.5px}
+.ed-sm{min-height:74px}
+.ed-body{min-height:420px}
+.tabs{display:flex;gap:8px;margin-bottom:9px}
+.tab{padding:6px 14px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--text-sub);
+  font-size:12.5px;font-family:inherit;cursor:pointer}
+.tab.on{background:var(--accent);color:var(--accent-ink);border-color:transparent;font-weight:700}
+.prev{background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;padding:6px 20px;min-height:200px;max-height:560px;overflow:auto}
+.prev .prose{margin:0}
+.abar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:6px}
+.amsg{font-size:13px;line-height:1.6;color:var(--text-sub);flex:1;min-width:200px}
+.amsg.ok{color:#5eead4}
+.amsg.bad{color:#fca5a5}
+.tinylist{display:flex;flex-direction:column;gap:2px;margin-top:10px}
+.trow{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:10px;border:1px solid transparent}
+.trow:hover{background:var(--bg-soft);border-color:var(--border)}
+.trow .tt{flex:1;font-size:14px;color:var(--text)}
+.trow .td{font-size:11.5px;color:var(--text-mute);font-family:"JetBrains Mono",monospace}
+.mini{font-size:12px;padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;
+  color:var(--text-sub);cursor:pointer;font-family:inherit}
+.mini:hover{border-color:var(--border-strong);color:var(--accent)}
+.mini.dan:hover{border-color:rgba(248,113,113,.5);color:#fca5a5}
+.step{display:inline-flex;width:22px;height:22px;border-radius:7px;background:var(--accent);color:var(--accent-ink);
+  font-size:12px;font-weight:700;align-items:center;justify-content:center;margin-right:8px;vertical-align:1px}
+.who{font-size:12.5px;color:var(--text-sub);margin-top:8px}
+.who b{color:var(--accent-2)}
+</style>
+</head>
+<body>
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu">
+      <a href="../index.html">主页</a>
+      <a href="../blog/index.html">博客</a>
+      <a href="../contact/index.html">联系</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+<main class="page">
+  <div class="wrap" style="max-width:900px">
+    <div class="crumb"><a href="../index.html">主页</a><span>/</span><span>写文章</span></div>
+    <h1 style="font-size:34px">写文章</h1>
+    <p class="sub" style="font-size:14px;color:var(--text-sub);line-height:1.8">
+      这个页面直接往 GitHub 仓库提交文件，保存后 GitHub Pages 自动重建，一两分钟线上就能看到。
+      只有你自己的浏览器里存着 token 才能用，别人打开是空白的。
+    </p>
+
+    <section class="apanel" id="loginBox">
+      <h2><i class="step">1</i>连上 GitHub</h2>
+      <p class="sub">
+        去 GitHub 生成一个只给这个仓库写入权限的 token（Fine-grained token，仓库选 <b>bfykk.github.io</b>，权限给 <b>Contents: Read and write</b>），粘在下面。
+        token 只存在你这台机器的浏览器里，不会发给别人。
+      </p>
+      <div class="fld">
+        <label>GitHub token <span>（github_pat_ 开头，或 ghp_ 开头）</span></label>
+        <input class="inp" id="fToken" type="password" placeholder="粘贴 token" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="abar">
+        <button class="btn btn-primary" id="btnVerify" style="margin:0">验证并保存</button>
+        <a class="mini" href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener" style="text-decoration:none;padding:8px 13px">去生成 token ↗</a>
+        <div class="amsg" id="loginMsg"></div>
+      </div>
+      <div class="who" id="whoBox"></div>
+    </section>
+
+    <section class="apanel" id="editBox" hidden>
+      <h2><i class="step">2</i>写一篇</h2>
+      <div class="row2">
+        <div class="fld">
+          <label>标题</label>
+          <input class="inp" id="fTitle" placeholder="比如：13500H 笔记本装 Ventura 踩过的三个坑">
+        </div>
+        <div class="fld">
+          <label>链接名 <span>（英文小写，网址会变成 /blog/xxx.html）</span></label>
+          <input class="inp" id="fSlug" placeholder="例如 ventura-13500h" spellcheck="false">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="fld">
+          <label>日期</label>
+          <input class="inp" id="fDate" type="date">
+        </div>
+        <div class="fld">
+          <label>标签 <span>（逗号隔开，可空）</span></label>
+          <input class="inp" id="fTags" placeholder="OpenCore, 声卡, 网卡">
+        </div>
+      </div>
+      <div class="fld">
+        <label>摘要 <span>（列表页显示这一句，一两行就够）</span></label>
+        <textarea class="ed ed-sm" id="fSummary" placeholder="一句话说清这篇讲了什么、解决了什么问题"></textarea>
+      </div>
+      <div class="fld">
+        <label>正文 <span>（支持 # 标题、**粗体**、- 列表、```代码块、[链接](url)、![图片](url)）</span></label>
+        <div class="tabs">
+          <button class="tab on" data-tab="write">写</button>
+          <button class="tab" data-tab="preview">预览</button>
+        </div>
+        <textarea class="ed ed-body" id="fBody" placeholder="从这一段开始写。空一行就是分段。"></textarea>
+        <div class="prev" id="previewBox" hidden><div class="prose" id="previewHtml"></div></div>
+      </div>
+      <div class="abar">
+        <button class="btn btn-primary" id="btnPublish" style="margin:0">发布到网站</button>
+        <button class="mini" id="btnClear" style="padding:8px 13px">清空</button>
+        <div class="amsg" id="pubMsg"></div>
+      </div>
+    </section>
+
+    <section class="apanel" id="listBox" hidden>
+      <h2><i class="step">3</i>已发布的文章</h2>
+      <p class="sub">点标题可以载回编辑器改，改完再点一次发布就是覆盖。</p>
+      <div class="tinylist" id="adminList"></div>
+    </section>
+  </div>
+</main>
+<footer>
+  <div class="wrap foot-in">
+    <div class="l"><i class="dot" style="width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block"></i><b>冷月技术网</b><span>· 后台</span></div>
+    <div>© 2026 冷月技术网</div>
+  </div>
+</footer>
+<script src="../assets/md.js"></script>
+<script src="../assets/admin.js"></script>
+<script>(function(){
+  var root = document.documentElement, btn = document.getElementById('themeBtn');
+  var sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
+  var stored = null;
+  try { stored = localStorage.getItem('ly-theme'); } catch(e){}
+  function apply(t){
+    root.setAttribute('data-theme', t);
+    var dark = t === 'dark';
+    sun.style.display = dark ? 'block' : 'none';
+    moon.style.display = dark ? 'none' : 'block';
+  }
+  function sys(){ return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'; }
+  apply(stored || sys());
+  btn.addEventListener('click', function(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    apply(next);
+    try { localStorage.setItem('ly-theme', next); } catch(e){}
+  });
+})();</script>
+</body>
+</html>
