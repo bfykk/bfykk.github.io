@@ -28,7 +28,7 @@
 
   /* 云端网关地址：填了就走「只输密码」模式，token 存在 Cloudflare 上；
      留空则走本机模式（密码加密保存 token）。 */
-  var WORKER = 'https://password.vj7x9gxqcj-e32.workers.dev';
+  var WORKER = 'https://ps.lyjsw.dpdns.org';
   var cloudPass = '';
 
   function api(path, opt) {
