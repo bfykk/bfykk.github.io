@@ -101,6 +101,18 @@
         密码写在你这台电脑的浏览器里，token 是加密存的，页面里看不到明文。
       </p>
 
+      <div id="cloudForm" hidden>
+        <div class="fld">
+          <label>密码 <span>（没这个密码就改不了网站一个字）</span></label>
+          <input class="inp" id="cPass" type="password" autocomplete="current-password" placeholder="输入密码">
+        </div>
+        <div class="abar">
+          <button class="btn btn-primary" id="btnCloud" style="margin:0">进入</button>
+          <button class="mini" id="btnCloudForget" style="padding:8px 13px">换设备 / 重新输</button>
+          <div class="amsg" id="cloudMsg"></div>
+        </div>
+      </div>
+
       <div id="unlockForm" hidden>
         <div class="fld">
           <label>密码</label>

@@ -26,13 +26,24 @@
     el.className = 'amsg' + (kind ? ' ' + kind : '');
   }
 
+  /* 云端网关地址：填了就走「只输密码」模式，token 存在 Cloudflare 上；
+     留空则走本机模式（密码加密保存 token）。 */
+  var WORKER = '';
+  var cloudPass = '';
+
   function api(path, opt) {
     opt = opt || {};
-    opt.headers = Object.assign({
-      'Accept': 'application/vnd.github+json',
-      'Authorization': 'Bearer ' + token
-    }, opt.headers || {});
-    return fetch('https://api.github.com' + path, opt).then(function (r) {
+    opt.headers = Object.assign({ 'Accept': 'application/vnd.github+json' }, opt.headers || {});
+    var url;
+    if (WORKER) {
+      var p = path.replace(new RegExp('^/repos/' + REPO.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), '');
+      url = WORKER + '/api' + p;
+      opt.headers['x-pass'] = cloudPass;
+    } else {
+      url = 'https://api.github.com' + path;
+      opt.headers['Authorization'] = 'Bearer ' + token;
+    }
+    return fetch(url, opt).then(function (r) {
       if (!r.ok) {
         return r.text().then(function (t) {
           var e = new Error('HTTP ' + r.status);
@@ -394,8 +405,48 @@
     });
   }
 
+  /* ---------- 云端模式：只输密码，token 在 Cloudflare ---------- */
+  function cloudLogin() {
+    var pw = $('cPass').value.trim();
+    if (!pw) return msg($('cloudMsg'), '先输密码。', 'bad');
+    cloudPass = pw;
+    msg($('cloudMsg'), '正在连…');
+    api('/user').then(function (u) {
+      try { localStorage.setItem('ly-pass', pw); } catch (e) {}
+      msg($('cloudMsg'), '进去了，' + u.login, 'ok');
+      onAuthed(u.login);
+    }).catch(function (e) {
+      cloudPass = '';
+      if (e.status === 401) msg($('cloudMsg'), '密码不对。', 'bad');
+      else if (!e.status) msg($('cloudMsg'), '连不上网关，检查 Worker 地址和网络。', 'bad');
+      else msg($('cloudMsg'), '网关返回 HTTP ' + e.status + '，看看 Worker 里的两个 Secret 配对没有。', 'bad');
+    });
+  }
+
   /* ---------- 绑定 ---------- */
   document.addEventListener('DOMContentLoaded', function () {
+    if (WORKER) {
+      $('cloudForm').hidden = false;
+      $('unlockForm').hidden = true;
+      $('setupForm').hidden = true;
+      var sp = null;
+      try { sp = localStorage.getItem('ly-pass'); } catch (e) {}
+      if (sp) { $('cPass').value = sp; setTimeout(cloudLogin, 80); }
+      else setTimeout(function () { $('cPass').focus(); }, 80);
+
+      $('btnCloud').addEventListener('click', cloudLogin);
+      $('cPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') cloudLogin(); });
+      $('btnCloudForget').addEventListener('click', function () {
+        try { localStorage.removeItem('ly-pass'); } catch (e) {}
+        cloudPass = '';
+        $('cPass').value = '';
+        $('cPass').focus();
+        msg($('cloudMsg'), '本机记住的密码清掉了，重新输。', 'ok');
+      });
+      bindEditor();
+      return;
+    }
+
     var vault = getVault(), legacy = null;
     try { legacy = localStorage.getItem(TK); } catch (e) {}
 
@@ -443,6 +494,10 @@
       location.reload();
     });
 
+    bindEditor();
+  });
+
+  function bindEditor() {
     $('btnPublish').addEventListener('click', publish);
     $('btnClear').addEventListener('click', function () {
       fillForm({ title: '', slug: '', date: today(), tags: [], summary: '', body: '' });
@@ -474,5 +529,5 @@
     var d = null;
     try { d = JSON.parse(localStorage.getItem(DK) || 'null'); } catch (e) {}
     if (d && d.title) fillForm(d); else $('fDate').value = today();
-  });
+  }
 })();
