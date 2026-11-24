@@ -11,9 +11,6 @@
 <url><loc>https://lyjsw.dpdns.org/downloads/ventura.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/downloads/monterey.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/downloads/big-sur.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-<url><loc>https://lyjsw.dpdns.org/downloads/catalina.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-<url><loc>https://lyjsw.dpdns.org/downloads/mojave.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
-<url><loc>https://lyjsw.dpdns.org/downloads/high-sierra.html</loc><priority>0.8</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/tools/opencore.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/tools/ocat.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
 <url><loc>https://lyjsw.dpdns.org/tools/propertree.html</loc><priority>0.6</priority><changefreq>monthly</changefreq></url>
