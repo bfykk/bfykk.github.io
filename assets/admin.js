@@ -28,7 +28,7 @@
 
   /* 云端网关地址：填了就走「只输密码」模式，token 存在 Cloudflare 上；
      留空则走本机模式（密码加密保存 token）。 */
-  var WORKER = '';
+  var WORKER = 'https://password.vj7x9gxqcj-e32.workers.dev';
   var cloudPass = '';
 
   function api(path, opt) {
@@ -425,6 +425,17 @@
 
   /* ---------- 绑定 ---------- */
   document.addEventListener('DOMContentLoaded', function () {
+    var vault = getVault(), legacy = null;
+    try { legacy = localStorage.getItem(TK); } catch (e) {}
+
+    function showLocal() {
+      $('cloudForm').hidden = true;
+      $('unlockForm').hidden = !vault;
+      $('setupForm').hidden = !!vault;
+      if (!vault && legacy) $('sToken').value = legacy;
+      setTimeout(function () { (vault ? $('fPass') : $('sPass1')).focus(); }, 60);
+    }
+
     if (WORKER) {
       $('cloudForm').hidden = false;
       $('unlockForm').hidden = true;
@@ -443,21 +454,10 @@
         $('cPass').focus();
         msg($('cloudMsg'), '本机记住的密码清掉了，重新输。', 'ok');
       });
-      bindEditor();
-      return;
-    }
-
-    var vault = getVault(), legacy = null;
-    try { legacy = localStorage.getItem(TK); } catch (e) {}
-
-    if (vault) {
-      $('unlockForm').hidden = false;
-      $('setupForm').hidden = true;
-      setTimeout(function () { $('fPass').focus(); }, 80);
+      var lm = $('btnLocalMode');
+      if (lm) lm.addEventListener('click', showLocal);
     } else {
-      $('unlockForm').hidden = true;
-      $('setupForm').hidden = false;
-      if (legacy) $('sToken').value = legacy;
+      showLocal();
     }
 
     function unlock() {
