@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>站点控制 · 冷月技术网</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/assets/avatar.png">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<style>
+.apanel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:22px 24px;margin-top:18px}
+.apanel[hidden]{display:none}
+.apanel h2{font-size:16px;margin:0 0 6px}
+.apanel .sub{font-size:13px;color:var(--text-sub);line-height:1.75;margin:0 0 14px}
+.fld{display:flex;flex-direction:column;gap:7px;margin-bottom:13px}
+.fld label{font-size:12.5px;color:var(--text-sub);font-weight:600}
+.inp{width:100%;box-sizing:border-box;background:var(--bg-soft);border:1px solid var(--border);border-radius:11px;
+  padding:11px 13px;color:var(--text);font-family:inherit;font-size:14px;outline:none}
+.inp:focus{border-color:var(--border-strong)}
+.abar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.navrow{display:grid;grid-template-columns:1fr 1.5fr auto auto auto;gap:8px;align-items:center;margin-bottom:10px}
+.navrow .inp{padding:8px 11px;font-size:13px}
+.iconbtn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--bg-soft);
+  color:var(--text-sub);cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center}
+.iconbtn:hover{color:var(--accent);border-color:var(--border-strong)}
+.xbtn{color:#fca5a5}
+.plist{display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow:auto;margin-top:4px}
+.prow{display:flex;align-items:center;gap:10px;padding:8px 11px;border:1px solid var(--border);border-radius:10px;
+  font-size:13px;font-family:"JetBrains Mono",Consolas,monospace;background:var(--bg-soft)}
+.prow .pp{flex:1;word-break:break-all;color:var(--text-sub)}
+.prow .pk{font-size:11.5px;color:var(--text-mute)}
+.msg{font-size:12.5px;margin-top:10px;color:var(--text-sub)}
+.msg.ok{color:#5eead4}
+.msg.bad{color:#fca5a5}
+.chk{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--text-sub)}
+.chk input{width:16px;height:16px;accent-color:var(--accent)}
+@media(max-width:760px){.navrow{grid-template-columns:1fr 1fr auto auto}}
+</style>
+<script>
+/* 主题：跟随系统 + 手动记忆 */
+(function(){
+  var root=document.documentElement;
+  var stored=null;
+  try{ stored=localStorage.getItem('ly-theme'); }catch(e){}
+  function sys(){ return window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'; }
+  root.setAttribute('data-theme', stored||sys());
+  document.addEventListener('DOMContentLoaded',function(){
+    var btn=document.getElementById('themeBtn');
+    if(!btn) return;
+    btn.addEventListener('click',function(){
+      var next=root.getAttribute('data-theme')==='dark'?'light':'dark';
+      root.setAttribute('data-theme',next);
+      try{ localStorage.setItem('ly-theme',next); }catch(e){}
+    });
+  });
+})();
+</script>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="/index.html"><i class="dot"></i><span>冷月技术网</span></a>
+    <nav class="menu"></nav>
+    <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
+      <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
+      <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main class="page">
+  <div class="wrap" style="max-width:1180px">
+    <div class="crumb"><a href="index.html">后台</a><span>/</span><span>站点控制</span></div>
+    <h1 style="font-size:34px">站点控制</h1>
+    <p style="font-size:14px;color:var(--text-sub);line-height:1.8;max-width:760px">
+      全站菜单一处改、页面随便加随便删。改完保存，一两分钟上线。
+    </p>
+
+    <div class="apanel" id="gate">
+      <h2>输入密码</h2>
+      <p class="sub">和写文章、文件编辑器同一个密码。</p>
+      <div class="fld"><label>密码</label><input class="inp" type="password" id="gPass" placeholder="输入密码"></div>
+      <div class="abar"><button class="btn btn-primary" id="btnGate">进入</button></div>
+      <div class="msg" id="gMsg"></div>
+    </div>
+
+    <!-- 1. 全站菜单 -->
+    <div class="apanel" id="pNav" hidden>
+      <h2>全站菜单（所有页面同步）</h2>
+      <p class="sub">这里改的每一项，全站 40 个页面的顶部导航一起变 —— 加一页、删一项、调顺序、改名字，都只改这一处。</p>
+      <div id="navRows"></div>
+      <div class="abar">
+        <button class="iconbtn" id="btnAddNav" title="加一项">＋</button>
+        <button class="btn btn-primary" id="btnSaveNav">保存菜单</button>
+        <button class="btn btn-ghost" id="btnReloadNav">重新读取</button>
+      </div>
+      <div class="msg" id="navMsg"></div>
+    </div>
+
+    <!-- 2. 新建页面 -->
+    <div class="apanel" id="pNew" hidden>
+      <h2>新建一个页面</h2>
+      <p class="sub">填好自动生成整页骨架（带导航、明暗主题、页脚），写进仓库、加进 sitemap。想要的话顺便挂到全站菜单上。</p>
+      <div class="fld"><label>页面标题</label><input class="inp" id="nTitle" placeholder="例如：售后与保修说明"></div>
+      <div class="fld"><label>路径</label><input class="inp" id="nPath" placeholder="例如 warranty/ 或 about.html"></div>
+      <div class="fld"><label>搜索描述（description）</label><input class="inp" id="nDesc" placeholder="一句话说明这个页面讲什么"></div>
+      <div class="fld"><label>正文（纯文本，空一行分段）</label><textarea class="inp" id="nBody" rows="8" placeholder="想写几段就写几段"></textarea></div>
+      <div class="abar">
+        <label class="chk"><input type="checkbox" id="nMenu"> 同时加到全站菜单</label>
+        <button class="btn btn-primary" id="btnCreate">生成并上线</button>
+      </div>
+      <div class="msg" id="newMsg"></div>
+    </div>
+
+    <!-- 3. 页面列表 -->
+    <div class="apanel" id="pList" hidden>
+      <h2>全站页面</h2>
+      <p class="sub">这里列的是真正在仓库里的 HTML 页面。点「看」直接打开线上页面；点「删」会连文件一起从线上移除（GitHub 有历史，删错能找回）。</p>
+      <div class="abar" style="margin-bottom:10px">
+        <button class="btn btn-ghost" id="btnReloadList">刷新列表</button>
+      </div>
+      <div class="plist" id="plist"></div>
+      <div class="msg" id="listMsg"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap">冷月技术网 · lyjsw.dpdns.org</div>
+</footer>
+
+<script src="/assets/nav.js"></script>
+<script src="/assets/site-admin.js"></script>
+</body>
+</html>

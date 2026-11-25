@@ -1,4 +1,4 @@
-﻿/* ===== 设计令牌 ===== */
+/* ===== 设计令牌 ===== */
 :root[data-theme="dark"]{
   --bg:#060a0f; --bg-elev:#0b1219; --bg-soft:#101923;
   --card:rgba(255,255,255,.045); --card-hover:rgba(255,255,255,.075);
@@ -55,6 +55,8 @@ img{display:block;max-width:100%}
 .menu{display:flex;gap:4px;margin-left:auto}
 .menu a{padding:8px 15px;border-radius:9px;font-size:14.5px;color:var(--text-sub);transition:.22s;font-weight:500}
 .menu a:hover{color:var(--text);background:var(--card-hover)}
+.menu a.on{color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.menu a.on:hover{color:var(--accent)}
 .theme-btn{width:40px;height:40px;border-radius:11px;border:1px solid var(--border);background:var(--card);
   display:grid;place-items:center;cursor:pointer;color:var(--text-sub);transition:.25s;margin-left:6px;flex:0 0 auto}
 .theme-btn:hover{color:var(--accent);border-color:var(--border-strong);transform:translateY(-1px)}

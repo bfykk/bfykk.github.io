@@ -60,11 +60,7 @@
 <header class="nav">
   <div class="nav-in">
     <a class="brand" href="../index.html"><i class="dot"></i><span>冷月技术网</span></a>
-    <nav class="menu">
-      <a href="../index.html">主页</a>
-      <a href="../blog/index.html">博客</a>
-      <a href="../contact/index.html">联系</a>
-    </nav>
+    <nav class="menu"></nav>
     <button class="theme-btn" id="themeBtn" aria-label="切换明暗主题" title="切换明暗主题">
       <svg id="iconSun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.4M12 19.2v2.4M4.4 12H2M22 12h-2.4M5.2 5.2l1.7 1.7M17.1 17.1l1.7 1.7M18.8 5.2l-1.7 1.7M6.9 17.1l-1.7 1.7"/></svg>
       <svg id="iconMoon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" style="display:none"><path d="M20.6 14.2A8.6 8.6 0 0 1 9.8 3.4a8.9 8.9 0 1 0 10.8 10.8z"/></svg>
@@ -93,7 +89,7 @@
       </div>
       <div class="who">整站域名：<b>lyjsw.dpdns.org</b> · 密码设一次记牢，以后每次输密码就能进</div>
       <div class="abar" style="margin-top:12px">
-        <a class="mini" href="files.html" style="text-decoration:none;padding:8px 14px">整站文件（改任何页面、样式、脚本）↗</a>
+        <a class="mini" href="site.html" style="text-decoration:none;padding:8px 14px;margin-right:8px">站点控制（全站菜单 / 加删页面）↗</a><a class="mini" href="files.html" style="text-decoration:none;padding:8px 14px">整站文件（改任何页面、样式、脚本）↗</a>
       </div>
     </section>
 
@@ -245,5 +241,6 @@
     try { localStorage.setItem('ly-theme', next); } catch(e){}
   });
 })();</script>
+  <script src="/assets/nav.js"></script>
 </body>
 </html>
