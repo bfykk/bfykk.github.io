@@ -343,6 +343,117 @@
     });
   }
 
+  /* ================= 下载链接 ================= */
+  var dlObj = null, dlText = '', dlSha = '';
+  var DL_FILE = 'downloads/index.html';
+  var PANS = ['天翼云盘', '百度网盘', '123云盘'];
+
+  function loadDl() {
+    msg($('dlMsg'), '读取下载配置…');
+    getFile(DL_FILE).then(function (j) {
+      dlText = unb64(j.content); dlSha = j.sha;
+      var s = dlText.indexOf('var OS_DL');
+      var e = dlText.indexOf('};', s);
+      if (s < 0 || e < 0) { msg($('dlMsg'), 'downloads/index.html 里没找到 OS_DL 数据块。', 'bad'); return; }
+      var body = dlText.slice(s + 'var OS_DL'.length, e + 1).replace(/^\s*=\s*/, '');
+      try { dlObj = JSON.parse(body); } catch (err) {
+        msg($('dlMsg'), 'OS_DL 解析失败：' + err.message, 'bad'); return;
+      }
+      renderDl(); dlText = dlText; 
+      msg($('dlMsg'), '读到 ' + Object.keys(dlObj).length + ' 个版本。');
+    }).catch(function (e) {
+      msg($('dlMsg'), '读取失败：' + e.message, 'bad');
+    });
+  }
+
+  function renderDl() {
+    var el = $('dlRows'), html = '';
+    Object.keys(dlObj).forEach(function (k) {
+      var d = dlObj[k];
+      var ms = (d.mirrors && d.mirrors.length) ? d.mirrors : (d.url ? [{ pan: '天翼云盘', url: d.url, code: d.code }] : []);
+      html += '<div class="dlver" data-key="' + esc(k) + '">' +
+        '<h3>' + esc(d.name || k) + '<span class="k">' + esc(k) + '</span></h3>';
+      ms.forEach(function (m, i) {
+        html += '<div class="dlrow" data-i="' + i + '">' +
+          '<input class="inp" data-f="pan" value="' + esc(m.pan || '') + '" placeholder="网盘名">' +
+          '<input class="inp" data-f="url" value="' + esc(m.url || '') + '" placeholder="分享链接">' +
+          '<input class="inp" data-f="code" value="' + esc(m.code || '') + '" placeholder="提取码">' +
+          '<button class="iconbtn xbtn" data-f="del" title="删掉这行">✕</button>' +
+          '</div>';
+      });
+      html += '<div class="abar" style="margin-top:6px"><button class="iconbtn" data-f="add" title="加一个网盘">＋</button></div>';
+      html += '</div>';
+    });
+    el.innerHTML = html || '<div class="msg">没读到数据。</div>';
+  }
+
+  function collectDl() {
+    var out = {};
+    $('dlRows').querySelectorAll('.dlver').forEach(function (v) {
+      var k = v.dataset.key;
+      var old = dlObj[k] || {};
+      var mirrors = [];
+      v.querySelectorAll('.dlrow').forEach(function (r) {
+        var pan = r.querySelector('[data-f="pan"]').value.trim();
+        var url = r.querySelector('[data-f="url"]').value.trim();
+        var code = r.querySelector('[data-f="code"]').value.trim();
+        if (!pan && !url) return;
+        mirrors.push({ pan: pan || '网盘', url: url, code: code });
+      });
+      var item = { name: old.name || k };
+      if (old.tip) item.tip = old.tip;
+      item.mirrors = mirrors;
+      out[k] = item;
+    });
+    return out;
+  }
+
+  function saveDl() {
+    if (!dlText) { msg($('dlMsg'), '还没读到配置，先点重新读取。', 'bad'); return; }
+    var obj = collectDl();
+    var s = dlText.indexOf('var OS_DL');
+    var e = dlText.indexOf('};', s);
+    var head = dlText.slice(0, s + 'var OS_DL'.length);
+    var tail = dlText.slice(e + 1);
+    var next = head + ' = ' + JSON.stringify(obj, null, 2) + ';' + tail;
+    $('btnSaveDl').disabled = true;
+    msg($('dlMsg'), '保存中…');
+    putFile(DL_FILE, next, dlSha, 'downloads: update cloud drive mirrors').then(function (j) {
+      dlText = next;
+      dlSha = j.content && j.content.sha ? j.content.sha : dlSha;
+      dlObj = obj;
+      $('btnSaveDl').disabled = false;
+      msg($('dlMsg'), '保存好了，一两分钟后前台就按新链接走。', 'ok');
+    }).catch(function (err) {
+      $('btnSaveDl').disabled = false;
+      msg($('dlMsg'), '保存失败：' + err.message + ' ' + String(err.body || '').slice(0, 100), 'bad');
+    });
+  }
+
+  function bindDl() {
+    $('dlRows').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-f]');
+      if (!b) return;
+      var act = b.dataset.f;
+      if (act === 'del') { dlObj = collectDl(); b.closest('.dlrow').remove(); return; }
+      if (act === 'add') {
+        dlObj = collectDl();
+        var v = b.closest('.dlver');
+        var row = document.createElement('div');
+        row.className = 'dlrow';
+        row.innerHTML = '<input class="inp" data-f="pan" placeholder="网盘名">' +
+          '<input class="inp" data-f="url" placeholder="分享链接">' +
+          '<input class="inp" data-f="code" placeholder="提取码">' +
+          '<button class="iconbtn xbtn" data-f="del" title="删掉这行">✕</button>';
+        var bar = v.querySelector('.abar');
+        v.insertBefore(row, bar || null);
+        return;
+      }
+    });
+    $('btnSaveDl').addEventListener('click', saveDl);
+    $('btnReloadDl').addEventListener('click', loadDl);
+  }
+
   /* ================= 登录 ================= */
   function gate() {
     var p = $('gPass').value.trim();
@@ -352,9 +463,9 @@
     api('/user').then(function () {
       try { sessionStorage.setItem('ly-pass', p); } catch (e) {}
       $('gate').hidden = true;
-      $('pNav').hidden = false; $('pNew').hidden = false; $('pList').hidden = false;
+      $('pNav').hidden = false; $('pDl').hidden = false; $('pNew').hidden = false; $('pList').hidden = false;
       msg($('gMsg'), '');
-      loadNav(); loadList();
+      loadNav(); loadDl(); loadList();
     }).catch(function (e) {
       pass = '';
       if (e.status === 401) msg($('gMsg'), '密码不对。', 'bad');
@@ -364,7 +475,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    bindNavEvents(); bindList();
+    bindNavEvents(); bindDl(); bindList();
     $('btnGate').addEventListener('click', gate);
     $('gPass').addEventListener('keydown', function (e) { if (e.key === 'Enter') gate(); });
     $('btnCreate').addEventListener('click', createPage);

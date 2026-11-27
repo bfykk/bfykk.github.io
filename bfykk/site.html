@@ -26,6 +26,11 @@
   color:var(--text-sub);cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center}
 .iconbtn:hover{color:var(--accent);border-color:var(--border-strong)}
 .xbtn{color:#fca5a5}
+.dlrow{display:grid;grid-template-columns:96px 1fr 92px auto auto;gap:8px;align-items:center;margin-bottom:7px}
+.dlrow .inp{padding:7px 10px;font-size:12.5px}
+.dlver{border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:var(--bg-soft)}
+.dlver h3{font-size:13.5px;margin:0 0 9px;color:var(--text)}
+.dlver .k{font-size:11.5px;color:var(--text-mute);font-family:"JetBrains Mono",Consolas,monospace;margin-left:8px}
 .plist{display:flex;flex-direction:column;gap:6px;max-height:46vh;overflow:auto;margin-top:4px}
 .prow{display:flex;align-items:center;gap:10px;padding:8px 11px;border:1px solid var(--border);border-radius:10px;
   font-size:13px;font-family:"JetBrains Mono",Consolas,monospace;background:var(--bg-soft)}
@@ -100,8 +105,19 @@
       <div class="msg" id="navMsg"></div>
     </div>
 
-    <!-- 2. 新建页面 -->
-    <div class="apanel" id="pNew" hidden>
+    <!-- 2. 下载链接 -->
+    <div class="apanel" id="pDl" hidden>
+      <h2>下载链接管理</h2>
+      <p class="sub">每个版本可以挂多个网盘（天翼 / 百度 / 123），填地址和提取码就行。空着的那一行，前台会显示「还没填」。</p>
+      <div id="dlRows"></div>
+      <div class="abar">
+        <button class="btn btn-primary" id="btnSaveDl">保存下载链接</button>
+        <button class="btn btn-ghost" id="btnReloadDl">重新读取</button>
+      </div>
+      <div class="msg" id="dlMsg"></div>
+    </div>
+
+    <!-- 3. 新建页面 -->    <div class="apanel" id="pNew" hidden>
       <h2>新建一个页面</h2>
       <p class="sub">填好自动生成整页骨架（带导航、明暗主题、页脚），写进仓库、加进 sitemap。想要的话顺便挂到全站菜单上。</p>
       <div class="fld"><label>页面标题</label><input class="inp" id="nTitle" placeholder="例如：售后与保修说明"></div>
@@ -115,7 +131,7 @@
       <div class="msg" id="newMsg"></div>
     </div>
 
-    <!-- 3. 页面列表 -->
+    <!-- 4. 页面列表 -->
     <div class="apanel" id="pList" hidden>
       <h2>全站页面</h2>
       <p class="sub">这里列的是真正在仓库里的 HTML 页面。点「看」直接打开线上页面；点「删」会连文件一起从线上移除（GitHub 有历史，删错能找回）。</p>

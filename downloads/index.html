@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>macOS 系统下载 Tahoe 26 至 Big Sur 11 - 冷月技术网</title>
-<meta name="description" content="macOS 各版本原版安装镜像，从最新 Tahoe 26.7.1 倒序到 Big Sur 11.7.11，天翼云盘直下取地址与提取码，含 Intel/AMD 平台的黑苹果版本选择建议。">
+<meta name="description" content="macOS 各版本原版安装镜像，从最新 Tahoe 26.7.1 倒序到 Big Sur 11.7.11，天翼云盘、百度网盘、123云盘多盘直下取地址与提取码，含 Intel/AMD 平台的黑苹果版本选择建议。">
 <link rel="canonical" href="https://lyjsw.dpdns.org/downloads/">
 <meta property="og:title" content="macOS 系统下载 Tahoe 26 至 Big Sur 11 - 冷月技术网">
-<meta property="og:description" content="macOS 各版本原版安装镜像，从最新 Tahoe 26.7.1 倒序到 Big Sur 11.7.11，天翼云盘直下取地址与提取码，含 Intel/AMD 平台的黑苹果版本选择建议。">
+<meta property="og:description" content="macOS 各版本原版安装镜像，从最新 Tahoe 26.7.1 倒序到 Big Sur 11.7.11，天翼云盘、百度网盘、123云盘多盘直下取地址与提取码，含 Intel/AMD 平台的黑苹果版本选择建议。">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://lyjsw.dpdns.org/downloads/">
 <link rel="icon" href="../assets/avatar.png">
@@ -31,7 +31,7 @@
   <div class="wrap">
     <div class="crumb"><a href="../index.html">主页</a><span>/</span><span>系统下载</span></div>
     <h1>系统下载</h1>
-    <div class="prose" style="margin-top:18px"><p>macOS 原版安装镜像，从最新稳定版倒序排列，覆盖 Big Sur 11 至今。点「立即下载」直接拿天翼云盘的地址和提取码，镜像取自 Apple 官方安装器，不含第三方修改。</p></div>
+    <div class="prose" style="margin-top:18px"><p>macOS 原版安装镜像，从最新稳定版倒序排列，覆盖 Big Sur 11 至今。点「立即下载」直接拿天翼云盘、百度网盘、123云盘的地址和提取码，镜像取自 Apple 官方安装器，不含第三方修改。</p></div>
 
     <div class="pintop">
       <div class="pt-l">
@@ -88,7 +88,7 @@
 
     <div class="posts" style="margin-top:26px">
       <div class="big">镜像取自 Apple 官方，原样不修改</div>
-      <div class="small">各版本均为 Apple 官方安装器的原版镜像，只做了打包，不含任何第三方改动。走天翼云盘下发，点「立即下载」会自动带出地址与提取码；建议先转存到自己网盘再下，链接失效可以直接找我换。装机前请先确认机型兼容性。</div>
+      <div class="small">各版本均为 Apple 官方安装器的原版镜像，只做了打包，不含任何第三方改动。走天翼云盘、百度网盘、123云盘多盘下发，点「立即下载」会自动带出各盘地址与提取码；建议先转存到自己网盘再下，链接失效可以直接找我换。装机前请先确认机型兼容性。</div>
       <div class="timeline-note">official installer · no modified image</div>
     </div>
     <div class="page-cta">
@@ -194,49 +194,143 @@
 .dlm-copy:hover:not([disabled]){border-color:var(--accent);color:var(--accent)}
 .dlm-copy[disabled]{opacity:.45;cursor:not-allowed}
 .dlm-note{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:12.5px;line-height:1.85;color:var(--text-mute)}
+.dlm-m{padding:12px 0;border-top:1px solid var(--border)}
+.dlm-m:first-child{border-top:0}
+.dlm-m.off{opacity:.6}
+.dlm-mh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.dlm-mh b{font-size:13.5px;color:var(--text)}
+.dlm-mh a{margin-left:auto;color:var(--accent);font-size:13px;text-decoration:none;word-break:break-all}
+.dlm-mh a:hover{text-decoration:underline}
+.dlm-mc{margin-top:7px;font-size:13px;color:var(--text-sub);display:flex;align-items:center;gap:9px}
+.dlm-pend{color:var(--text-mute);font-size:12.5px}
+.dlm-mh .dlm-copy,.dlm-mc .dlm-copy{margin-left:0}
 </style>
 <div class="dlm" id="dlm" hidden>
   <div class="dlm-bg" data-dlm-close></div>
   <div class="dlm-box" role="dialog" aria-modal="true" aria-labelledby="dlmTitle">
     <div class="dlm-head"><b id="dlmTitle">—</b><button class="dlm-x" id="dlmX" type="button" aria-label="关闭">&times;</button></div>
-    <div class="dlm-row"><span>下载地址</span><div class="dlm-val"><a id="dlmUrl" href="#" target="_blank" rel="noopener">—</a></div></div>
-    <div class="dlm-row"><span>提取码</span><div class="dlm-val"><b class="dlm-code" id="dlmCode">—</b><button class="dlm-copy" id="dlmCopy" type="button" disabled>复制提取码</button></div></div>
+    <div id="dlmList"></div>
     <div class="dlm-note" id="dlmNote"></div>
   </div>
 </div>
 <script>
-/* 每个系统的天翼云盘地址与提取码，填 url / code 即可生效 */
+/* 每个版本的下载镜像：天翼云盘 / 百度网盘 / 123云盘，填 url 与 code 即可生效 */
 var OS_DL = {
-  'tahoe':    { name: 'macOS Tahoe 26.7.1（25G241）',     url: 'https://cloud.189.cn/web/share?code=QNb6zmAVNzma', code: '2dft' },
-  'sequoia':  { name: 'macOS Sequoia 15.8.1（24H32）',     url: 'https://cloud.189.cn/web/share?code=na67nqZRBfQb', code: '0bse' },
-  'sonoma':   { name: 'macOS Sonoma 14.8.9（23J631）',     url: 'https://cloud.189.cn/web/share?code=BBzeemfm26Nb', code: '5vsw' },
-  'ventura':  { name: 'macOS Ventura 13.7.8（22H730）',    url: 'https://cloud.189.cn/web/share?code=j6ZvErEvQFza', code: '2yvw' },
-  'monterey': { name: 'macOS Monterey 12.7.6（21H1320）',  url: 'https://cloud.189.cn/web/share?code=7JVbia7rmEBb', code: '6ign' },
-  'big-sur':  { name: 'macOS Big Sur 11.7.11（20G1443）',  url: 'https://cloud.189.cn/web/share?code=FNn6vuE3Efme', code: 'm3uk' },
-  'installer':{ name: '安装工具包', url: 'https://cloud.189.cn/web/share?code=32ABvmzMvQzm', code: '4ufy',
-                tip: '装机用的小工具合集，先转存到自己网盘再下。解压后按里面说明用，别直接双击运行不明 exe。' }
+  "tahoe": {
+    "name": "macOS Tahoe 26.7.1（25G241）",
+    "mirrors": [
+      { "pan": "天翼云盘", "url": "https://cloud.189.cn/web/share?code=QNb6zmAVNzma", "code": "2dft" },
+      { "pan": "百度网盘", "url": "", "code": "" },
+      { "pan": "123云盘", "url": "", "code": "" }
+    ]
+  },
+  "sequoia": {
+    "name": "macOS Sequoia 15.8.1（24H32）",
+    "mirrors": [
+      { "pan": "天翼云盘", "url": "https://cloud.189.cn/web/share?code=na67nqZRBfQb", "code": "0bse" },
+      { "pan": "百度网盘", "url": "", "code": "" },
+      { "pan": "123云盘", "url": "", "code": "" }
+    ]
+  },
+  "sonoma": {
+    "name": "macOS Sonoma 14.8.9（23J631）",
+    "mirrors": [
+      { "pan": "天翼云盘", "url": "https://cloud.189.cn/web/share?code=BBzeemfm26Nb", "code": "5vsw" },
+      { "pan": "百度网盘", "url": "", "code": "" },
+      { "pan": "123云盘", "url": "", "code": "" }
+    ]
+  },
+  "ventura": {
+    "name": "macOS Ventura 13.7.8（22H730）",
+    "mirrors": [
+      { "pan": "天翼云盘", "url": "https://cloud.189.cn/web/share?code=j6ZvErEvQFza", "code": "2yvw" },
+      { "pan": "百度网盘", "url": "", "code": "" },
+      { "pan": "123云盘", "url": "", "code": "" }
+    ]
+  },
+  "monterey": {
+    "name": "macOS Monterey 12.7.6（21H1320）",
+    "mirrors": [
+      { "pan": "天翼云盘", "url": "https://cloud.189.cn/web/share?code=7JVbia7rmEBb", "code": "6ign" },
+      { "pan": "百度网盘", "url": "", "code": "" },
+      { "pan": "123云盘", "url": "", "code": "" }
+    ]
+  },
+  "big-sur": {
+    "name": "macOS Big Sur 11.7.11（20G1443）",
+    "mirrors": [
+      { "pan": "天翼云盘", "url": "https://cloud.189.cn/web/share?code=FNn6vuE3Efme", "code": "m3uk" },
+      { "pan": "百度网盘", "url": "", "code": "" },
+      { "pan": "123云盘", "url": "", "code": "" }
+    ]
+  },
+  "installer": {
+    "name": "安装工具包",
+    "tip": "装机用的小工具合集，先转存到自己网盘再下。解压后按里面说明用，别直接双击运行不明 exe。",
+    "mirrors": [
+      { "pan": "天翼云盘", "url": "https://cloud.189.cn/web/share?code=32ABvmzMvQzm", "code": "4ufy" },
+      { "pan": "百度网盘", "url": "", "code": "" },
+      { "pan": "123云盘", "url": "", "code": "" }
+    ]
+  }
 };
+
 (function(){
   var dlm = document.getElementById('dlm');
-  var ttl = document.getElementById('dlmTitle'), url = document.getElementById('dlmUrl');
-  var code = document.getElementById('dlmCode'), note = document.getElementById('dlmNote');
-  var cp = document.getElementById('dlmCopy'), x = document.getElementById('dlmX');
+  var ttl = document.getElementById('dlmTitle');
+  var list = document.getElementById('dlmList');
+  var note = document.getElementById('dlmNote');
+
+  function esc(s){
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function copyText(v, btn){
+    if(!v || !btn) return;
+    var done = function(){ var o = btn.textContent; btn.textContent = '已复制'; setTimeout(function(){ btn.textContent = o; }, 1500); };
+    var fallback = function(){
+      var ta = document.createElement('textarea');
+      ta.value = v; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try{ document.execCommand('copy'); done(); }catch(e){}
+      ta.parentNode.removeChild(ta);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(done, fallback); }
+    else fallback();
+  }
 
   function openDl(key){
     var d = OS_DL[key];
     if(!d) return;
     ttl.textContent = d.name;
-    if(d.url){
-      url.textContent = d.url; url.href = d.url; url.removeAttribute('data-pending');
-      note.textContent = d.tip || '天翼云盘原版安装器。先转存到自己网盘再下，直链有时效。';
-    } else {
-      url.textContent = '链接整理中'; url.href = '#'; url.setAttribute('data-pending', '1');
-      note.textContent = '这个版本的云盘地址还在整理，补齐之后按钮会直接跳出地址和提取码。急用可以先找我拿。';
-    }
-    code.textContent = d.code || '——';
-    cp.disabled = !d.code;
+    var ms = (d.mirrors && d.mirrors.length) ? d.mirrors : (d.url ? [{pan:'天翼云盘',url:d.url,code:d.code}] : []);
+    var html = '';
+    ms.forEach(function(m, i){
+      m = m || {};
+      var has = !!m.url;
+      html += '<div class="dlm-m' + (has ? '' : ' off') + '">' +
+        '<div class="dlm-mh"><b>' + esc(m.pan || '云盘') + '</b>' +
+        (has
+          ? '<a href="' + esc(m.url) + '" target="_blank" rel="noopener">打开链接 ↗</a>' +
+            '<button class="dlm-copy" type="button" data-cu="' + i + '">复制链接</button>'
+          : '<span class="dlm-pend">还没填，稍后补</span>') +
+        '</div>' +
+        (has && m.code
+          ? '<div class="dlm-mc">提取码 <b class="dlm-code">' + esc(m.code) + '</b>' +
+            '<button class="dlm-copy" type="button" data-cc="' + i + '">复制提取码</button></div>'
+          : '') +
+        '</div>';
+    });
+    list.innerHTML = html || '<div class="dlm-m off"><div class="dlm-mh"><b>还没填</b><span class="dlm-pend">这个版本暂时没有地址</span></div></div>';
+    note.textContent = d.tip || '同一个包放了多个网盘，哪个快用哪个。百度网盘没有提取码的直接打开就行。先转存到自己网盘再下，直链有时效。';
     dlm.hidden = false;
     document.body.style.overflow = 'hidden';
+    list.querySelectorAll('[data-cu]').forEach(function(b){
+      b.addEventListener('click', function(){ copyText(ms[+b.dataset.cu].url, b); });
+    });
+    list.querySelectorAll('[data-cc]').forEach(function(b){
+      b.addEventListener('click', function(){ copyText(ms[+b.dataset.cc].code, b); });
+    });
   }
   function close(){ dlm.hidden = true; document.body.style.overflow = ''; }
 
@@ -246,18 +340,12 @@ var OS_DL = {
     if(e.target.id === 'dlmX' || e.target.hasAttribute('data-dlm-close')){ close(); }
   });
   document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && !dlm.hidden) close(); });
-  cp.addEventListener('click', function(){
-    var v = code.textContent.trim(); if(!v || v === '——') return;
-    var ok = function(){ var o = cp.textContent; cp.textContent = '已复制'; setTimeout(function(){ cp.textContent = o; }, 1500); };
-    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(v).then(ok, function(){}); }
-  });
 
   try {
     var q = new URLSearchParams(location.search).get('dl');
     if(q && OS_DL[q]) setTimeout(function(){ openDl(q); }, 80);
   } catch(e){}
-})();
-</script>
+})();</script>
   <script src="/assets/nav.js"></script>
 </body>
 </html>
